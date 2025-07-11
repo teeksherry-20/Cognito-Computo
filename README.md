@@ -1,4 +1,5 @@
 # Cognito Computo
+https://cognitocomputo.netlify.app/
 Cogito Computo is a self-developed, interactive blog and portfolio site that merges philosophy, AI ethics, and technology through retro-themed visuals and critical essays. Designed for both engagement and academic depth, the site features:
 
 Dynamic article rendering via Google Sheets and SheetBest API, allowing easy content management while preserving rich formatting and line breaks.
