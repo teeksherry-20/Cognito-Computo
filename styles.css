@@ -29,7 +29,7 @@ body {
   margin: auto;
   padding: 20px;
   background-color: #FFECE7;
-  background-image: url(bg2.jpeg);
+  background-image: url(bg1.jpeg);
   background-size: 100%;
   background-position: top;
   background-attachment: scroll;
@@ -492,7 +492,7 @@ body.dark-mode {
   min-height: 100%;
   margin: auto;
   padding: 20px;
-  background-image: url(bg3.jpeg);
+  background-image: url(bg2.jpeg);
   background-size: 100%;
   background-position: top;
   background-attachment: scroll;
