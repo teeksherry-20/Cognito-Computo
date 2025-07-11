@@ -34,6 +34,12 @@ navLinks.forEach(link => {
   }
 });
 
+document.getElementById('home-link').addEventListener('click', (e) => {
+  e.preventDefault(); // prevent default anchor jump
+  window.location.reload(); // reload current page
+});
+
+
 async function loadArticles() {
   try {
     const response = await fetch(sheetUrl);
