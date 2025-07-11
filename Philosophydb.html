@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Philosophy | Cogito Computo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="scroll-background"></div>
+  <header>
+    <h1>Cogito Computo</h1>
+    <nav>
+      <a href="index.html">Home</a> |
+      <a href="AI and Techdb.html">AI and Tech</a> |
+      <a href="Tech for Teensdb.html">Tech for Teens</a> |
+      <a href="Aboutme.html">About Me</a>
+      <button id="darkModeToggle">🌙 Dark Mode</button>
+    </nav>
+  </header>
+
+  <section class="filters">
+    <div class="filters-container">
+      <div class="filters-left">
+        <label for="search-input">Search:</label>
+        <input type="text" id="search-input" placeholder="Search blog posts..." />
+      </div>
+      <div class="filters-right">
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select">
+          <option value="latest">Latest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <main>
+      <article class="article fade-in" id="Philosophy">
+      <div class="article-header">
+        <time datetime="2025-07-01" class="pub-date">July 1, 2025</time>
+      </div>
+      <h2>What is consciousness?</h2>
+      <p class="intro">
+        This article explores what consciousness means from a philosophical and scientific point of view...
+      </p>
+      <div class="article-footer">
+        <a href="What is Consciousness.html" class="read-more">Keep Reading &rarr;</a>
+      </div>
+    </article>
+
+    <div class="flex-row-container">
+    <article class="article fade-in" id="second-article" style="width: 20px;">
+      <div class="article-header">
+        <time datetime="2025-07-01" class="pub-date">July 1, 2025</time>
+      </div>
+      <h2>Descartes, Turing, Kant — teen-style breakdowns</h2>
+      <p class="intro">
+        This article explores what consciousness means from a philosophical and scientific point of view...
+      </p>
+      <div class="article-footer">
+        <a href="Descartes, Turing, Kant — teen-style breakdowns.html" class="read-more">Keep Reading &rarr;</a>
+      </div>
+    </article>
+
+    <div class="quiz-widget">
+      <h3 class="quiz-title">🧠 Which Philosopher Are You?</h3>
+      <div class="quiz-progress-bar-container">
+    <div id="quiz-bar" class="quiz-progress-bar"></div>
+  </div>
+  <div id="quiz-progress">Question 1 of 4</div>
+
+  <form id="quiz-form">
+    <div class="quiz-question show" id="q1">
+      <p>1. What drives your decisions most?</p>
+      <label><input type="radio" name="q1" value="kant" /> Duty and rules</label><br />
+      <label><input type="radio" name="q1" value="nietzsche" /> Personal freedom</label><br />
+      <label><input type="radio" name="q1" value="beauvoir" /> Social context and equality</label><br />
+      <label><input type="radio" name="q1" value="socrates" /> Asking questions and dialogue</label>
+    </div>
+    <div class="quiz-question" id="q2">
+      <p>2. How do you view truth?</p>
+      <label><input type="radio" name="q2" value="kant" /> Absolute and universal</label><br />
+      <label><input type="radio" name="q2" value="nietzsche" /> Relative and self-made</label><br />
+      <label><input type="radio" name="q2" value="beauvoir" /> Influenced by society</label><br />
+      <label><input type="radio" name="q2" value="socrates" /> Always questioned and probed</label>
+    </div>
+    <div class="quiz-question" id="q3">
+      <p>3. What motivates your actions?</p>
+      <label><input type="radio" name="q3" value="kant" /> Moral duty</label><br />
+      <label><input type="radio" name="q3" value="nietzsche" /> Creating your own values</label><br />
+      <label><input type="radio" name="q3" value="beauvoir" /> Fighting social injustice</label><br />
+      <label><input type="radio" name="q3" value="socrates" /> Seeking knowledge</label>
+    </div>
+    <div class="quiz-question" id="q4">
+      <p>4. How do you learn best?</p>
+      <label><input type="radio" name="q4" value="kant" /> Following structured teaching</label><br />
+      <label><input type="radio" name="q4" value="nietzsche" /> Through experience and challenge</label><br />
+      <label><input type="radio" name="q4" value="beauvoir" /> From social interaction</label><br />
+      <label><input type="radio" name="q4" value="socrates" /> By questioning assumptions</label>
+    </div>
+    <button type="button" id="next-btn">Next Question</button>
+  </form>
+
+  <div id="quiz-result"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const quizForm = document.getElementById("quiz-form");
+  const questions = document.querySelectorAll(".quiz-question");
+  const nextBtn = document.getElementById("next-btn");
+  const resultBox = document.getElementById("quiz-result");
+
+  let currentStep = 0;
+
+  function hideAllQuestions() {
+    questions.forEach(q => q.classList.remove('show'));
+  }
+
+  function showQuestion(step) {
+    hideAllQuestions();
+    if (questions[step]) {
+      questions[step].classList.add('show');
+      updateProgress(step);
+    }
+  }
+
+  function updateProgress(step) {
+    const progressText = document.getElementById("quiz-progress");
+    const progressBar = document.getElementById("quiz-bar");
+    progressText.textContent = `Question ${step + 1} of ${questions.length}`;
+    progressBar.style.width = `${((step + 1) / questions.length) * 100}%`;
+  }
+
+  function submitQuiz() {
+    resultBox.innerHTML = `<div id="loading-message">Calculating your philosopher...</div>`;
+    resultBox.scrollIntoView({ behavior: "smooth" });
+
+    setTimeout(() => {
+      let tally = { kant: 0, nietzsche: 0, beauvoir: 0, socrates: 0 };
+      ["q1", "q2", "q3", "q4"].forEach(q => {
+        const ans = quizForm.querySelector(`input[name="${q}"]:checked`);
+        if (ans) tally[ans.value]++;
+      });
+
+      let result = Object.entries(tally).sort((a, b) => b[1] - a[1])[0][0];
+      localStorage.setItem("philosopherResult", result);
+      showResult(result);
+    }, 1500);
+  }
+
+  function showResult(philosopher) {
+    const messages = {
+      kant: {
+        text: "🧠 You're like Immanuel Kant – you believe in reason, duty, and universal moral laws.",
+        image: "images/kant.png",
+      },
+      nietzsche: {
+        text: "🔥 You're like Nietzsche – bold, independent, and all about creating your own values.",
+        image: "images/nietzsche.png",
+      },
+      beauvoir: {
+        text: "🌸 You're like Simone de Beauvoir – deeply aware, expressive, and challenging societal norms.",
+        image: "images/beauvoir.png",
+      },
+      socrates: {
+        text: "💬 You're like Socrates – curious, reflective, and never stop asking why.",
+        image: "images/socrates.png",
+      },
+    };
+
+    const { text, image } = messages[philosopher];
+
+    quizForm.style.display = "none";
+
+    resultBox.innerHTML = `
+      <div class="quiz-result">
+        <img src="${image}" alt="${philosopher}" />
+        <p>${text}</p>
+        <button id="retake-btn">Retake Quiz</button>
+        <button id="share-btn">Share Your Result</button>
+      </div>
+    `;
+
+    document.getElementById("retake-btn").addEventListener("click", () => {
+      localStorage.removeItem("philosopherResult");
+      resultBox.innerHTML = "";
+      quizForm.reset();
+      quizForm.style.display = "block";
+      currentStep = 0;
+      showQuestion(currentStep);
+      nextBtn.textContent = "Next Question";
+    });
+
+    document.getElementById("share-btn").addEventListener("click", () => {
+      const shareText = `I got ${capitalize(philosopher)} in the “Which Philosopher Are You?” quiz on Cogito Computo! 🧠`;
+      if (navigator.share) {
+        navigator.share({
+          title: "Cogito Computo Quiz Result",
+          text: shareText,
+          url: window.location.href,
+        }).catch(() => alert("Sharing cancelled."));
+      } else {
+        navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
+        alert("Result copied to clipboard!");
+      }
+    });
+
+    resultBox.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function capitalize(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
+
+  // Initialization
+  const storedResult = localStorage.getItem("philosopherResult");
+  if (storedResult) {
+    quizForm.style.display = "none";
+    showResult(storedResult);
+  } else {
+    quizForm.style.display = "block";
+    showQuestion(currentStep);
+  }
+
+  nextBtn.addEventListener("click", () => {
+    const currentQuestion = questions[currentStep];
+    const selected = currentQuestion.querySelector("input:checked");
+
+    if (!selected) {
+      alert("Please select an answer.");
+      return;
+    }
+
+    currentStep++;
+    if (currentStep < questions.length) {
+      showQuestion(currentStep);
+      nextBtn.textContent = currentStep === questions.length - 1 ? "Submit" : "Next Question";
+    } else {
+      submitQuiz();
+    }
+  });
+});
+</script>
+</div>
+
+    <article class="article fade-in">
+      <div class="article-header">
+        <time datetime="2025-07-01" class="pub-date">July 1, 2025</time>
+      </div>
+      <h2>Can AI have intent or free will?</h2>
+      <p class="intro">
+        This article explores what consciousness means from a philosophical and scientific point of view...
+      </p>
+      <div class="article-footer">
+        <a href="Can AI have intent or free will.html" class="read-more">Keep Reading &rarr;</a>
+      </div>
+    </article>
+
+    <article class="article fade-in">
+      <div class="article-header">
+        <time datetime="2025-07-01" class="pub-date">July 1, 2025</time>
+      </div>
+      <h2>Can Machines Dream of Truth?</h2>
+      <p class="intro">
+        This article explores what consciousness means from a philosophical and scientific point of view...
+      </p>
+      <div class="article-footer">
+        <a href="Can Machines Dream of Truth.html" class="read-more">Keep Reading &rarr;</a>
+      </div>
+    </article>
+
+    <article class="article fade-in">
+      <div class="article-header">
+        <time datetime="2025-07-01" class="pub-date">July 1, 2025</time>
+      </div>
+      <h2>Is Logic Enough to Be Human?</h2>
+      <p class="intro">
+        This article explores what consciousness means from a philosophical and scientific point of view...
+      </p>
+      <div class="article-footer">
+        <a href="Is Logic Enough to Be Human.html" class="read-more">Keep Reading &rarr;</a>
+      </div>
+    </article>
+
+    <article class="article fade-in">
+      <div class="article-header">
+        <time datetime="2025-07-01" class="pub-date">July 1, 2025</time>
+      </div>
+      <h2>Am I My Thoughts or My Code?</h2>
+      <p class="intro">
+        This article explores what consciousness means from a philosophical and scientific point of view...
+      </p>
+      <div class="article-footer">
+        <a href="Am I My Thoughts or My Code.html" class="read-more">Keep Reading &rarr;</a>
+      </div>
+    </article>
+
+    <article class="article fade-in">
+      <div class="article-header">
+        <time datetime="2025-07-01" class="pub-date">July 1, 2025</time>
+      </div>
+      <h2>Nietzsche and Neural Nets</h2>
+      <p class="intro">
+        This article explores what consciousness means from a philosophical and scientific point of view...
+      </p>
+      <div class="article-footer">
+        <a href="Nietzsche and Neural Nets.html" class="read-more">Keep Reading &rarr;</a>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2025 Teekshna | Exploring tech, AI, and ethics</p>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

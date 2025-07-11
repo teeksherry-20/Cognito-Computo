@@ -1,0 +1,2 @@
+# Cognito Computo
+my blog 

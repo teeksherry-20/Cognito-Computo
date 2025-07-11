@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cogito Computo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <body id="home">
+  <div class="scroll-background"></div>
+  <header>
+    <h1>Cogito Computo</h1>
+    <section class="banner">
+      <h2>"I think, I compute"</h2>
+      <p class="intro-text">
+        This blog reflects a space where deep thinking (cogito) and computational reasoning (computo) come together harmoniously.
+      </p>
+    </section>
+    <nav>
+  <a href="#" class="genre-link" data-genre="Philosophy">Philosophy</a> |
+  <a href="#" class="genre-link" data-genre="AI and Tech">AI and Tech</a> |
+  <a href="#" class="genre-link" data-genre="Tech for Teens">Tech for Teens</a> |
+  <a href="Aboutme.html">About Me</a>
+  <button id="darkModeToggle" aria-label="Toggle Dark Mode">🌙 Dark Mode</button>
+</nav>
+  </header>
+
+  <section class="filters">
+    <div class="filters-container">
+      <div class="filters-left">
+        <label for="search-input">Search:</label>
+        <input type="text" id="search-input" placeholder="Search blog posts..." />
+      </div>
+
+      <div class="filters-right">
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select" aria-label="Sort articles">
+          <option value="latest">Latest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <p id="no-results" style="display:none;">No results found</p>
+    <div id="article-container"></div>
+  </main>
+
+  <div class="pagination">
+    <button id="prevPageButton" aria-label="Previous page">⏮</button>
+    <span id="pageIndicator" aria-live="polite"></span>
+    <button id="nextPageButton" aria-label="Next page">⏭</button>
+  </div>
+
+  <footer>
+    <p>© 2025 Teekshna | Exploring tech, AI, and ethics</p>
+  </footer>
+
+  <!-- Modal for full article content -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" style="display:none;">
+    <div class="modal-content">
+      <button id="modal-close" class="modal-close" aria-label="Close modal">&times;</button>
+      <h2 id="modal-title"></h2>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
