@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Blog Page Logic ---
   const sheetUrl = 'https://api.sheetbest.com/sheets/29c9e88c-a1a1-4fb7-bb75-12b8fb82264a';
+  let likesMap = {}; // { articleTitle: likeCount }
   const searchInput = document.getElementById('search-input');
   const sortSelect = document.getElementById('sort-select');
   const articleContainer = document.getElementById('article-container');
@@ -168,6 +169,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  async function fetchLikes() {
+  try {
+    const response = await fetch(sheetLikesUrl);
+    const data = await response.json();
+    likesMap = {};
+    data.forEach(obj => {
+      likesMap[obj['Title']] = parseInt(obj['Likes'] || '0');
+    });
+  } catch (err) {
+    console.error("Could not load likes:", err);
+  }
+}
+  async function updateLikeCount(title, newCount) {
+  // Find the article row by Title and update Likes
+  try {
+    // PATCH or PUT to SheetBest, targeting the Title
+    await fetch(sheetLikesUrl, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify([{ Title: title, Likes: newCount }])
+    });
+  } catch (err) {
+    console.error("Failed to update like count:", err);
+  }
+}
+
   async function loadArticles() {
     try {
       const response = await fetch(sheetUrl);
@@ -183,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         url: obj['Article URL'],
         genre: obj['Genre'] || ''
       }));
-
+      await fetchLikes();
       applyFilters();
     } catch (error) {
       console.error('Error loading articles:', error);
@@ -226,9 +253,27 @@ document.addEventListener('DOMContentLoaded', () => {
       <h2>${article.title}</h2>
       <p class="intro">${article.intro}</p>
       <div class="article-footer">
-        <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-      </div>
+  <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
+  <button class="like-btn">❤️ <span class="like-count">${function getLikes(title) {
+  return likesMap[title] || 0;
+}}</span></button>
+</div>
     `;
+    const likeBtn = articleEl.querySelector('.like-btn');
+likeBtn.addEventListener('click', async () => {
+  // Prevent multiple likes per article per user (optional)
+  const likedKey = 'liked_' + article.title;
+  if (localStorage.getItem(likedKey)) {
+    alert('You already liked this article!');
+    return;
+  }
+  let currentLikes = getLikes(article.title);
+  currentLikes += 1;
+  await updateLikeCount(article.title, currentLikes);
+  likesMap[article.title] = currentLikes;
+  articleEl.querySelector('.like-count').textContent = currentLikes;
+  localStorage.setItem(likedKey, '1');
+});
 
     articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
 
@@ -238,23 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return articleEl;
   }
-  function observeFadeInElements() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target); // Optional: animate only once
-      }
-    });
-  }, {
-    threshold: 0.1
-  });
-
-  document.querySelectorAll('.fade-in').forEach(el => {
-    observer.observe(el);
-  });
-}
-
 
   function renderArticles() {
     articleContainer.innerHTML = '';
@@ -329,8 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
       updatePollDisplay();
     }
   }
-  observeFadeInElements();
-
 
   // Modal functions
   function openModal(article) {
