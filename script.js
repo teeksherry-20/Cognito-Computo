@@ -226,10 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <h2>${article.title}</h2>
       <p class="intro">${article.intro}</p>
       <div class="article-footer">
-  <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-  <button class="like-btn">❤️ <span class="like-count">${getLikes(article.title)}</span></button>
-</div>
-
+        <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
+      </div>
     `;
 
     articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
@@ -240,6 +238,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return articleEl;
   }
+  function observeFadeInElements() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target); // Optional: animate only once
+      }
+    });
+  }, {
+    threshold: 0.1
+  });
+
+  document.querySelectorAll('.fade-in').forEach(el => {
+    observer.observe(el);
+  });
+}
+
 
   function renderArticles() {
     articleContainer.innerHTML = '';
@@ -314,6 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
       updatePollDisplay();
     }
   }
+  observeFadeInElements();
+
 
   // Modal functions
   function openModal(article) {
