@@ -240,40 +240,55 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function createArticleElement(article) {
-    const articleEl = document.createElement('article');
-    articleEl.className = 'article fade-in';
-    articleEl.tabIndex = 0;
-
-    articleEl.innerHTML = `
-      <div class="article-header">
-        <time datetime="${article.date.toISOString().split('T')[0]}" class="pub-date">
-          ${article.date.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })}
-        </time>
-      </div>
-      <h2>${article.title}</h2>
-      <p class="intro">${article.intro}</p>
-      <div class="article-footer">
-  <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-  <button class="like-btn">❤️ <span class="like-count">${function getLikes(title) {
-  return likesMap[title] || 0;
-}}</span></button>
-</div>
-    `;
-    const likeBtn = articleEl.querySelector('.like-btn');
-likeBtn.addEventListener('click', async () => {
-  // Prevent multiple likes per article per user (optional)
-  const likedKey = 'liked_' + article.title;
-  if (localStorage.getItem(likedKey)) {
-    alert('You already liked this article!');
-    return;
+  function getLikes(title) {
+    return likesMap[title] || 0;
   }
-  let currentLikes = getLikes(article.title);
-  currentLikes += 1;
-  await updateLikeCount(article.title, currentLikes);
-  likesMap[article.title] = currentLikes;
-  articleEl.querySelector('.like-count').textContent = currentLikes;
-  localStorage.setItem(likedKey, '1');
-});
+
+  const articleEl = document.createElement('article');
+  articleEl.className = 'article fade-in';
+  articleEl.tabIndex = 0;
+
+  articleEl.innerHTML = `
+    <div class="article-header">
+      <time datetime="${article.date.toISOString().split('T')[0]}" class="pub-date">
+        ${article.date.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })}
+      </time>
+    </div>
+    <h2>${article.title}</h2>
+    <p class="intro">${article.intro}</p>
+    <div class="article-footer">
+      <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
+      <button class="like-btn">❤️ <span class="like-count">${getLikes(article.title)}</span></button>
+    </div>
+  `;
+
+  const likeBtn = articleEl.querySelector('.like-btn');
+  likeBtn.addEventListener('click', async () => {
+    const likedKey = 'liked_' + article.title;
+    if (localStorage.getItem(likedKey)) {
+      alert('You already liked this article!');
+      return;
+    }
+
+    let currentLikes = getLikes(article.title);
+    currentLikes += 1;
+
+    await updateLikeCount(article.title, currentLikes);
+    likesMap[article.title] = currentLikes;
+
+    articleEl.querySelector('.like-count').textContent = currentLikes;
+    localStorage.setItem(likedKey, '1');
+  });
+
+  articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
+
+  requestAnimationFrame(() => {
+    articleEl.classList.add('visible');
+  });
+
+  return articleEl;
+}
+
 
     articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
 
