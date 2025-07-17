@@ -65,7 +65,7 @@ nav {
 nav a {
   font-family: 'Press Start 2P', monospace;
   text-decoration: none;
-  color: var(--link-color);
+  color: #925682;
   margin: 0 6px;
   font-weight: bold;
   transition: color 0.3s;
@@ -76,7 +76,7 @@ nav a:hover {
 }
 
 nav a.active {
-  color: #a27aff;
+  color: #925682;
   font-weight: bold;
   border-bottom: 2px solid #a27aff;
 }
