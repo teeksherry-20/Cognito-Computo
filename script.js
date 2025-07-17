@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const percentA = ((pollData.A / totalVotes) * 100).toFixed(1);
       const percentB = ((pollData.B / totalVotes) * 100).toFixed(1);
       const resultEl = document.getElementById('poll-result');
-      if (resultEl) resultEl.textContent = `Pull the Lever: ${percentA}% | Do Nothing: ${percentB}%`;
+      if (resultEl) resultEl.textContent = Pull the Lever: ${percentA}% | Do Nothing: ${percentB}%;
     }
   }
 
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadArticles() {
     try {
       const response = await fetch(sheetUrl);
-      if (!response.ok) throw new Error(`Failed to fetch articles: ${response.status}`);
+      if (!response.ok) throw new Error(Failed to fetch articles: ${response.status});
 
       const data = await response.json();
 
@@ -240,55 +240,40 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function createArticleElement(article) {
-  function getLikes(title) {
-    return likesMap[title] || 0;
+    const articleEl = document.createElement('article');
+    articleEl.className = 'article fade-in';
+    articleEl.tabIndex = 0;
+
+    articleEl.innerHTML = 
+      <div class="article-header">
+        <time datetime="${article.date.toISOString().split('T')[0]}" class="pub-date">
+          ${article.date.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })}
+        </time>
+      </div>
+      <h2>${article.title}</h2>
+      <p class="intro">${article.intro}</p>
+      <div class="article-footer">
+  <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
+  <button class="like-btn">❤️ <span class="like-count">${function getLikes(title) {
+  return likesMap[title] || 0;
+}}</span></button>
+</div>
+    ;
+    const likeBtn = articleEl.querySelector('.like-btn');
+likeBtn.addEventListener('click', async () => {
+  // Prevent multiple likes per article per user (optional)
+  const likedKey = 'liked_' + article.title;
+  if (localStorage.getItem(likedKey)) {
+    alert('You already liked this article!');
+    return;
   }
-
-  const articleEl = document.createElement('article');
-  articleEl.className = 'article fade-in';
-  articleEl.tabIndex = 0;
-
-  articleEl.innerHTML = `
-    <div class="article-header">
-      <time datetime="${article.date.toISOString().split('T')[0]}" class="pub-date">
-        ${article.date.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })}
-      </time>
-    </div>
-    <h2>${article.title}</h2>
-    <p class="intro">${article.intro}</p>
-    <div class="article-footer">
-      <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-      <button class="like-btn">❤️ <span class="like-count">${getLikes(article.title)}</span></button>
-    </div>
-  `;
-
-  const likeBtn = articleEl.querySelector('.like-btn');
-  likeBtn.addEventListener('click', async () => {
-    const likedKey = 'liked_' + article.title;
-    if (localStorage.getItem(likedKey)) {
-      alert('You already liked this article!');
-      return;
-    }
-
-    let currentLikes = getLikes(article.title);
-    currentLikes += 1;
-
-    await updateLikeCount(article.title, currentLikes);
-    likesMap[article.title] = currentLikes;
-
-    articleEl.querySelector('.like-count').textContent = currentLikes;
-    localStorage.setItem(likedKey, '1');
-  });
-
-  articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
-
-  requestAnimationFrame(() => {
-    articleEl.classList.add('visible');
-  });
-
-  return articleEl;
-}
-
+  let currentLikes = getLikes(article.title);
+  currentLikes += 1;
+  await updateLikeCount(article.title, currentLikes);
+  likesMap[article.title] = currentLikes;
+  articleEl.querySelector('.like-count').textContent = currentLikes;
+  localStorage.setItem(likedKey, '1');
+});
 
     articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
 
@@ -327,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Trolley widget
       const trolleyWidget = document.createElement('div');
       trolleyWidget.className = 'trolley-widget';
-      trolleyWidget.innerHTML = `
+      trolleyWidget.innerHTML = 
         <video autoplay loop muted playsinline>
           <source src="trolley.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -336,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button id="voteA">Pull the Lever</button>
         <button id="voteB">Do Nothing</button>
         <p id="poll-result" class="poll-result">No votes yet</p>
-      `;
+      ;
       widgetRow.appendChild(trolleyWidget);
 
       // Quiz widget
@@ -356,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    pageIndicator.textContent = `Page ${currentPage} of ${Math.ceil(filteredArticles.length / articlesPerPage)}`;
+    pageIndicator.textContent = Page ${currentPage} of ${Math.ceil(filteredArticles.length / articlesPerPage)};
     prevBtn.disabled = currentPage === 1;
     nextBtn.disabled = currentPage === Math.ceil(filteredArticles.length / articlesPerPage);
 
@@ -387,9 +372,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const imgMatch = line.match(/^\[img:(.+?)\]$/i);
       if (imgMatch) {
         const imgUrl = imgMatch[1];
-        html += `<img src="${imgUrl}" alt="Article Image" style="max-width: 100%; margin-bottom: 1rem;" />`;
+        html += <img src="${imgUrl}" alt="Article Image" style="max-width: 100%; margin-bottom: 1rem;" />;
       } else {
-        html += `<p>${line}</p>`;
+        html += <p>${line}</p>;
       }
     });
 
@@ -402,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function createQuizWidget() {
     const widget = document.createElement('div');
     widget.className = 'quiz-widget';
-    widget.innerHTML = `
+    widget.innerHTML = 
       <h3 class="quiz-title">🧠 Which Philosopher Are You?</h3>
       <div class="quiz-progress-bar-container">
         <div id="quiz-bar" class="quiz-progress-bar"></div>
@@ -440,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" id="next-btn">Next Question</button>
       </form>
       <div id="quiz-result"></div>
-    `;
+    ;
 
     setTimeout(() => {
       const quizForm = widget.querySelector("#quiz-form");
@@ -462,18 +447,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       function updateProgress(step) {
-        widget.querySelector("#quiz-progress").textContent = `Question ${step + 1} of ${questions.length}`;
-        widget.querySelector("#quiz-bar").style.width = `${((step + 1) / questions.length) * 100}%`;
+        widget.querySelector("#quiz-progress").textContent = Question ${step + 1} of ${questions.length};
+        widget.querySelector("#quiz-bar").style.width = ${((step + 1) / questions.length) * 100}%;
       }
 
       function submitQuiz() {
-        resultBox.innerHTML = `<div id="loading-message">Calculating your philosopher...</div>`;
+        resultBox.innerHTML = <div id="loading-message">Calculating your philosopher...</div>;
         resultBox.scrollIntoView({ behavior: "smooth" });
 
         setTimeout(() => {
           let tally = { kant: 0, nietzsche: 0, beauvoir: 0, socrates: 0 };
           ["q1", "q2", "q3", "q4"].forEach(q => {
-            const ans = quizForm.querySelector(`input[name="${q}"]:checked`);
+            const ans = quizForm.querySelector(input[name="${q}"]:checked);
             if (ans) tally[ans.value]++;
           });
 
@@ -506,14 +491,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const { text, image } = messages[philosopher];
 
         quizForm.style.display = "none";
-        resultBox.innerHTML = `
+        resultBox.innerHTML = 
           <div class="quiz-result">
             <img src="${image}" alt="${philosopher}" />
             <p>${text}</p>
             <button id="retake-btn">Retake Quiz</button>
             <button id="share-btn">Share Your Result</button>
           </div>
-        `;
+        ;
 
         widget.querySelector("#retake-btn").addEventListener("click", () => {
           localStorage.removeItem("philosopherResult");
@@ -526,12 +511,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         widget.querySelector("#share-btn").addEventListener("click", () => {
-          const shareText = `I got ${philosopher.charAt(0).toUpperCase() + philosopher.slice(1)} in the “Which Philosopher Are You?” quiz on Cogito Computo! 🧠`;
+          const shareText = I got ${philosopher.charAt(0).toUpperCase() + philosopher.slice(1)} in the “Which Philosopher Are You?” quiz on Cogito Computo! 🧠;
           if (navigator.share) {
             navigator.share({ title: "Cogito Computo Quiz Result", text: shareText, url: window.location.href })
               .catch(() => alert("Sharing cancelled."));
           } else {
-            navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
+            navigator.clipboard.writeText(${shareText} ${window.location.href});
             alert("Result copied to clipboard!");
           }
         });
