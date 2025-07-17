@@ -226,8 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
       <h2>${article.title}</h2>
       <p class="intro">${article.intro}</p>
       <div class="article-footer">
-        <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-      </div>
+  <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
+  <button class="like-btn">❤️ <span class="like-count">${getLikes(article.title)}</span></button>
+</div>
+
     `;
 
     articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
