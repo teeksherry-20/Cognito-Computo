@@ -20,6 +20,70 @@
   --box-shadow-strong: rgba(0, 0, 0, 0.08);
 }
 
+/* === Like Section Under "Keep Reading" === */
+.like-section-card {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* === Like Button === */
+.like-button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid hotpink;
+  background-color: black;
+  color: hotpink;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.like-button:hover:not(:disabled) {
+  background-color: hotpink;
+  color: black;
+}
+
+.like-button:disabled {
+  opacity: 0.6;
+  background-color: #333;
+  cursor: not-allowed;
+}
+
+/* === Like Count Text === */
+.like-count {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  color: hotpink;
+}
+
+/* === Floating Heart Animation === */
+.heart-float {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: floatHeart 1s ease-out forwards;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+@keyframes floatHeart {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-30px);
+  }
+}
+
+
 /* ==== BASE STYLES ==== */
 body {
   font-family: 'Courier Prime', monospace;
@@ -65,7 +129,7 @@ nav {
 nav a {
   font-family: 'Press Start 2P', monospace;
   text-decoration: none;
-  color: #925682;
+  color: var(--link-color);
   margin: 0 6px;
   font-weight: bold;
   transition: color 0.3s;
@@ -76,7 +140,7 @@ nav a:hover {
 }
 
 nav a.active {
-  color: #925682;
+  color: #a27aff;
   font-weight: bold;
   border-bottom: 2px solid #a27aff;
 }
