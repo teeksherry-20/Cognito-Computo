@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE = 'https://sheet.best/api/sheets/1VntHbIk2ipufHp8ELBKnQCXnQDGhpBWfm3noiIZeZM8';
+  const API_BASE = 'https://api.sheetbest.com/sheets/29c9e88c-a1a1-4fb7-bb75-12b8fb82264a';
   const container = document.getElementById('article-container');
 
   fetch(API_BASE)
@@ -42,20 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const newLikes = currentLikes + 1;
         countSpan.textContent = newLikes;
 
-        // Animate floating heart
+        // Animate heart
         const heart = document.createElement('div');
         heart.textContent = '❤️';
         heart.classList.add('heart-float');
         button.appendChild(heart);
+        setTimeout(() => heart.remove(), 1000);
 
-        setTimeout(() => {
-          heart.remove();
-        }, 1000);
-
-        // Disable the button after liking (optional)
         button.disabled = true;
 
-        // Update like count in spreadsheet
+        // PATCH request to update like
         fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -64,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-
 const toggleButton = document.getElementById('darkModeToggle');
   const storedDarkMode = localStorage.getItem('darkMode');
   if (storedDarkMode === 'enabled') {
