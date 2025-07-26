@@ -305,7 +305,7 @@ const toggleButton = document.getElementById('darkModeToggle');
     <div class="article-footer">
       <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
       <div class="like-section" data-title="${article.Title}">
-  <button class="like-button" aria-label="Like article ${article.Title}">❤️❤️</button>
+  <button class="like-button" aria-label="Like article ${article.Title}">❤️</button>
   <span class="like-count">${article.Like || 0}</span>
   <button class="share-button" aria-label="Share article ${article.Title}">Share ⌲</button>
 </div>
@@ -315,7 +315,7 @@ const toggleButton = document.getElementById('darkModeToggle');
 const liked = localStorage.getItem(likedKey);
 if (liked) {
   articleEl.querySelector('.like-button').disabled = true;
-  articleEl.querySelector('.like-button').textContent = '❤️❤️ Liked';
+  articleEl.querySelector('.like-button').textContent = '❤️ Liked';
 }
 
 
