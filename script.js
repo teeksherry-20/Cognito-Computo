@@ -652,5 +652,5 @@ if (liked) {
   }
 
   // Initial load
-  loadArticles();
+  
 });
