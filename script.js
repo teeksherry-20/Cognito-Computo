@@ -20,10 +20,20 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="like-section" data-title="${article.Title}">
             <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
             <span class="like-count">${article.Like || 0}</span>
+            <button class="share-button" aria-label="Share article ${article.Title}">🔗 Share</button>
           </div>
         `;
 
         container.appendChild(div);
+      });
+
+      // After articles are added, disable like buttons already liked by user
+      document.querySelectorAll('.like-section').forEach(section => {
+        const title = section.getAttribute('data-title');
+        if (localStorage.getItem(`liked_${title}`)) {
+          const btn = section.querySelector('.like-button');
+          if (btn) btn.disabled = true;
+        }
       });
     })
     .catch(err => {
@@ -31,16 +41,28 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error(err);
     });
 
-  // Event delegation for like buttons
+  // Event delegation for like and share buttons
   container.addEventListener('click', e => {
+    // Like button clicked
     if (e.target && e.target.classList.contains('like-button')) {
       const btn = e.target;
       const likeSection = btn.closest('.like-section');
       const countSpan = likeSection.querySelector('.like-count');
+      const title = likeSection.getAttribute('data-title');
+
+      // Prevent multiple likes
+      if (localStorage.getItem(`liked_${title}`)) {
+        alert('You already liked this article!');
+        return;
+      }
+
       let likes = parseInt(countSpan.textContent) || 0;
       likes++;
       countSpan.textContent = likes;
       btn.disabled = true;
+
+      // Save like in localStorage to persist across reloads
+      localStorage.setItem(`liked_${title}`, 'true');
 
       // Floating heart animation
       const heart = document.createElement('div');
@@ -49,13 +71,30 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.appendChild(heart);
       setTimeout(() => heart.remove(), 1000);
 
-      const title = likeSection.getAttribute('data-title');
-
+      // Update backend
       fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ Like: likes }),
       }).catch(err => console.error('Error updating like:', err));
+    }
+
+    // Share button clicked
+    if (e.target && e.target.classList.contains('share-button')) {
+      const likeSection = e.target.closest('.like-section');
+      const title = likeSection.getAttribute('data-title');
+      const shareText = `Check out this article "${title}" on Cogito Computo! 🧠`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: 'Cogito Computo Article',
+          text: shareText,
+          url: window.location.href,
+        }).catch(() => alert('Sharing cancelled.'));
+      } else {
+        navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
+        alert('Article link copied to clipboard!');
+      }
     }
   });
 const toggleButton = document.getElementById('darkModeToggle');
