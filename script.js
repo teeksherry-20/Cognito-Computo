@@ -227,33 +227,66 @@ const toggleButton = document.getElementById('darkModeToggle');
   });
 
   async function loadArticles() {
-      try {
-        const res = await fetch(API_BASE);
-        if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
-        const data = await res.json();
+    try {
+      const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+      const data = await res.json();
+      console.log('Articles loaded:', data);
 
-        container.innerHTML = '';
-        data.forEach(article => {
-          const div = document.createElement('div');
-          div.className = 'article fade-in';
+      container.innerHTML = '';
+      data.forEach(article => {
+        const div = document.createElement('div');
+        div.className = 'article fade-in';
 
-          div.innerHTML = `
-            <h2>${article.Title}</h2>
-            <p>${article.Introduction ? article.Introduction.replace(/\n/g, '<br>') : ''}</p>
-            <a href="${article['Article URL'] || '#'}" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
-            <div class="like-section" data-title="${article.Title}">
-              <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
-              <span class="like-count">${article.Like || 0}</span>
-            </div>
-          `;
+        div.innerHTML = `
+          <h2>${article.Title}</h2>
+          <p>${article.Introduction ? article.Introduction.replace(/\n/g, '<br>') : ''}</p>
+          <a href="${article['Article URL'] || '#'}" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
+          <div class="like-section" data-title="${article.Title}">
+            <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
+            <span class="like-count">${article.Like || 0}</span>
+          </div>
+        `;
+        container.appendChild(div);
+      });
 
-          container.appendChild(div);
-        });
-      } catch (err) {
-        container.innerHTML = `<p style="color:red">Failed to load articles: ${err.message}</p>`;
-        console.error(err);
-      }
+      attachLikeEvents(); // make sure this is called after render
+    } catch (err) {
+      console.error('Failed to load articles:', err);
+      container.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
     }
+  }
+
+  function attachLikeEvents() {
+    document.querySelectorAll('.like-button').forEach(button => {
+      button.addEventListener('click', async () => {
+        const likeSection = button.closest('.like-section');
+        const title = likeSection.getAttribute('data-title');
+        const countSpan = likeSection.querySelector('.like-count');
+
+        // Heart float animation
+        const heart = document.createElement('div');
+        heart.textContent = '❤️';
+        heart.className = 'heart-float';
+        button.appendChild(heart);
+        setTimeout(() => heart.remove(), 1000);
+
+        // Optimistic update
+        let count = parseInt(countSpan.textContent || '0');
+        countSpan.textContent = count + 1;
+
+        try {
+          await fetch(API_BASE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Title: title, Like: count + 1 })
+          });
+        } catch (err) {
+          console.error('Failed to update like count:', err);
+        }
+      });
+    });
+  }
 
     container.addEventListener('click', async e => {
   if (e.target.classList.contains('like-button')) {
