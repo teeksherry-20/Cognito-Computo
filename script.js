@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="like-section" data-title="${article.Title}">
             <button class="like-button" aria-label="Like article ${article.Title}">❤️</button>
             <span class="like-count">${article.Like || 0}</span>
-            <button class="share-button" aria-label="Share article ${article.Title}"> Share</button>
+            <button class="share-button" aria-label="Share article ${article.Title}">Share ⌯⌲</button>
           </div>
         `;
 
@@ -341,7 +341,7 @@ const toggleButton = document.getElementById('darkModeToggle');
       <div class="like-section" data-title="${article.Title}">
   <button class="like-button" aria-label="Like article ${article.Title}">❤️</button>
   <span class="like-count">${article.Like || 0}</span>
-  <button class="share-button" aria-label="Share article ${article.Title}">Share</button>
+  <button class="share-button" aria-label="Share article ${article.Title}">Share ⌯⌲</button>
 </div>
     </div>
   `;
