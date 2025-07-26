@@ -291,68 +291,63 @@ const toggleButton = document.getElementById('darkModeToggle');
   articleEl.className = 'article fade-in';
   articleEl.tabIndex = 0;
 
-  // Use article.Like or 0 for initial like count
   const likes = article.Like || 0;
 
   articleEl.innerHTML = `
-    <div class="article-header">
-      <time datetime="${article.date.toISOString().split('T')[0]}" class="pub-date">
-        ${article.date.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })}
-      </time>
-    </div>
     <h2>${article.title}</h2>
-    <p class="intro">${article.intro}</p>
-    <div class="article-footer">
-      <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-      <div class="like-section" data-title="${article.Title}">
-  <button class="like-button" aria-label="Like article ${article.Title}">❤️❤️</button>
-  <span class="like-count">${article.Like || 0}</span>
-  <button class="share-button" aria-label="Share article ${article.Title}">Share ⌲</button>
-</div>
+    <p>${article.intro}</p>
+    <div class="like-section" data-title="${article.title}">
+      <button class="like-button" aria-label="Like article ${article.title}">❤️</button>
+      <span class="like-count">${likes}</span>
+      <button class="share-button" aria-label="Share article ${article.title}">Share ⌲</button>
     </div>
   `;
-    const likedKey = `liked-${article.Title}`;
-const liked = localStorage.getItem(likedKey);
-if (liked) {
-  articleEl.querySelector('.like-button').disabled = true;
-  articleEl.querySelector('.like-button').textContent = '❤️❤️ Liked';
-}
 
-
-  articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
-
-  // Attach like button event listener here:
   const likeBtn = articleEl.querySelector('.like-button');
   const likeCountSpan = articleEl.querySelector('.like-count');
 
+  // Disable if already liked
+  const likedKey = `liked-${article.title}`;
+  const liked = localStorage.getItem(likedKey);
+  if (liked) {
+    likeBtn.disabled = true;
+    likeBtn.textContent = '❤️ Liked';
+  }
+
   likeBtn.addEventListener('click', () => {
+    if (likeBtn.disabled) return; // Prevent double like
+
     let likes = parseInt(likeCountSpan.textContent) || 0;
     likes++;
     likeCountSpan.textContent = likes;
 
     // Floating heart animation
     const heart = document.createElement('div');
-    heart.textContent = '❤️❤️';
+    heart.textContent = '❤️';
     heart.className = 'heart-float';
     likeBtn.appendChild(heart);
     setTimeout(() => heart.remove(), 1000);
 
     const title = article.title;
-    
 
     fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ Like: likes }),
-    }).catch(err => console.error('Error updating like:', err));
-  });
-
-  requestAnimationFrame(() => {
-    articleEl.classList.add('visible');
+    }).then(() => {
+      // Mark as liked in localStorage and disable button
+      localStorage.setItem(likedKey, 'true');
+      likeBtn.disabled = true;
+      likeBtn.textContent = '❤️ Liked';
+    }).catch(err => {
+      console.error('Error updating like:', err);
+      // Optionally revert UI changes here on failure
+    });
   });
 
   return articleEl;
 }
+
 
   function renderArticles() {
     articleContainer.innerHTML = '';
