@@ -271,31 +271,63 @@ const toggleButton = document.getElementById('darkModeToggle');
   }
 
   function createArticleElement(article) {
-    const articleEl = document.createElement('article');
-    articleEl.className = 'article fade-in';
-    articleEl.tabIndex = 0;
+  const articleEl = document.createElement('article');
+  articleEl.className = 'article fade-in';
+  articleEl.tabIndex = 0;
 
-    articleEl.innerHTML = `
-      <div class="article-header">
-        <time datetime="${article.date.toISOString().split('T')[0]}" class="pub-date">
-          ${article.date.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })}
-        </time>
+  // Use article.Like or 0 for initial like count
+  const likes = article.Like || 0;
+
+  articleEl.innerHTML = `
+    <div class="article-header">
+      <time datetime="${article.date.toISOString().split('T')[0]}" class="pub-date">
+        ${article.date.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })}
+      </time>
+    </div>
+    <h2>${article.title}</h2>
+    <p class="intro">${article.intro}</p>
+    <div class="article-footer">
+      <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
+      <div class="like-section" data-title="${article.title}">
+        <button class="like-button" aria-label="Like article ${article.title}">❤️ Like</button>
+        <span class="like-count">${likes}</span>
       </div>
-      <h2>${article.title}</h2>
-      <p class="intro">${article.intro}</p>
-      <div class="article-footer">
-        <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-      </div>
-    `;
+    </div>
+  `;
 
-    articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
+  articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
 
-    requestAnimationFrame(() => {
-      articleEl.classList.add('visible');
-    });
+  // Attach like button event listener here:
+  const likeBtn = articleEl.querySelector('.like-button');
+  const likeCountSpan = articleEl.querySelector('.like-count');
 
-    return articleEl;
-  }
+  likeBtn.addEventListener('click', () => {
+    let likes = parseInt(likeCountSpan.textContent) || 0;
+    likes++;
+    likeCountSpan.textContent = likes;
+
+    // Floating heart animation
+    const heart = document.createElement('div');
+    heart.textContent = '❤️';
+    heart.className = 'heart-float';
+    likeBtn.appendChild(heart);
+    setTimeout(() => heart.remove(), 1000);
+
+    const title = article.title;
+
+    fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ Like: likes }),
+    }).catch(err => console.error('Error updating like:', err));
+  });
+
+  requestAnimationFrame(() => {
+    articleEl.classList.add('visible');
+  });
+
+  return articleEl;
+}
 
   function renderArticles() {
     articleContainer.innerHTML = '';
