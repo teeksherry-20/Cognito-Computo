@@ -29,60 +29,62 @@
 }
 
 /* === Like Button === */
+.like-section {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .like-button {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid hotpink;
-  background-color: black;
-  color: hotpink;
   cursor: pointer;
+  font-size: 1rem;
+  background: none;
+  border: 1px solid #ff69b4;
+  padding: 4px 10px;
+  border-radius: 8px;
+  color: #ff69b4;
+  transition: background-color 0.2s, color 0.2s;
   position: relative;
-  overflow: hidden;
-  transition: all 0.2s ease;
+  overflow: visible;
 }
 
 .like-button:hover:not(:disabled) {
-  background-color: hotpink;
-  color: black;
+  background-color: #ff69b4;
+  color: white;
 }
 
 .like-button:disabled {
+  cursor: default;
   opacity: 0.6;
-  background-color: #333;
-  cursor: not-allowed;
 }
 
-/* === Like Count Text === */
 .like-count {
-  font-family: 'Courier Prime', monospace;
-  font-size: 12px;
-  color: hotpink;
+  font-family: monospace;
+  font-size: 1rem;
 }
 
-/* === Floating Heart Animation === */
 .heart-float {
   position: absolute;
-  top: -10px;
+  font-size: 1.2rem;
+  animation: float-up 1s ease-out forwards;
+  pointer-events: none;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
-  animation: floatHeart 1s ease-out forwards;
-  font-size: 16px;
-  pointer-events: none;
+  user-select: none;
 }
 
-@keyframes floatHeart {
-  0% {
+@keyframes float-up {
+  from {
+    transform: translate(-50%, 0);
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
   }
-  100% {
+  to {
+    transform: translate(-50%, -30px);
     opacity: 0;
-    transform: translateX(-50%) translateY(-30px);
   }
 }
-
 
 /* ==== BASE STYLES ==== */
 body {
