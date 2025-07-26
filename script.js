@@ -256,42 +256,43 @@ const toggleButton = document.getElementById('darkModeToggle');
     }
 
     container.addEventListener('click', async e => {
-      if (e.target.classList.contains('like-button')) {
-        const btn = e.target;
-        const likeSection = btn.closest('.like-section');
-        const countSpan = likeSection.querySelector('.like-count');
-        const title = likeSection.getAttribute('data-title');
+  if (e.target.classList.contains('like-button')) {
+    const btn = e.target;
+    const likeSection = btn.closest('.like-section');
+    const countSpan = likeSection.querySelector('.like-count');
+    const title = likeSection.getAttribute('data-title');
 
-        try {
-          // Fetch current count from server
-          const res = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`);
-          if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
-          const [article] = await res.json();
+    try {
+      // Fetch current count from server
+      const res = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`);
+      if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+      const [article] = await res.json();
 
-          let currentLikes = parseInt(article.Like || 0);
-          currentLikes++;
-          countSpan.textContent = currentLikes;
+      let currentLikes = parseInt(article.Like || 0);
+      currentLikes++;
+      countSpan.textContent = currentLikes;
 
-          // Floating heart animation
-          const heart = document.createElement('div');
-          heart.textContent = '❤️';
-          heart.className = 'heart-float';
-          btn.appendChild(heart);
-          setTimeout(() => heart.remove(), 1000);
+      // Floating heart animation
+      const heart = document.createElement('div');
+      heart.textContent = '❤️';
+      heart.className = 'heart-float';
+      btn.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
 
-          // Patch new count
-          const patchRes = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Like: currentLikes }),
-          });
-          if (!patchRes.ok) throw new Error(`Patch failed: ${patchRes.status}`);
-          console.log('Like count updated.');
-        } catch (err) {
-          console.error('Error updating like:', err);
-        }
-      }
-    });
+      // Patch new count
+      const patchRes = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Like: currentLikes }),
+      });
+      if (!patchRes.ok) throw new Error(`Patch failed: ${patchRes.status}`);
+      console.log('Like count updated.');
+    } catch (err) {
+      console.error('Error updating like:', err);
+    }
+  }
+});
+
   function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const sortBy = sortSelect.value;
