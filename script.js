@@ -39,32 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Event delegation for like and share buttons
   container.addEventListener('click', e => {
-    // Like button clicked
-    if (e.target && e.target.classList.contains('like-button')) {
-      const btn = e.target;
-      const likeSection = btn.closest('.like-section');
-      const countSpan = likeSection.querySelector('.like-count');
-      const title = likeSection.getAttribute('data-title');
-
-      let likes = parseInt(countSpan.textContent) || 0;
-      likes++;
-      countSpan.textContent = likes;
-
-      // Floating heart animation
-      const heart = document.createElement('div');
-      heart.textContent = '❤️';
-      heart.className = 'heart-float';
-      btn.appendChild(heart);
-      setTimeout(() => heart.remove(), 1000);
-
-      // Update backend
-      fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Like: likes }),
-      }).catch(err => console.error('Error updating like:', err));
-    }
-
     // Share button clicked
     if (e.target && e.target.classList.contains('share-button')) {
       const likeSection = e.target.closest('.like-section');
@@ -340,8 +314,8 @@ const toggleButton = document.getElementById('darkModeToggle');
     const likedKey = `liked-${article.Title}`;
 const liked = localStorage.getItem(likedKey);
 if (liked) {
-  div.querySelector('.like-button').disabled = true;
-  div.querySelector('.like-button').textContent = '❤️❤️ Liked';
+  articleEl.querySelector('.like-button').disabled = true;
+  articleEl.querySelector('.like-button').textContent = '❤️❤️ Liked';
 }
 
 
