@@ -14,14 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
         div.style.position = 'relative';
 
         div.innerHTML = `
-          <h2>${article.Title}</h2>
-          <p>${article.Introduction.replace(/\n/g, '<br>')}</p>
-          <a href="${article['Article URL']}" class="read-more" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
-          <div class="like-section" data-title="${article.Title}">
-            <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
-            <span class="like-count">${article.Like || 0}</span>
-          </div>
-        `;
+  <h2>${article.Title}</h2>
+  <p>${article.Introduction ? article.Introduction.replace(/\n/g, '<br>') : ''}</p>
+  <a href="${article['Article URL'] || '#'}" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
+  <div class="like-section" data-title="${article.Title}">
+    <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
+    <span class="like-count">${article.Like || 0}</span>
+  </div>
+`;
 
         container.appendChild(div);
       });
