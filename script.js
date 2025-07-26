@@ -96,6 +96,23 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Article link copied to clipboard!');
       }
     }
+    if (e.target.classList.contains('share-button')) {
+  const section = e.target.closest('.like-section');
+  const title = section.getAttribute('data-title');
+  const articleLink = section.parentElement.querySelector('a').href;
+
+  if (navigator.share) {
+    navigator.share({
+      title: title,
+      url: articleLink
+    }).catch(console.error);
+  } else {
+    navigator.clipboard.writeText(articleLink).then(() => {
+      alert('Link copied to clipboard!');
+    });
+  }
+}
+
   });
 const toggleButton = document.getElementById('darkModeToggle');
   const storedDarkMode = localStorage.getItem('darkMode');
@@ -327,12 +344,20 @@ const toggleButton = document.getElementById('darkModeToggle');
     <p class="intro">${article.intro}</p>
     <div class="article-footer">
       <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-      <div class="like-section" data-title="${article.title}">
-        <button class="like-button" aria-label="Like article ${article.title}">❤️ Like</button>
-        <span class="like-count">${likes}</span>
-      </div>
+      <div class="like-section" data-title="${article.Title}">
+  <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
+  <span class="like-count">${article.Like || 0}</span>
+  <button class="share-button" aria-label="Share article ${article.Title}">📤 Share</button>
+</div>
     </div>
   `;
+    const likedKey = `liked-${article.Title}`;
+const liked = localStorage.getItem(likedKey);
+if (liked) {
+  div.querySelector('.like-button').disabled = true;
+  div.querySelector('.like-button').textContent = '❤️ Liked';
+}
+
 
   articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
 
@@ -353,6 +378,7 @@ const toggleButton = document.getElementById('darkModeToggle');
     setTimeout(() => heart.remove(), 1000);
 
     const title = article.title;
+    
 
     fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
       method: 'PATCH',
