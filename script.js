@@ -30,10 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // After articles are added, disable like buttons already liked by user
       document.querySelectorAll('.like-section').forEach(section => {
         const title = section.getAttribute('data-title');
-        if (localStorage.getItem(`liked_${title}`)) {
-          const btn = section.querySelector('.like-button');
-          if (btn) btn.disabled = true;
-        }
       });
     })
     .catch(err => {
@@ -53,10 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
       let likes = parseInt(countSpan.textContent) || 0;
       likes++;
       countSpan.textContent = likes;
-      btn.disabled = true;
-
-      // Save like in localStorage to persist across reloads
-      localStorage.setItem(`liked_${title}`, 'true');
 
       // Floating heart animation
       const heart = document.createElement('div');
