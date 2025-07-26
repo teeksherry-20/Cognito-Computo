@@ -254,7 +254,8 @@ const toggleButton = document.getElementById('darkModeToggle');
         console.error(err);
       }
     }
-  container.addEventListener('click', e => {
+
+    container.addEventListener('click', e => {
       if (e.target.classList.contains('like-button')) {
         const btn = e.target;
         const likeSection = btn.closest('.like-section');
@@ -282,7 +283,6 @@ const toggleButton = document.getElementById('darkModeToggle');
         }).catch(console.error);
       }
     });
-
 
   function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
