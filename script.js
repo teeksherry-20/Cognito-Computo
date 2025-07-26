@@ -654,4 +654,48 @@ if (liked) {
   // Initial load
   loadArticles();
 });
-  
+
+const API_BASE = 'https://api.sheetbest.com/sheets/29c9e88c-a1a1-4fb7-bb75-12b8fb82264a';
+
+function setupLikeButtonHandler() {
+  const container = document.querySelector('#article-container');
+
+  // If already set, don't bind again
+  if (container.dataset.listenerAttached === 'true') return;
+
+  container.addEventListener('click', (e) => {
+    if (e.target && e.target.classList.contains('like-button')) {
+      const btn = e.target;
+      const likeSection = btn.closest('.like-section');
+      const countSpan = likeSection.querySelector('.like-count');
+      const title = likeSection.getAttribute('data-title');
+
+      if (!title || !countSpan) return;
+
+      // Update count visually
+      let currentLikes = parseInt(countSpan.textContent) || 0;
+      countSpan.textContent = currentLikes + 1;
+
+      // Heart animation
+      const heart = document.createElement('div');
+      heart.textContent = '❤️';
+      heart.className = 'heart-float';
+      btn.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
+
+      // Update Google Sheet via SheetBest
+      fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Like: currentLikes + 1 }),
+      }).catch(err => console.error('Error updating like count:', err));
+    }
+  });
+
+  container.dataset.listenerAttached = 'true'; // Mark to prevent duplicates
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setupLikeButtonHandler();
+});
+
