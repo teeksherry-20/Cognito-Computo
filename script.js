@@ -227,28 +227,62 @@ const toggleButton = document.getElementById('darkModeToggle');
   });
 
   async function loadArticles() {
-    try {
-      const response = await fetch(sheetUrl);
-      if (!response.ok) throw new Error(`Failed to fetch articles: ${response.status}`);
+      try {
+        const res = await fetch(API_BASE);
+        if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+        const data = await res.json();
 
-      const data = await response.json();
+        container.innerHTML = '';
+        data.forEach(article => {
+          const div = document.createElement('div');
+          div.className = 'article fade-in';
 
-      articles = data.map(obj => ({
-        title: obj['Title'],
-        date: new Date(obj['Date']),
-        intro: obj['Introduction'],
-        content: obj['Full Content'],
-        url: obj['Article URL'],
-        genre: obj['Genre'] || ''
-      }));
+          div.innerHTML = `
+            <h2>${article.Title}</h2>
+            <p>${article.Introduction ? article.Introduction.replace(/\n/g, '<br>') : ''}</p>
+            <a href="${article['Article URL'] || '#'}" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
+            <div class="like-section" data-title="${article.Title}">
+              <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
+              <span class="like-count">${article.Like || 0}</span>
+            </div>
+          `;
 
-      applyFilters();
-    } catch (error) {
-      console.error('Error loading articles:', error);
-      noResults.style.display = 'block';
-      noResults.textContent = 'Failed to load articles.';
+          container.appendChild(div);
+        });
+      } catch (err) {
+        container.innerHTML = `<p style="color:red">Failed to load articles: ${err.message}</p>`;
+        console.error(err);
+      }
     }
-  }
+  container.addEventListener('click', e => {
+      if (e.target.classList.contains('like-button')) {
+        const btn = e.target;
+        const likeSection = btn.closest('.like-section');
+        const countSpan = likeSection.querySelector('.like-count');
+        let likes = parseInt(countSpan.textContent) || 0;
+        likes++;
+        countSpan.textContent = likes;
+
+        // Floating heart animation
+        const heart = document.createElement('div');
+        heart.textContent = '❤️';
+        heart.className = 'heart-float';
+        btn.appendChild(heart);
+        setTimeout(() => heart.remove(), 1000);
+
+        const title = likeSection.getAttribute('data-title');
+
+        fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Like: likes }),
+        }).then(r => {
+          if (!r.ok) throw new Error(`Patch failed: ${r.status}`);
+          console.log('Like count updated on server.');
+        }).catch(console.error);
+      }
+    });
+
 
   function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
