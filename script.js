@@ -332,7 +332,7 @@ if (liked) {
 
     // Floating heart animation
     const heart = document.createElement('div');
-    heart.textContent = '❤️❤️';
+    heart.textContent = '❤️';
     heart.className = 'heart-float';
     likeBtn.appendChild(heart);
     setTimeout(() => heart.remove(), 1000);
