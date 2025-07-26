@@ -1,6 +1,71 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Dark Mode Toggle with persistence ---
-  const toggleButton = document.getElementById('darkModeToggle');
+  const API_BASE = 'https://sheet.best/api/sheets/1VntHbIk2ipufHp8ELBKnQCXnQDGhpBWfm3noiIZeZM8';
+  const container = document.getElementById('article-container');
+
+  fetch(API_BASE)
+    .then(res => res.json())
+    .then(data => {
+      container.innerHTML = '';
+
+      data.forEach(article => {
+        const articleDiv = document.createElement('div');
+        articleDiv.className = 'article fade-in';
+
+        articleDiv.innerHTML = `
+          <h2>${article.Title}</h2>
+          <p>${article.Introduction.replace(/\n/g, '<br>')}</p>
+          <a href="${article["Article URL"]}" class="read-more" target="_blank">Keep Reading</a>
+
+          <div class="like-section-card" data-title="${article.Title}">
+            <button class="like-button">❤️ Like</button>
+            <span class="like-count">${article.Like || 0}</span>
+          </div>
+        `;
+
+        container.appendChild(articleDiv);
+      });
+
+      addLikeListeners();
+    });
+
+  function addLikeListeners() {
+    const likeSections = document.querySelectorAll('.like-section-card');
+
+    likeSections.forEach(section => {
+      const button = section.querySelector('.like-button');
+      const countSpan = section.querySelector('.like-count');
+      const title = section.getAttribute('data-title');
+
+      button.addEventListener('click', () => {
+        let currentLikes = parseInt(countSpan.textContent);
+        if (isNaN(currentLikes)) currentLikes = 0;
+        const newLikes = currentLikes + 1;
+        countSpan.textContent = newLikes;
+
+        // Animate floating heart
+        const heart = document.createElement('div');
+        heart.textContent = '❤️';
+        heart.classList.add('heart-float');
+        button.appendChild(heart);
+
+        setTimeout(() => {
+          heart.remove();
+        }, 1000);
+
+        // Disable the button after liking (optional)
+        button.disabled = true;
+
+        // Update like count in spreadsheet
+        fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Like: newLikes })
+        });
+      });
+    });
+  }
+
+const toggleButton = document.getElementById('darkModeToggle');
   const storedDarkMode = localStorage.getItem('darkMode');
   if (storedDarkMode === 'enabled') {
     document.body.classList.add('dark-mode');
@@ -238,23 +303,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return articleEl;
   }
-  function observeFadeInElements() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target); // Optional: animate only once
-      }
-    });
-  }, {
-    threshold: 0.1
-  });
-
-  document.querySelectorAll('.fade-in').forEach(el => {
-    observer.observe(el);
-  });
-}
-
 
   function renderArticles() {
     articleContainer.innerHTML = '';
@@ -329,8 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
       updatePollDisplay();
     }
   }
-  observeFadeInElements();
-
 
   // Modal functions
   function openModal(article) {
@@ -532,3 +578,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial load
   loadArticles();
 });
+  
