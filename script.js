@@ -305,18 +305,17 @@ const toggleButton = document.getElementById('darkModeToggle');
     <div class="article-footer">
       <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
       <div class="like-section" data-title="${article.Title}">
-  <button class="like-button" aria-label="Like article ${article.Title}">❤️</button>
+  <button class="like-button" aria-label="Like article ${article.Title}">❤️❤️</button>
   <span class="like-count">${article.Like || 0}</span>
   <button class="share-button" aria-label="Share article ${article.Title}">Share ⌲</button>
 </div>
     </div>
   `;
-  container.appendChild(div);
-  const likedKey = `liked-${article.Title}`;
+    const likedKey = `liked-${article.Title}`;
 const liked = localStorage.getItem(likedKey);
 if (liked) {
   articleEl.querySelector('.like-button').disabled = true;
-  articleEl.querySelector('.like-button').textContent = '❤️ Liked';
+  articleEl.querySelector('.like-button').textContent = '❤️❤️ Liked';
 }
 
 
@@ -333,7 +332,7 @@ if (liked) {
 
     // Floating heart animation
     const heart = document.createElement('div');
-    heart.textContent = '❤️';
+    heart.textContent = '❤️❤️';
     heart.className = 'heart-float';
     likeBtn.appendChild(heart);
     setTimeout(() => heart.remove(), 1000);
@@ -354,80 +353,6 @@ if (liked) {
 
   return articleEl;
 }
-
-container.addEventListener('click', async e => {
-      if (e.target.classList.contains('like-button')) {
-        const btn = e.target;
-        const likeSection = btn.closest('.like-section');
-        const countSpan = likeSection.querySelector('.like-count');
-        const title = likeSection.getAttribute('data-title');
-
-        try {
-          const res = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`);
-          if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
-          const [article] = await res.json();
-
-          let currentLikes = parseInt(article.Like || 0);
-          currentLikes++;
-          countSpan.textContent = currentLikes;
-
-          const heart = document.createElement('div');
-          heart.textContent = '❤️';
-          heart.className = 'heart-float';
-          btn.appendChild(heart);
-          setTimeout(() => heart.remove(), 1000);
-
-          const patchRes = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Like: currentLikes }),
-          });
-          if (!patchRes.ok) throw new Error(`Patch failed: ${patchRes.status}`);
-          console.log('Like count updated.');
-        } catch (err) {
-          console.error('Error updating like:', err);
-        }
-      }
-
-      if (e.target.classList.contains('share-button')) {
-        const likeSection = e.target.closest('.like-section');
-        const urlToShare = likeSection.getAttribute('data-url') || window.location.href;
-        const title = likeSection.getAttribute('data-title') || document.title;
-
-        if (navigator.share) {
-          navigator.share({
-            title: title,
-            url: urlToShare,
-          }).catch((error) => {
-            console.error('Error sharing:', error);
-          });
-        } else {
-          // Fallback to clipboard copy
-          if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(urlToShare).then(() => {
-              alert('Article URL copied to clipboard!');
-            }).catch(() => {
-              alert('Failed to copy URL.');
-            });
-          } else {
-            const textArea = document.createElement('textarea');
-            textArea.value = urlToShare;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-9999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-              const successful = document.execCommand('copy');
-              alert(successful ? 'Article URL copied to clipboard!' : 'Failed to copy URL.');
-            } catch {
-              alert('Failed to copy URL.');
-            }
-            document.body.removeChild(textArea);
-          }
-        }
-      }
-    });
 
   function renderArticles() {
     articleContainer.innerHTML = '';
@@ -703,3 +628,4 @@ container.addEventListener('click', async e => {
   // Initial load
   loadArticles();
 });
+
