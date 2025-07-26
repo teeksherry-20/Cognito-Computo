@@ -2,64 +2,62 @@ document.addEventListener('DOMContentLoaded', () => {
   const API_BASE = 'https://api.sheetbest.com/sheets/29c9e88c-a1a1-4fb7-bb75-12b8fb82264a';
   const container = document.getElementById('article-container');
 
+  // Fetch and render articles
   fetch(API_BASE)
     .then(res => res.json())
     .then(data => {
       container.innerHTML = '';
 
       data.forEach(article => {
-        const articleDiv = document.createElement('div');
-        articleDiv.className = 'article fade-in';
+        const div = document.createElement('div');
+        div.className = 'article fade-in';
+        div.style.position = 'relative';
 
-        articleDiv.innerHTML = `
+        div.innerHTML = `
           <h2>${article.Title}</h2>
           <p>${article.Introduction.replace(/\n/g, '<br>')}</p>
-          <a href="${article["Article URL"]}" class="read-more" target="_blank">Keep Reading</a>
-
-          <div class="like-section-card" data-title="${article.Title}">
-            <button class="like-button">❤️ Like</button>
+          <a href="${article['Article URL']}" class="read-more" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
+          <div class="like-section" data-title="${article.Title}">
+            <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
             <span class="like-count">${article.Like || 0}</span>
           </div>
         `;
 
-        container.appendChild(articleDiv);
+        container.appendChild(div);
       });
-
-      addLikeListeners();
+    })
+    .catch(err => {
+      container.innerHTML = `<p style="color:red">Failed to load articles: ${err.message}</p>`;
+      console.error(err);
     });
 
-  function addLikeListeners() {
-    const likeSections = document.querySelectorAll('.like-section-card');
+  // Event delegation for like buttons
+  container.addEventListener('click', e => {
+    if (e.target && e.target.classList.contains('like-button')) {
+      const btn = e.target;
+      const likeSection = btn.closest('.like-section');
+      const countSpan = likeSection.querySelector('.like-count');
+      let likes = parseInt(countSpan.textContent) || 0;
+      likes++;
+      countSpan.textContent = likes;
+      btn.disabled = true;
 
-    likeSections.forEach(section => {
-      const button = section.querySelector('.like-button');
-      const countSpan = section.querySelector('.like-count');
-      const title = section.getAttribute('data-title');
+      // Floating heart animation
+      const heart = document.createElement('div');
+      heart.textContent = '❤️';
+      heart.className = 'heart-float';
+      btn.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
 
-      button.addEventListener('click', () => {
-        let currentLikes = parseInt(countSpan.textContent);
-        if (isNaN(currentLikes)) currentLikes = 0;
-        const newLikes = currentLikes + 1;
-        countSpan.textContent = newLikes;
+      const title = likeSection.getAttribute('data-title');
 
-        // Animate heart
-        const heart = document.createElement('div');
-        heart.textContent = '❤️';
-        heart.classList.add('heart-float');
-        button.appendChild(heart);
-        setTimeout(() => heart.remove(), 1000);
-
-        button.disabled = true;
-
-        // PATCH request to update like
-        fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ Like: newLikes })
-        });
-      });
-    });
-  }
+      fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Like: likes }),
+      }).catch(err => console.error('Error updating like:', err));
+    }
+  });
 const toggleButton = document.getElementById('darkModeToggle');
   const storedDarkMode = localStorage.getItem('darkMode');
   if (storedDarkMode === 'enabled') {
