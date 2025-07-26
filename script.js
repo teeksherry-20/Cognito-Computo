@@ -254,46 +254,33 @@ const toggleButton = document.getElementById('darkModeToggle');
         console.error(err);
       }
     }
-  container.addEventListener('click', async e => {
-  if (e.target.classList.contains('like-button')) {
-    const btn = e.target;
-    const likeSection = btn.closest('.like-section');
-    const countSpan = likeSection.querySelector('.like-count');
-    const title = likeSection.getAttribute('data-title');
+  container.addEventListener('click', e => {
+      if (e.target.classList.contains('like-button')) {
+        const btn = e.target;
+        const likeSection = btn.closest('.like-section');
+        const countSpan = likeSection.querySelector('.like-count');
+        let likes = parseInt(countSpan.textContent) || 0;
+        likes++;
+        countSpan.textContent = likes;
 
-    try {
-      // Fetch latest count from SheetBest
-      const res = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`);
-      if (!res.ok) throw new Error(`Failed to fetch current likes: ${res.status}`);
-      const [record] = await res.json();
-      let serverLikes = parseInt(record.Like || 0);
-      serverLikes++;
+        // Floating heart animation
+        const heart = document.createElement('div');
+        heart.textContent = '❤️';
+        heart.className = 'heart-float';
+        btn.appendChild(heart);
+        setTimeout(() => heart.remove(), 1000);
 
-      // Update UI immediately
-      countSpan.textContent = serverLikes;
+        const title = likeSection.getAttribute('data-title');
 
-      // Heart animation
-      const heart = document.createElement('div');
-      heart.textContent = '❤️';
-      heart.className = 'heart-float';
-      btn.appendChild(heart);
-      setTimeout(() => heart.remove(), 1000);
-
-      // Send PATCH to update server
-      const patchRes = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Like: serverLikes }),
-      });
-
-      if (!patchRes.ok) throw new Error(`Failed to patch likes: ${patchRes.status}`);
-      console.log('Like successfully recorded.');
-    } catch (err) {
-      console.error(err);
-    }
-  }
-});
-
+        fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Like: likes }),
+        }).then(r => {
+          if (!r.ok) throw new Error(`Patch failed: ${r.status}`);
+          console.log('Like count updated on server.');
+        }).catch(console.error);
+      }
 
   function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
