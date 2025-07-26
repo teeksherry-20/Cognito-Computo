@@ -255,35 +255,43 @@ const toggleButton = document.getElementById('darkModeToggle');
       }
     }
 
-    container.addEventListener('click', e => {
+    container.addEventListener('click', async e => {
       if (e.target.classList.contains('like-button')) {
         const btn = e.target;
         const likeSection = btn.closest('.like-section');
         const countSpan = likeSection.querySelector('.like-count');
-        let likes = parseInt(countSpan.textContent) || 0;
-        likes++;
-        countSpan.textContent = likes;
-
-        // Floating heart animation
-        const heart = document.createElement('div');
-        heart.textContent = '❤️';
-        heart.className = 'heart-float';
-        btn.appendChild(heart);
-        setTimeout(() => heart.remove(), 1000);
-
         const title = likeSection.getAttribute('data-title');
 
-        fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ Like: likes }),
-        }).then(r => {
-          if (!r.ok) throw new Error(`Patch failed: ${r.status}`);
-          console.log('Like count updated on server.');
-        }).catch(console.error);
+        try {
+          // Fetch current count from server
+          const res = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`);
+          if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+          const [article] = await res.json();
+
+          let currentLikes = parseInt(article.Like || 0);
+          currentLikes++;
+          countSpan.textContent = currentLikes;
+
+          // Floating heart animation
+          const heart = document.createElement('div');
+          heart.textContent = '❤️';
+          heart.className = 'heart-float';
+          btn.appendChild(heart);
+          setTimeout(() => heart.remove(), 1000);
+
+          // Patch new count
+          const patchRes = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Like: currentLikes }),
+          });
+          if (!patchRes.ok) throw new Error(`Patch failed: ${patchRes.status}`);
+          console.log('Like count updated.');
+        } catch (err) {
+          console.error('Error updating like:', err);
+        }
       }
     });
-
   function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const sortBy = sortSelect.value;
