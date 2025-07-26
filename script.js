@@ -270,115 +270,100 @@ const toggleButton = document.getElementById('darkModeToggle');
 
   async function loadArticles() {
     try {
-      const response = await fetch(sheetUrl);
-      if (!response.ok) throw new Error(`Failed to fetch articles: ${response.status}`);
+      const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+      const data = await res.json();
 
-      const data = await response.json();
+      container.innerHTML = '';
+      data.forEach(article => {
+        const div = document.createElement('div');
+        div.className = 'article fade-in';
 
-      articles = data.map(obj => ({
-        title: obj['Title'],
-        date: new Date(obj['Date']),
-        intro: obj['Introduction'],
-        content: obj['Full Content'],
-        url: obj['Article URL'],
-        genre: obj['Genre'] || ''
-      }));
+        // Build article HTML with Like and Share buttons
+        div.innerHTML = `
+          <h2>${article.Title}</h2>
+          <p>${article.Introduction ? article.Introduction.replace(/\n/g, '<br>') : ''}</p>
+          <a href="${article['Article URL'] || '#'}" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
+          <div class="like-section" data-title="${article.Title}">
+            <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
+            <span class="like-count">${article.Like || 0}</span>
+            <button class="share-button" aria-label="Share article ${article.Title}">🔗 Share</button>
+          </div>
+        `;
 
-      applyFilters();
-    } catch (error) {
-      console.error('Error loading articles:', error);
-      noResults.style.display = 'block';
-      noResults.textContent = 'Failed to load articles.';
+        container.appendChild(div);
+      });
+    } catch (err) {
+      container.innerHTML = `<p style="color:red">Failed to load articles: ${err.message}</p>`;
+      console.error(err);
     }
   }
 
-  function applyFilters() {
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    const sortBy = sortSelect.value;
+  // Handle click events on like/share buttons
+  container.addEventListener('click', async e => {
+    const likeBtn = e.target.closest('.like-button');
+    const shareBtn = e.target.closest('.share-button');
 
-    filteredArticles = articles.filter(article => {
-      const matchesGenre = !selectedGenre || article.genre.toLowerCase() === selectedGenre.toLowerCase();
-      const matchesSearch =
-        article.title.toLowerCase().includes(searchTerm) ||
-        article.intro.toLowerCase().includes(searchTerm);
-      return matchesGenre && matchesSearch;
-    });
+    if (likeBtn) {
+      const likeSection = likeBtn.closest('.like-section');
+      const countSpan = likeSection.querySelector('.like-count');
+      const title = likeSection.getAttribute('data-title');
 
-    filteredArticles.sort((a, b) =>
-      sortBy === 'latest' ? b.date - a.date : a.date - b.date
-    );
+      try {
+        // Fetch current like count
+        const res = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`);
+        if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+        const [article] = await res.json();
 
-    currentPage = Math.min(currentPage, Math.ceil(filteredArticles.length / articlesPerPage) || 1);
-    renderArticles();
-  }
+        let currentLikes = parseInt(article.Like || 0);
+        currentLikes++;
+        countSpan.textContent = currentLikes;
 
-  function createArticleElement(article) {
-  const articleEl = document.createElement('article');
-  articleEl.className = 'article fade-in';
-  articleEl.tabIndex = 0;
+        // Floating heart animation
+        const heart = document.createElement('div');
+        heart.textContent = '❤️';
+        heart.className = 'heart-float';
+        likeBtn.appendChild(heart);
+        setTimeout(() => heart.remove(), 1000);
 
-  // Use article.Like or 0 for initial like count
-  const likes = article.Like || 0;
+        // Patch like count
+        const patchRes = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Like: currentLikes }),
+        });
+        if (!patchRes.ok) throw new Error(`Patch failed: ${patchRes.status}`);
+      } catch (err) {
+        console.error('Error updating like:', err);
+      }
+    }
 
-  articleEl.innerHTML = `
-    <div class="article-header">
-      <time datetime="${article.date.toISOString().split('T')[0]}" class="pub-date">
-        ${article.date.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })}
-      </time>
-    </div>
-    <h2>${article.title}</h2>
-    <p class="intro">${article.intro}</p>
-    <div class="article-footer">
-      <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-      <div class="like-section" data-title="${article.Title}">
-  <button class="like-button" aria-label="Like article ${article.Title}">❤️❤️</button>
-  <span class="like-count">${article.Like || 0}</span>
-  <button class="share-button" aria-label="Share article ${article.Title}">Share ⌲</button>
-</div>
-    </div>
-  `;
-    const likedKey = `liked-${article.Title}`;
-const liked = localStorage.getItem(likedKey);
-if (liked) {
-  div.querySelector('.like-button').disabled = true;
-  div.querySelector('.like-button').textContent = '❤️❤️ Liked';
-}
+    if (shareBtn) {
+      const likeSection = shareBtn.closest('.like-section');
+      const title = likeSection.getAttribute('data-title');
+      const articleDiv = likeSection.closest('.article');
+      const link = articleDiv.querySelector('a')?.href || window.location.href;
 
+      const shareText = `Check out this article: "${title}"`;
+      const shareData = {
+        title,
+        text: shareText,
+        url: link
+      };
 
-  articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
-
-  // Attach like button event listener here:
-  const likeBtn = articleEl.querySelector('.like-button');
-  const likeCountSpan = articleEl.querySelector('.like-count');
-
-  likeBtn.addEventListener('click', () => {
-    let likes = parseInt(likeCountSpan.textContent) || 0;
-    likes++;
-    likeCountSpan.textContent = likes;
-
-    // Floating heart animation
-    const heart = document.createElement('div');
-    heart.textContent = '❤️❤️';
-    heart.className = 'heart-float';
-    likeBtn.appendChild(heart);
-    setTimeout(() => heart.remove(), 1000);
-
-    const title = article.title;
-    
-
-    fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ Like: likes }),
-    }).catch(err => console.error('Error updating like:', err));
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          // Fallback for unsupported browsers
+          await navigator.clipboard.writeText(link);
+          alert('Link copied to clipboard!');
+        }
+      } catch (err) {
+        console.error('Error sharing article:', err);
+      }
+    }
   });
-
-  requestAnimationFrame(() => {
-    articleEl.classList.add('visible');
-  });
-
-  return articleEl;
-}
 
   function renderArticles() {
     articleContainer.innerHTML = '';
