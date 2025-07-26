@@ -281,6 +281,8 @@ const toggleButton = document.getElementById('darkModeToggle');
           console.log('Like count updated on server.');
         }).catch(console.error);
       }
+    });
+
 
   function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
