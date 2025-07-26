@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="like-section" data-title="${article.Title}">
             <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
             <span class="like-count">${article.Like || 0}</span>
-            <button class="share-button" aria-label="Share article ${article.Title}">🔗 Share</button>
+            <button class="share-button" aria-label="Share article ${article.Title}"> Share</button>
           </div>
         `;
 
@@ -49,12 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const likeSection = btn.closest('.like-section');
       const countSpan = likeSection.querySelector('.like-count');
       const title = likeSection.getAttribute('data-title');
-
-      // Prevent multiple likes
-      if (localStorage.getItem(`liked_${title}`)) {
-        alert('You already liked this article!');
-        return;
-      }
 
       let likes = parseInt(countSpan.textContent) || 0;
       likes++;
