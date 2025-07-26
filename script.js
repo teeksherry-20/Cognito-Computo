@@ -14,14 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
         div.style.position = 'relative';
 
         div.innerHTML = `
-  <h2>${article.Title}</h2>
-  <p>${article.Introduction ? article.Introduction.replace(/\n/g, '<br>') : ''}</p>
-  <a href="${article['Article URL'] || '#'}" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
-  <div class="like-section" data-title="${article.Title}">
-    <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
-    <span class="like-count">${article.Like || 0}</span>
-  </div>
-`;
+          <h2>${article.Title}</h2>
+          <p>${article.Introduction.replace(/\n/g, '<br>')}</p>
+          <a href="${article['Article URL']}" class="read-more" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
+          <div class="like-section" data-title="${article.Title}">
+            <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
+            <span class="like-count">${article.Like || 0}</span>
+          </div>
+        `;
 
         container.appendChild(div);
       });
@@ -227,104 +227,62 @@ const toggleButton = document.getElementById('darkModeToggle');
   });
 
   async function loadArticles() {
-    try {
-      const res = await fetch(API_BASE);
-      if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
-      const data = await res.json();
-      console.log('Articles loaded:', data);
+      try {
+        const res = await fetch(API_BASE);
+        if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+        const data = await res.json();
 
-      container.innerHTML = '';
-      data.forEach(article => {
-        const div = document.createElement('div');
-        div.className = 'article fade-in';
+        container.innerHTML = '';
+        data.forEach(article => {
+          const div = document.createElement('div');
+          div.className = 'article fade-in';
 
-        div.innerHTML = `
-          <h2>${article.Title}</h2>
-          <p>${article.Introduction ? article.Introduction.replace(/\n/g, '<br>') : ''}</p>
-          <a href="${article['Article URL'] || '#'}" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
-          <div class="like-section" data-title="${article.Title}">
-            <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
-            <span class="like-count">${article.Like || 0}</span>
-          </div>
-        `;
-        container.appendChild(div);
-      });
+          div.innerHTML = `
+            <h2>${article.Title}</h2>
+            <p>${article.Introduction ? article.Introduction.replace(/\n/g, '<br>') : ''}</p>
+            <a href="${article['Article URL'] || '#'}" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
+            <div class="like-section" data-title="${article.Title}">
+              <button class="like-button" aria-label="Like article ${article.Title}">❤️ Like</button>
+              <span class="like-count">${article.Like || 0}</span>
+            </div>
+          `;
 
-      attachLikeEvents(); // make sure this is called after render
-    } catch (err) {
-      console.error('Failed to load articles:', err);
-      container.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        container.innerHTML = `<p style="color:red">Failed to load articles: ${err.message}</p>`;
+        console.error(err);
+      }
     }
-  }
-
-  function attachLikeEvents() {
-    document.querySelectorAll('.like-button').forEach(button => {
-      button.addEventListener('click', async () => {
-        const likeSection = button.closest('.like-section');
-        const title = likeSection.getAttribute('data-title');
+  container.addEventListener('click', e => {
+      if (e.target.classList.contains('like-button')) {
+        const btn = e.target;
+        const likeSection = btn.closest('.like-section');
         const countSpan = likeSection.querySelector('.like-count');
+        let likes = parseInt(countSpan.textContent) || 0;
+        likes++;
+        countSpan.textContent = likes;
 
-        // Heart float animation
+        // Floating heart animation
         const heart = document.createElement('div');
         heart.textContent = '❤️';
         heart.className = 'heart-float';
-        button.appendChild(heart);
+        btn.appendChild(heart);
         setTimeout(() => heart.remove(), 1000);
 
-        // Optimistic update
-        let count = parseInt(countSpan.textContent || '0');
-        countSpan.textContent = count + 1;
+        const title = likeSection.getAttribute('data-title');
 
-        try {
-          await fetch(API_BASE, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Title: title, Like: count + 1 })
-          });
-        } catch (err) {
-          console.error('Failed to update like count:', err);
-        }
-      });
+        fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Like: likes }),
+        }).then(r => {
+          if (!r.ok) throw new Error(`Patch failed: ${r.status}`);
+          console.log('Like count updated on server.');
+        }).catch(console.error);
+      }
     });
-  }
 
-    container.addEventListener('click', async e => {
-  if (e.target.classList.contains('like-button')) {
-    const btn = e.target;
-    const likeSection = btn.closest('.like-section');
-    const countSpan = likeSection.querySelector('.like-count');
-    const title = likeSection.getAttribute('data-title');
-
-    try {
-      // Fetch current count from server
-      const res = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`);
-      if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
-      const [article] = await res.json();
-
-      let currentLikes = parseInt(article.Like || 0);
-      currentLikes++;
-      countSpan.textContent = currentLikes;
-
-      // Floating heart animation
-      const heart = document.createElement('div');
-      heart.textContent = '❤️';
-      heart.className = 'heart-float';
-      btn.appendChild(heart);
-      setTimeout(() => heart.remove(), 1000);
-
-      // Patch new count
-      const patchRes = await fetch(`${API_BASE}/Title/${encodeURIComponent(title)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Like: currentLikes }),
-      });
-      if (!patchRes.ok) throw new Error(`Patch failed: ${patchRes.status}`);
-      console.log('Like count updated.');
-    } catch (err) {
-      console.error('Error updating like:', err);
-    }
-  }
-});
 
   function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
