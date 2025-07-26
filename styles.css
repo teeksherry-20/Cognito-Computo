@@ -23,6 +23,7 @@
 .share-button {
   cursor: pointer;
   font-size: 1rem;
+  background-color: white;
   background: none;
   border: 1px solid #777;
   padding: 4px 10px;
@@ -41,6 +42,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  background-color: white;
 }
 
 /* === Like Button === */
@@ -62,6 +64,7 @@
   transition: background-color 0.2s, color 0.2s;
   position: relative;
   overflow: visible;
+  background-color: white;
 }
 
 .like-button:hover:not(:disabled) {
