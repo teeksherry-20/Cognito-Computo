@@ -150,9 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>${article.Introduction.replace(/\n/g, '<br>')}</p>
           <a href="${article['Article URL']}" class="read-more" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
           <div class="like-section" data-title="${article.Title}">
-            <button class="like-button" aria-label="Like article ${article.Title}">Like ❤️</button>
+            <button class="like-button" aria-label="Like article ${article.Title}">❤️</button>
             <span class="like-count">${currentLikes}</span>
-            <button class="share-button" aria-label="Share article ${article.Title}">Share 🔗</button>
+            <button class="share-button" aria-label="Share article ${article.Title}">Share ⌯⌲</button>
           </div>
         `;
 
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (localStorage.getItem(likedKey)) {
           const likeButton = section.querySelector('.like-button');
           likeButton.disabled = true;
-          likeButton.textContent = 'Like ❤️';
+          likeButton.textContent = '❤️ Liked';
           likeButton.style.opacity = '0.6';
         }
       });
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Update UI immediately for better user experience
       likeCountSpan.textContent = newCount;
       e.target.disabled = true;
-      e.target.textContent = 'Like ❤️';
+      e.target.textContent = '❤️ Liked';
       e.target.style.opacity = '0.6';
       
       // Store user's like locally to prevent multiple likes from same user
@@ -231,24 +231,95 @@ document.addEventListener('DOMContentLoaded', () => {
       await updateLikeCount(title, newCount);
     }
 
-    // Share button clicked - keeping existing functionality
+    // ENHANCEMENT 27: Simplified and debugged share button functionality
     if (e.target && e.target.classList.contains('share-button')) {
+      console.log('Share button clicked!'); // Debug log
+      
       const likeSection = e.target.closest('.like-section');
       const title = likeSection.getAttribute('data-title');
-      const articleLink = likeSection.parentElement.querySelector('a').href;
+      
+      console.log('Article title:', title); // Debug log
+      
+      // Create share content
+      const shareText = `Check out this article: "${title}" on Cogito Computo! 🧠`;
+      const shareUrl = window.location.href;
+      
+      console.log('Share text:', shareText); // Debug log
+      console.log('Share URL:', shareUrl); // Debug log
+      console.log('Navigator.share available:', !!navigator.share); // Debug log
 
       if (navigator.share) {
-        navigator.share({
-          title: title,
-          url: articleLink
-        }).catch(console.error);
+        console.log('Using native share...'); // Debug log
+        try {
+          await navigator.share({
+            title: `Cogito Computo - ${title}`,
+            text: shareText,
+            url: shareUrl
+          });
+          console.log('Share successful!'); // Debug log
+        } catch (error) {
+          console.log('Share error:', error); // Debug log
+          if (error.name !== 'AbortError') {
+            // Fallback to clipboard
+            fallbackShare(shareText, shareUrl);
+          }
+        }
       } else {
-        navigator.clipboard.writeText(articleLink).then(() => {
-          alert('Link copied to clipboard!');
-        });
+        console.log('Using fallback share...'); // Debug log
+        fallbackShare(shareText, shareUrl);
       }
     }
   });
+
+  // ENHANCEMENT 28: Simplified fallback share function
+  function fallbackShare(shareText, shareUrl) {
+    console.log('Running fallback share...'); // Debug log
+    
+    const fullShareText = `${shareText}\n${shareUrl}`;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(fullShareText).then(() => {
+        console.log('Copied to clipboard successfully!'); // Debug log
+        showShareNotification('📋 Article link copied to clipboard!');
+      }).catch((error) => {
+        console.log('Clipboard error:', error); // Debug log
+        // Final fallback
+        showShareNotification(`Share this article: ${fullShareText}`);
+      });
+    } else {
+      console.log('Clipboard not available, using alert fallback'); // Debug log
+      alert(`Share this article:\n${fullShareText}`);
+    }
+  }
+  
+  // ENHANCEMENT 29: Separate notification function
+  function showShareNotification(message) {
+    console.log('Showing notification:', message); // Debug log
+    
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      z-index: 10000;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-width: 300px;
+      word-wrap: break-word;
+    `;
+    
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 3000);
+  }
 
   // Dark mode toggle - keeping existing functionality
   const toggleButton = document.getElementById('darkModeToggle');
@@ -501,9 +572,9 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="article-footer">
         <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
         <div class="like-section" data-title="${article.originalTitle}">
-          <button class="like-button" aria-label="Like article ${article.originalTitle}">Like ❤️</button>
+          <button class="like-button" aria-label="Like article ${article.originalTitle}">❤️</button>
           <span class="like-count">${currentLikes}</span>
-          <button class="share-button" aria-label="Share article ${article.originalTitle}">Share 🔗</button>
+          <button class="share-button" aria-label="Share article ${article.originalTitle}">Share ⌲</button>
         </div>
       </div>
     `;
@@ -514,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (liked) {
       const likeButton = articleEl.querySelector('.like-button');
       likeButton.disabled = true;
-      likeButton.textContent = 'Like ❤️';
+      likeButton.textContent = '❤️ Liked';
       likeButton.style.opacity = '0.6';
     }
 
@@ -535,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Update UI immediately
       likeCountSpan.textContent = newCount;
       likeBtn.disabled = true;
-      likeBtn.textContent = 'Like ❤️';
+      likeBtn.textContent = '❤️ Liked';
       likeBtn.style.opacity = '0.6';
       
       // Store user's like locally
