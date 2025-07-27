@@ -233,9 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>${article.Introduction.replace(/\n/g, '<br>')}</p>
           <a href="${article['Article URL']}" class="read-more" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
           <div class="like-section" data-title="${article.Title}">
-            <button class="like-button" aria-label="Like article ${article.Title}">❤️</button>
+            <button class="like-button" aria-label="Like article ${article.Title}">Like ❤️</button>
             <span class="like-count">${currentLikes}</span>
-            <button class="share-button" aria-label="Share article ${article.Title}">Share ⌯⌲</button>
+            <button class="share-button" aria-label="Share article ${article.Title}">Share 🔗</button>
           </div>
         `;
 
@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (localStorage.getItem(likedKey)) {
           const likeButton = section.querySelector('.like-button');
           likeButton.disabled = true;
-          likeButton.textContent = '❤️ Liked';
+          likeButton.textContent = 'Like ❤️';
           likeButton.style.opacity = '0.6';
         }
       });
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Update UI immediately for better user experience
       likeCountSpan.textContent = newCount;
       e.target.disabled = true;
-      e.target.textContent = '❤️ Liked';
+      e.target.textContent = 'Like ❤️';
       e.target.style.opacity = '0.6';
       
       // Store user's like locally to prevent multiple likes from same user
@@ -568,9 +568,9 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="article-footer">
         <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
         <div class="like-section" data-title="${article.originalTitle}">
-          <button class="like-button" aria-label="Like article ${article.originalTitle}">❤️</button>
+          <button class="like-button" aria-label="Like article ${article.originalTitle}">Like ❤️</button>
           <span class="like-count">${currentLikes}</span>
-          <button class="share-button" aria-label="Share article ${article.originalTitle}">Share ⌲</button>
+          <button class="share-button" aria-label="Share article ${article.originalTitle}">Share 🔗</button>
         </div>
       </div>
     `;
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (liked) {
       const likeButton = articleEl.querySelector('.like-button');
       likeButton.disabled = true;
-      likeButton.textContent = '❤️ Liked';
+      likeButton.textContent = 'Like ❤️';
       likeButton.style.opacity = '0.6';
     }
 
@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Update UI immediately
       likeCountSpan.textContent = newCount;
       likeBtn.disabled = true;
-      likeBtn.textContent = '❤️ Liked';
+      likeBtn.textContent = 'Like ❤️';
       likeBtn.style.opacity = '0.6';
       
       // Store user's like locally
