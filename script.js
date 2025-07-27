@@ -128,13 +128,96 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Fetch and render articles
+  // ENHANCEMENT 6: Function to handle share button clicks
+  async function handleShareClick(title) {
+    console.log('Share button clicked for:', title);
+    
+    // Create share content
+    const shareText = `Check out this article: "${title}" on Cogito Computo! 🧠`;
+    const shareUrl = window.location.href;
+    
+    console.log('Share text:', shareText);
+    console.log('Share URL:', shareUrl);
+    console.log('Navigator.share available:', !!navigator.share);
+
+    if (navigator.share) {
+      console.log('Using native share...');
+      try {
+        await navigator.share({
+          title: `Cogito Computo - ${title}`,
+          text: shareText,
+          url: shareUrl
+        });
+        console.log('Share successful!');
+      } catch (error) {
+        console.log('Share error:', error);
+        if (error.name !== 'AbortError') {
+          // Fallback to clipboard
+          fallbackShare(shareText, shareUrl);
+        }
+      }
+    } else {
+      console.log('Using fallback share...');
+      fallbackShare(shareText, shareUrl);
+    }
+  }
+
+  // ENHANCEMENT 7: Fallback share function
+  function fallbackShare(shareText, shareUrl) {
+    console.log('Running fallback share...');
+    
+    const fullShareText = `${shareText}\n${shareUrl}`;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(fullShareText).then(() => {
+        console.log('Copied to clipboard successfully!');
+        showShareNotification('📋 Article link copied to clipboard!');
+      }).catch((error) => {
+        console.log('Clipboard error:', error);
+        alert(`Share this article:\n${fullShareText}`);
+      });
+    } else {
+      console.log('Clipboard not available, using alert fallback');
+      alert(`Share this article:\n${fullShareText}`);
+    }
+  }
+  
+  // ENHANCEMENT 8: Show notification function
+  function showShareNotification(message) {
+    console.log('Showing notification:', message);
+    
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      z-index: 10000;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-width: 300px;
+      word-wrap: break-word;
+    `;
+    
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 3000);
+  }
+
+  // Fetch and render articles (initial container articles)
   fetch(API_BASE)
     .then(res => res.json())
     .then(data => {
       container.innerHTML = '';
 
-      // ENHANCEMENT 6: Filter out trolley data and only show actual articles
+      // Filter out trolley data and only show actual articles
       const articles = data.filter(item => item.ID !== 'trolley' && item.Title);
 
       articles.forEach(article => {
@@ -142,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         div.className = 'article fade-in';
         div.style.position = 'relative';
 
-        // ENHANCEMENT 7: Use global like count or fallback to article data
+        // Use global like count or fallback to article data
         const currentLikes = globalLikeCounts[article.Title] || parseInt(article.Like) || 0;
 
         div.innerHTML = `
@@ -162,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // After articles are added, disable like buttons already liked by user
       document.querySelectorAll('.like-section').forEach(section => {
         const title = section.getAttribute('data-title');
-        // Check if user has already liked this article (stored locally for user experience)
         const likedKey = `liked-${title}`;
         if (localStorage.getItem(likedKey)) {
           const likeButton = section.querySelector('.like-button');
@@ -177,9 +259,9 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error(err);
     });
 
-  // ENHANCEMENT 8: Enhanced event delegation for like and share buttons
+  // ENHANCEMENT 9: Clean event delegation for like and share buttons
   container.addEventListener('click', async e => {
-    // ENHANCEMENT 9: Improved like button functionality with shared counts
+    // Handle like button clicks
     if (e.target && e.target.classList.contains('like-button') && !e.target.disabled) {
       const likeSection = e.target.closest('.like-section');
       const title = likeSection.getAttribute('data-title');
@@ -231,95 +313,13 @@ document.addEventListener('DOMContentLoaded', () => {
       await updateLikeCount(title, newCount);
     }
 
-    // ENHANCEMENT 27: Simplified and debugged share button functionality
+    // Handle share button clicks - CLEAN VERSION WITHOUT HREF ERRORS
     if (e.target && e.target.classList.contains('share-button')) {
-      console.log('Share button clicked!'); // Debug log
-      
       const likeSection = e.target.closest('.like-section');
       const title = likeSection.getAttribute('data-title');
-      
-      console.log('Article title:', title); // Debug log
-      
-      // Create share content
-      const shareText = `Check out this article: "${title}" on Cogito Computo! 🧠`;
-      const shareUrl = window.location.href;
-      
-      console.log('Share text:', shareText); // Debug log
-      console.log('Share URL:', shareUrl); // Debug log
-      console.log('Navigator.share available:', !!navigator.share); // Debug log
-
-      if (navigator.share) {
-        console.log('Using native share...'); // Debug log
-        try {
-          await navigator.share({
-            title: `Cogito Computo - ${title}`,
-            text: shareText,
-            url: shareUrl
-          });
-          console.log('Share successful!'); // Debug log
-        } catch (error) {
-          console.log('Share error:', error); // Debug log
-          if (error.name !== 'AbortError') {
-            // Fallback to clipboard
-            fallbackShare(shareText, shareUrl);
-          }
-        }
-      } else {
-        console.log('Using fallback share...'); // Debug log
-        fallbackShare(shareText, shareUrl);
-      }
+      await handleShareClick(title);
     }
   });
-
-  // ENHANCEMENT 28: Simplified fallback share function
-  function fallbackShare(shareText, shareUrl) {
-    console.log('Running fallback share...'); // Debug log
-    
-    const fullShareText = `${shareText}\n${shareUrl}`;
-    
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(fullShareText).then(() => {
-        console.log('Copied to clipboard successfully!'); // Debug log
-        showShareNotification('📋 Article link copied to clipboard!');
-      }).catch((error) => {
-        console.log('Clipboard error:', error); // Debug log
-        // Final fallback
-        showShareNotification(`Share this article: ${fullShareText}`);
-      });
-    } else {
-      console.log('Clipboard not available, using alert fallback'); // Debug log
-      alert(`Share this article:\n${fullShareText}`);
-    }
-  }
-  
-  // ENHANCEMENT 29: Separate notification function
-  function showShareNotification(message) {
-    console.log('Showing notification:', message); // Debug log
-    
-    const notification = document.createElement('div');
-    notification.textContent = message;
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 6px;
-      z-index: 10000;
-      font-size: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      max-width: 300px;
-      word-wrap: break-word;
-    `;
-    
-    document.body.appendChild(notification);
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 3000);
-  }
 
   // Dark mode toggle - keeping existing functionality
   const toggleButton = document.getElementById('darkModeToggle');
@@ -385,10 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentPage = 1;
   let selectedGenre = null;
 
-  // ENHANCEMENT 10: Remove localStorage poll data and use shared API data
-  // Poll data now comes from globalTrolleyData instead of localStorage
-
-  // ENHANCEMENT 11: Updated poll display function to use shared data
+  // ENHANCEMENT 10: Updated poll display function to use shared data
   function updatePollDisplay() {
     const totalVotes = globalTrolleyData.A + globalTrolleyData.B;
     const resultEl = document.getElementById('poll-result');
@@ -410,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Poll display updated:', globalTrolleyData);
   }
 
-  // ENHANCEMENT 12: Updated vote function to use shared API data
+  // ENHANCEMENT 11: Updated vote function to use shared API data
   async function vote(option) {
     if (option !== 'A' && option !== 'B') return;
 
@@ -429,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
     voteBButton.onclick = () => vote('B');
   }
 
-  // Genre filtering on nav clicks - keeping existing functionality
+  // Genre filtering on nav clicks
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       const genre = link.textContent.trim().toLowerCase();
@@ -453,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Search and sort event listeners - keeping existing functionality
+  // Search and sort event listeners
   searchInput.addEventListener('input', () => {
     currentPage = 1;
     applyFilters();
@@ -480,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Modal event listeners - keeping existing functionality
+  // Modal event listeners
   modalClose.addEventListener('click', () => {
     modal.style.display = 'none';
     modal.setAttribute('aria-hidden', 'true');
@@ -500,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Load articles function - keeping existing functionality with filter enhancement
+  // Load articles function
   async function loadArticles() {
     try {
       const response = await fetch(sheetUrl);
@@ -508,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = await response.json();
 
-      // ENHANCEMENT 13: Filter out trolley data and only process actual articles
+      // Filter out trolley data and only process actual articles
       const articleData = data.filter(item => item.ID !== 'trolley' && item.Title);
 
       articles = articleData.map(obj => ({
@@ -518,7 +515,6 @@ document.addEventListener('DOMContentLoaded', () => {
         content: obj['Full Content'],
         url: obj['Article URL'],
         genre: obj['Genre'] || '',
-        // ENHANCEMENT 14: Include like count and title for reference
         like: parseInt(obj['Like']) || 0,
         originalTitle: obj['Title'] // Keep reference to original title for API calls
       }));
@@ -531,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Apply filters function - keeping existing functionality
+  // Apply filters function
   function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const sortBy = sortSelect.value;
@@ -552,13 +548,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderArticles();
   }
 
-  // ENHANCEMENT 15: Updated createArticleElement function with shared like counts
+  // Create article element function with shared like counts
   function createArticleElement(article) {
     const articleEl = document.createElement('article');
     articleEl.className = 'article fade-in';
     articleEl.tabIndex = 0;
 
-    // ENHANCEMENT 16: Use global like count or article data for initial display
+    // Use global like count or article data for initial display
     const currentLikes = globalLikeCounts[article.originalTitle] || article.like || 0;
 
     articleEl.innerHTML = `
@@ -579,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    // ENHANCEMENT 17: Check if user has already liked this article locally
+    // Check if user has already liked this article locally
     const likedKey = `liked-${article.originalTitle}`;
     const liked = localStorage.getItem(likedKey);
     if (liked) {
@@ -592,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attach read more button event listener
     articleEl.querySelector('.read-more-btn').addEventListener('click', () => openModal(article));
 
-    // ENHANCEMENT 18: Enhanced like button event listener with shared functionality
+    // Enhanced like button event listener with shared functionality
     const likeBtn = articleEl.querySelector('.like-button');
     const likeCountSpan = articleEl.querySelector('.like-count');
 
@@ -632,6 +628,12 @@ document.addEventListener('DOMContentLoaded', () => {
       await updateLikeCount(article.originalTitle, newCount);
     });
 
+    // Enhanced share button event listener
+    const shareBtn = articleEl.querySelector('.share-button');
+    shareBtn.addEventListener('click', async () => {
+      await handleShareClick(article.originalTitle);
+    });
+
     requestAnimationFrame(() => {
       articleEl.classList.add('visible');
     });
@@ -639,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return articleEl;
   }
 
-  // Render articles function - keeping most functionality, enhancing trolley integration
+  // Render articles function
   function renderArticles() {
     articleContainer.innerHTML = '';
 
@@ -665,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const widgetRow = document.createElement('div');
       widgetRow.className = 'flex-row-container';
 
-      // ENHANCEMENT 19: Enhanced trolley widget with shared vote functionality
+      // Enhanced trolley widget with shared vote functionality
       const trolleyWidget = document.createElement('div');
       trolleyWidget.className = 'trolley-widget';
       trolleyWidget.innerHTML = `
@@ -680,7 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       widgetRow.appendChild(trolleyWidget);
 
-      // Quiz widget - keeping existing functionality
+      // Quiz widget
       const quizWidget = createQuizWidget();
       widgetRow.appendChild(quizWidget);
 
@@ -701,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
     prevBtn.disabled = currentPage === 1;
     nextBtn.disabled = currentPage === Math.ceil(filteredArticles.length / articlesPerPage);
 
-    // ENHANCEMENT 20: Re-attach poll button listeners with shared functionality
+    // Re-attach poll button listeners with shared functionality
     if (isHomePage) {
       const voteAButton = document.getElementById('voteA');
       const voteBButton = document.getElementById('voteB');
@@ -717,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Modal functions - keeping existing functionality
+  // Modal functions
   function openModal(article) {
     modalTitle.textContent = article.title;
 
@@ -742,7 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.setAttribute('aria-hidden', 'false');
   }
 
-  // ENHANCEMENT 21: Enhanced quiz widget with no auto-scroll during results
+  // Enhanced quiz widget with no auto-scroll during results
   function createQuizWidget() {
     const widget = document.createElement('div');
     widget.className = 'quiz-widget';
@@ -776,7 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="quiz-question" id="q4">
           <p>4. How do you learn best?</p>
-          <label><input type="radio" name="q4" value="kant" /> Following structured teaching</label><br />
+          <label><input type="radio" name="q4" value="kant" /> Following structured thinking</label><br />
           <label><input type="radio" name="q4" value="nietzsche" /> Through experience and challenge</label><br />
           <label><input type="radio" name="q4" value="beauvoir" /> From social interaction</label><br />
           <label><input type="radio" name="q4" value="socrates" /> By questioning assumptions</label>
@@ -810,10 +812,10 @@ document.addEventListener('DOMContentLoaded', () => {
         widget.querySelector("#quiz-bar").style.width = `${((step + 1) / questions.length) * 100}%`;
       }
 
-      // ENHANCEMENT 22: Modified submitQuiz function to prevent auto-scrolling
+      // Modified submitQuiz function to prevent auto-scrolling
       function submitQuiz() {
         resultBox.innerHTML = `<div id="loading-message">Calculating your philosopher...</div>`;
-        // REMOVED: resultBox.scrollIntoView({ behavior: "smooth" }); - this was causing unwanted scrolling
+        // REMOVED auto-scroll to prevent page jumping
 
         setTimeout(() => {
           let tally = { kant: 0, nietzsche: 0, beauvoir: 0, socrates: 0 };
@@ -828,11 +830,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500);
       }
 
-      // ENHANCEMENT 23: Modified showResult function to prevent auto-scrolling
+      // Modified showResult function to prevent auto-scrolling
       function showResult(philosopher) {
         const messages = {
           kant: {
-            text: "🧠 You're like Immanuel Kant - (serving kant) – you believe in reason, duty, and universal moral laws.",
+            text: "🧠 You're like Immanuel Kant - you believe in reason, duty, and universal moral laws.",
             image: "kant.jpg",
           },
           nietzsche: {
@@ -871,19 +873,12 @@ document.addEventListener('DOMContentLoaded', () => {
           nextBtn.textContent = "Next Question";
         });
 
-        widget.querySelector("#share-btn").addEventListener("click", () => {
+        widget.querySelector("#share-btn").addEventListener("click", async () => {
           const shareText = `I got ${philosopher.charAt(0).toUpperCase() + philosopher.slice(1)} in the "Which Philosopher Are You?" quiz on Cogito Computo! 🧠`;
-          if (navigator.share) {
-            navigator.share({ title: "Cogito Computo Quiz Result", text: shareText, url: window.location.href })
-              .catch(() => alert("Sharing cancelled."));
-          } else {
-            navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
-            alert("Result copied to clipboard!");
-          }
+          await handleShareClick(`Quiz Result: ${philosopher.charAt(0).toUpperCase() + philosopher.slice(1)}`);
         });
 
-        // REMOVED: resultBox.scrollIntoView({ behavior: "smooth" }); - this was causing unwanted scrolling
-        // Users can now see the result without the page jumping around
+        // REMOVED auto-scroll to prevent page jumping
       }
 
       const storedResult = localStorage.getItem("philosopherResult");
@@ -917,7 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return widget;
   }
 
-  // ENHANCEMENT 24: Initialize shared data on page load
+  // Initialize shared data on page load
   async function initializeSharedData() {
     console.log('Initializing shared data...');
     
@@ -930,7 +925,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Shared data initialized successfully', { likes: globalLikeCounts, trolley: globalTrolleyData });
   }
 
-  // ENHANCEMENT 25: Load articles and initialize shared data
+  // Load articles and initialize shared data
   async function initialize() {
     // Initialize shared data first
     await initializeSharedData();
@@ -939,6 +934,6 @@ document.addEventListener('DOMContentLoaded', () => {
     await loadArticles();
   }
 
-  // ENHANCEMENT 26: Start the application with shared data initialization
+  // Start the application with shared data initialization
   initialize();
 });
