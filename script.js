@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         div.innerHTML = `
           <h2>${article.Title}</h2>
           <p>${article.Introduction.replace(/\n/g, '<br>')}</p>
-          <a href="${article['Article URL']}" class="read-more" target="_blank" rel="noopener noreferrer">Keep Reading 👀⇢</a>
+          <a href="${article['Article URL']}" class="read-more" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
           <div class="like-section" data-title="${article.Title}">
             <button class="like-button" aria-label="Like article ${article.Title}">Like ❤️</button>
             <span class="like-count">${currentLikes}</span>
@@ -566,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <h2>${article.title}</h2>
       <p class="intro">${article.intro}</p>
       <div class="article-footer">
-        <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading 👀⇢</button>
+        <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
         <div class="like-section" data-title="${article.originalTitle}">
           <button class="like-button" aria-label="Like article ${article.originalTitle}">Like ❤️</button>
           <span class="like-count">${currentLikes}</span>
