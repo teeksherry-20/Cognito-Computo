@@ -1159,4 +1159,184 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add settings after a short delay
   setTimeout(addNotificationSettings, 1000);
 });
+  // Simple in-page notification system
+// Add this to your existing script.js
+
+class SimpleNotificationBanner {
+  constructor() {
+    this.lastCheckKey = 'last-article-check';
+    this.dismissedKey = 'dismissed-notifications';
+    this.init();
+  }
+
+  init() {
+    // Check for new articles when page loads
+    setTimeout(() => this.checkForNewArticles(), 2000);
+  }
+
+  async checkForNewArticles() {
+    try {
+      const API_BASE = 'https://api.sheetbest.com/sheets/29c9e88c-a1a1-4fb7-bb75-12b8fb82264a';
+      const response = await fetch(API_BASE);
+      
+      if (!response.ok) return;
+      
+      const data = await response.json();
+      const articles = data.filter(item => item.ID !== 'trolley' && item.Title);
+      
+      // Get the most recent article date
+      const latestArticle = articles
+        .map(article => ({ ...article, date: new Date(article.Date) }))
+        .sort((a, b) => b.date - a.date)[0];
+      
+      if (!latestArticle) return;
+      
+      // Check if this is a new article (posted in last 7 days)
+      const daysSincePosted = (Date.now() - latestArticle.date) / (1000 * 60 * 60 * 24);
+      const lastCheck = localStorage.getItem(this.lastCheckKey);
+      const dismissedNotifications = JSON.parse(localStorage.getItem(this.dismissedKey) || '[]');
+      
+      // Show notification if:
+      // - Article is less than 7 days old
+      // - User hasn't seen this article notification before
+      // - User hasn't dismissed this specific article
+      if (daysSincePosted <= 7 && 
+          (!lastCheck || new Date(lastCheck) < latestArticle.date) &&
+          !dismissedNotifications.includes(latestArticle.Title)) {
+        
+        this.showNewArticleBanner(latestArticle);
+      }
+      
+      // Update last check time
+      localStorage.setItem(this.lastCheckKey, new Date().toISOString());
+      
+    } catch (error) {
+      console.error('Error checking for new articles:', error);
+    }
+  }
+
+  showNewArticleBanner(article) {
+    // Remove any existing banner
+    const existingBanner = document.getElementById('new-article-banner');
+    if (existingBanner) existingBanner.remove();
+    
+    // Create banner
+    const banner = document.createElement('div');
+    banner.id = 'new-article-banner';
+    banner.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #925682, #b773a3);
+      color: white;
+      padding: 12px;
+      text-align: center;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      font-family: 'Courier Prime', monospace;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+    `;
+    
+    banner.innerHTML = `
+      <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="flex: 1; min-width: 200px;">
+          <strong>🆕 New Article:</strong> ${article.Title}
+          <div style="font-size: 0.9em; opacity: 0.9; margin-top: 4px;">
+            ${article.Introduction.substring(0, 100)}...
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button id="read-new-article" style="
+            background: white;
+            color: #925682;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+          ">Read Now</button>
+          <button id="dismiss-banner" style="
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+          ">Dismiss</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(banner);
+    
+    // Animate banner in
+    setTimeout(() => {
+      banner.style.transform = 'translateY(0)';
+    }, 100);
+    
+    // Add body padding to prevent content overlap
+    document.body.style.paddingTop = '70px';
+    
+    // Event listeners
+    document.getElementById('read-new-article').onclick = () => {
+      // Scroll to the article or open it
+      const firstArticle = document.querySelector('.article');
+      if (firstArticle) {
+        banner.style.transform = 'translateY(-100%)';
+        setTimeout(() => {
+          banner.remove();
+          document.body.style.paddingTop = '0';
+          firstArticle.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+      }
+    };
+    
+    document.getElementById('dismiss-banner').onclick = () => {
+      this.dismissBanner(article.Title);
+    };
+    
+    // Auto-dismiss after 30 seconds
+    setTimeout(() => {
+      if (document.getElementById('new-article-banner')) {
+        this.dismissBanner(article.Title);
+      }
+    }, 30000);
+  }
+
+  dismissBanner(articleTitle) {
+    const banner = document.getElementById('new-article-banner');
+    if (!banner) return;
+    
+    // Add to dismissed list
+    const dismissed = JSON.parse(localStorage.getItem(this.dismissedKey) || '[]');
+    if (!dismissed.includes(articleTitle)) {
+      dismissed.push(articleTitle);
+      localStorage.setItem(this.dismissedKey, JSON.stringify(dismissed));
+    }
+    
+    // Animate out and remove
+    banner.style.transform = 'translateY(-100%)';
+    setTimeout(() => {
+      banner.remove();
+      document.body.style.paddingTop = '0';
+    }, 300);
+  }
+
+  // Clean up old dismissed notifications (older than 30 days)
+  cleanupDismissed() {
+    // This would require article dates, implement if needed
+  }
+}
+
+// Initialize simple notification system
+document.addEventListener('DOMContentLoaded', () => {
+  // Only show on homepage
+  if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+    window.simpleNotifications = new SimpleNotificationBanner();
+  }
+});
 });
