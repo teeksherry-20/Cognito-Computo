@@ -128,220 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // FIX 1: Enhanced Share Dialog Function
-  function createShareDialog(title, articleUrl, introText) {
-    // Remove any existing dialog
-    const existingDialog = document.getElementById('share-dialog');
-    if (existingDialog) existingDialog.remove();
-
-    // Create dialog container
-    const dialog = document.createElement('div');
-    dialog.id = 'share-dialog';
-    dialog.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-      animation: fadeIn 0.3s ease;
-    `;
-
-    // Create dialog content
-    const dialogContent = document.createElement('div');
-    dialogContent.style.cssText = `
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      text-align: center;
-      font-family: 'Courier Prime', monospace;
-      animation: slideIn 0.3s ease;
-    `;
-
-    // Add CSS animations if not already present
-    if (!document.querySelector('#share-dialog-styles')) {
-      const style = document.createElement('style');
-      style.id = 'share-dialog-styles';
-      style.textContent = `
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideIn {
-          from { transform: translateY(-20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        .share-option {
-          display: block;
-          width: 100%;
-          padding: 12px;
-          margin: 8px 0;
-          border: 1px solid #925682;
-          background: white;
-          color: #925682;
-          border-radius: 6px;
-          cursor: pointer;
-          font-family: 'Courier Prime', monospace;
-          font-size: 0.9rem;
-          transition: all 0.2s ease;
-        }
-        .share-option:hover {
-          background: #925682;
-          color: white;
-        }
-        .share-url-input {
-          width: 100%;
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-          font-family: 'Courier Prime', monospace;
-          font-size: 0.9rem;
-          margin: 10px 0;
-          background: #f9f9f9;
-        }
-      `;
-      document.head.appendChild(style);
-    }
-
-    dialogContent.innerHTML = `
-      <h3 style="color: #925682; margin-bottom: 20px; font-size: 1.2rem;">Share this article</h3>
-      <p style="color: #666; margin-bottom: 20px; font-size: 0.9rem;">${title}</p>
-      
-      <input type="text" class="share-url-input" value="${articleUrl}" readonly>
-      
-      <div style="margin: 20px 0;">
-        <button class="share-option" onclick="copyToClipboard('${articleUrl}')">
-          📋 Copy Link to Clipboard
-        </button>
-        
-        <button class="share-option" onclick="shareViaEmail('${encodeURIComponent(title)}', '${encodeURIComponent(articleUrl)}', '${encodeURIComponent(introText)}')">
-          ✉️ Share via Email
-        </button>
-        
-        <button class="share-option" onclick="shareOnTwitter('${encodeURIComponent(title)}', '${encodeURIComponent(articleUrl)}')">
-          🐦 Share on Twitter
-        </button>
-        
-        <button class="share-option" onclick="shareOnFacebook('${encodeURIComponent(articleUrl)}')">
-          📘 Share on Facebook
-        </button>
-      </div>
-      
-      <button onclick="closeShareDialog()" style="
-        background: #f0f0f0;
-        border: 1px solid #ddd;
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-family: 'Courier Prime', monospace;
-        margin-top: 10px;
-      ">Close</button>
-    `;
-
-    dialog.appendChild(dialogContent);
-    document.body.appendChild(dialog);
-
-    // Close dialog when clicking outside
-    dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) {
-        closeShareDialog();
-      }
-    });
-
-    // Close with Escape key
-    const escapeHandler = (e) => {
-      if (e.key === 'Escape') {
-        closeShareDialog();
-        document.removeEventListener('keydown', escapeHandler);
-      }
-    };
-    document.addEventListener('keydown', escapeHandler);
-  }
-
-  // Share dialog utility functions
-  window.copyToClipboard = async function(url) {
-    try {
-      await navigator.clipboard.writeText(url);
-      showShareMessage('✅ Link copied to clipboard!', '#4CAF50');
-    } catch (error) {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = url;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      showShareMessage('✅ Link copied to clipboard!', '#4CAF50');
-    }
-    setTimeout(closeShareDialog, 1500);
-  };
-
-  window.shareViaEmail = function(title, url, intro) {
-    const subject = `Check out this article: ${decodeURIComponent(title)}`;
-    const body = `I thought you might enjoy this article from Cogito Computo:\n\n${decodeURIComponent(title)}\n\n${decodeURIComponent(intro)}\n\nRead more: ${decodeURIComponent(url)}`;
-    window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-    closeShareDialog();
-  };
-
-  window.shareOnTwitter = function(title, url) {
-    const text = `Check out this article: ${decodeURIComponent(title)}`;
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${url}`, '_blank');
-    closeShareDialog();
-  };
-
-  window.shareOnFacebook = function(url) {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
-    closeShareDialog();
-  };
-
-  window.closeShareDialog = function() {
-    const dialog = document.getElementById('share-dialog');
-    if (dialog) {
-      dialog.style.animation = 'fadeOut 0.3s ease forwards';
-      setTimeout(() => dialog.remove(), 300);
-    }
-  };
-
-  window.showShareMessage = function(message, color) {
-    const messageDiv = document.createElement('div');
-    messageDiv.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: ${color};
-      color: white;
-      padding: 12px 20px;
-      border-radius: 6px;
-      z-index: 10001;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.9rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    `;
-    messageDiv.textContent = message;
-    document.body.appendChild(messageDiv);
-    setTimeout(() => messageDiv.remove(), 3000);
-  };
-
-  // Add fadeOut animation
-  if (!document.querySelector('#fadeout-style')) {
-    const style = document.createElement('style');
-    style.id = 'fadeout-style';
-    style.textContent = `
-      @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
   // Fetch and render articles
   fetch(API_BASE)
     .then(res => res.json())
@@ -363,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <h2>${article.Title}</h2>
           <p>${article.Introduction.replace(/\n/g, '<br>')}</p>
           <a href="${article['Article URL']}" class="read-more" target="_blank" rel="noopener noreferrer">Keep Reading →</a>
-          <div class="like-section" data-title="${article.Title}" data-url="${article['Article URL']}" data-intro="${article.Introduction}">
+          <div class="like-section" data-title="${article.Title}">
             <button class="like-button" aria-label="Like article ${article.Title}">❤️</button>
             <span class="like-count">${currentLikes}</span>
             <button class="share-button" aria-label="Share article ${article.Title}">Share ⌯⌲</button>
@@ -445,24 +231,22 @@ document.addEventListener('DOMContentLoaded', () => {
       await updateLikeCount(title, newCount);
     }
 
-    // FIX 2: Updated share button functionality with dialog
+    // Share button clicked - keeping existing functionality
     if (e.target && e.target.classList.contains('share-button')) {
-      e.preventDefault();
-      
-      // Get article information
       const likeSection = e.target.closest('.like-section');
-      
-      if (!likeSection) {
-        console.error('Could not find article information');
-        return;
-      }
-      
       const title = likeSection.getAttribute('data-title');
-      const articleUrl = likeSection.getAttribute('data-url') || window.location.href;
-      const introText = likeSection.getAttribute('data-intro') || 'Check out this article from Cogito Computo!';
-      
-      // Show share dialog
-      createShareDialog(title, articleUrl, introText.substring(0, 100) + '...');
+      const articleLink = likeSection.parentElement.querySelector('a').href;
+
+      if (navigator.share) {
+        navigator.share({
+          title: title,
+          url: articleLink
+        }).catch(console.error);
+      } else {
+        navigator.clipboard.writeText(articleLink).then(() => {
+          alert('Link copied to clipboard!');
+        });
+      }
     }
   });
 
@@ -529,6 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const articlesPerPage = 5;
   let currentPage = 1;
   let selectedGenre = null;
+
+  // ENHANCEMENT 10: Remove localStorage poll data and use shared API data
+  // Poll data now comes from globalTrolleyData instead of localStorage
 
   // ENHANCEMENT 11: Updated poll display function to use shared data
   function updatePollDisplay() {
@@ -713,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <p class="intro">${article.intro}</p>
       <div class="article-footer">
         <button class="read-more-btn" aria-label="Read full article: ${article.title}">Keep Reading →</button>
-        <div class="like-section" data-title="${article.originalTitle}" data-url="${article.url}" data-intro="${article.intro}">
+        <div class="like-section" data-title="${article.originalTitle}">
           <button class="like-button" aria-label="Like article ${article.originalTitle}">❤️</button>
           <span class="like-count">${currentLikes}</span>
           <button class="share-button" aria-label="Share article ${article.originalTitle}">Share ⌲</button>
@@ -737,7 +524,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ENHANCEMENT 18: Enhanced like button event listener with shared functionality
     const likeBtn = articleEl.querySelector('.like-button');
     const likeCountSpan = articleEl.querySelector('.like-count');
-    const shareBtn = articleEl.querySelector('.share-button');
 
     likeBtn.addEventListener('click', async () => {
       if (likeBtn.disabled) return; // Prevent multiple clicks
@@ -766,3 +552,611 @@ document.addEventListener('DOMContentLoaded', () => {
         font-size: 20px;
         animation: heartFloat 1s ease-out forwards;
         z-index: 1000;
+      `;
+      
+      likeBtn.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
+
+      // Update shared like count in spreadsheet
+      await updateLikeCount(article.originalTitle, newCount);
+    });
+
+    requestAnimationFrame(() => {
+      articleEl.classList.add('visible');
+    });
+
+    return articleEl;
+  }
+
+  // Render articles function - keeping most functionality, enhancing trolley integration
+  function renderArticles() {
+    articleContainer.innerHTML = '';
+
+    if (filteredArticles.length === 0) {
+      noResults.style.display = 'block';
+      noResults.textContent = 'No articles found.';
+      pageIndicator.textContent = '';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    } else {
+      noResults.style.display = 'none';
+    }
+
+    const start = (currentPage - 1) * articlesPerPage;
+    const end = start + articlesPerPage;
+    const articlesToShow = filteredArticles.slice(start, end);
+
+    const isHomePage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
+
+    if (currentPage === 1 && articlesToShow.length > 0 && isHomePage) {
+      // Widget container
+      const widgetRow = document.createElement('div');
+      widgetRow.className = 'flex-row-container';
+
+      // ENHANCEMENT 19: Enhanced trolley widget with shared vote functionality
+      const trolleyWidget = document.createElement('div');
+      trolleyWidget.className = 'trolley-widget';
+      trolleyWidget.innerHTML = `
+        <video autoplay loop muted playsinline>
+          <source src="trolley.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <h3>Trolley Problem Poll</h3>
+        <button id="voteA">Pull the Lever</button>
+        <button id="voteB">Do Nothing</button>
+        <p id="poll-result" class="poll-result">Loading votes...</p>
+      `;
+      widgetRow.appendChild(trolleyWidget);
+
+      // Quiz widget - keeping existing functionality
+      const quizWidget = createQuizWidget();
+      widgetRow.appendChild(quizWidget);
+
+      articleContainer.appendChild(widgetRow);
+
+      articleContainer.appendChild(createArticleElement(articlesToShow[0]));
+
+      for (let i = 1; i < articlesToShow.length; i++) {
+        articleContainer.appendChild(createArticleElement(articlesToShow[i]));
+      }
+    } else {
+      articlesToShow.forEach(article => {
+        articleContainer.appendChild(createArticleElement(article));
+      });
+    }
+
+    pageIndicator.textContent = `Page ${currentPage} of ${Math.ceil(filteredArticles.length / articlesPerPage)}`;
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === Math.ceil(filteredArticles.length / articlesPerPage);
+
+    // ENHANCEMENT 20: Re-attach poll button listeners with shared functionality
+    if (isHomePage) {
+      const voteAButton = document.getElementById('voteA');
+      const voteBButton = document.getElementById('voteB');
+      if (voteAButton && voteBButton) {
+        voteAButton.onclick = () => vote('A');
+        voteBButton.onclick = () => vote('B');
+      }
+
+      // Update poll display with current shared data - ensure it happens after DOM is ready
+      setTimeout(() => {
+        updatePollDisplay();
+      }, 50);
+    }
+  }
+
+  // Modal functions - keeping existing functionality
+  function openModal(article) {
+    modalTitle.textContent = article.title;
+
+    const lines = article.content
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+
+    let html = '';
+    lines.forEach(line => {
+      const imgMatch = line.match(/^\[img:(.+?)\]$/i);
+      if (imgMatch) {
+        const imgUrl = imgMatch[1];
+        html += `<img src="${imgUrl}" alt="Article Image" style="max-width: 100%; margin-bottom: 1rem;" />`;
+      } else {
+        html += `<p>${line}</p>`;
+      }
+    });
+
+    modalBody.innerHTML = html;
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  // ENHANCEMENT 21: Enhanced quiz widget with no auto-scroll during results
+  function createQuizWidget() {
+    const widget = document.createElement('div');
+    widget.className = 'quiz-widget';
+    widget.innerHTML = `
+      <h3 class="quiz-title">🧠 Which Philosopher Are You?</h3>
+      <div class="quiz-progress-bar-container">
+        <div id="quiz-bar" class="quiz-progress-bar"></div>
+      </div>
+      <div id="quiz-progress">Question 1 of 4</div>
+      <form id="quiz-form">
+        <div class="quiz-question show" id="q1">
+          <p>1. What drives your decisions most?</p>
+          <label><input type="radio" name="q1" value="kant" /> Duty and rules</label><br />
+          <label><input type="radio" name="q1" value="nietzsche" /> Personal freedom</label><br />
+          <label><input type="radio" name="q1" value="beauvoir" /> Social context and equality</label><br />
+          <label><input type="radio" name="q1" value="socrates" /> Asking questions and dialogue</label>
+        </div>
+        <div class="quiz-question" id="q2">
+          <p>2. How do you view truth?</p>
+          <label><input type="radio" name="q2" value="kant" /> Absolute and universal</label><br />
+          <label><input type="radio" name="q2" value="nietzsche" /> Relative and self-made</label><br />
+          <label><input type="radio" name="q2" value="beauvoir" /> Influenced by society</label><br />
+          <label><input type="radio" name="q2" value="socrates" /> Always questioned and probed</label>
+        </div>
+        <div class="quiz-question" id="q3">
+          <p>3. What motivates your actions?</p>
+          <label><input type="radio" name="q3" value="kant" /> Moral duty</label><br />
+          <label><input type="radio" name="q3" value="nietzsche" /> Creating your own values</label><br />
+          <label><input type="radio" name="q3" value="beauvoir" /> Fighting social injustice</label><br />
+          <label><input type="radio" name="q3" value="socrates" /> Seeking knowledge</label>
+        </div>
+        <div class="quiz-question" id="q4">
+          <p>4. How do you learn best?</p>
+          <label><input type="radio" name="q4" value="kant" /> Following structured teaching</label><br />
+          <label><input type="radio" name="q4" value="nietzsche" /> Through experience and challenge</label><br />
+          <label><input type="radio" name="q4" value="beauvoir" /> From social interaction</label><br />
+          <label><input type="radio" name="q4" value="socrates" /> By questioning assumptions</label>
+        </div>
+        <button type="button" id="next-btn">Next Question</button>
+      </form>
+      <div id="quiz-result"></div>
+    `;
+
+    setTimeout(() => {
+      const quizForm = widget.querySelector("#quiz-form");
+      const questions = widget.querySelectorAll(".quiz-question");
+      const nextBtn = widget.querySelector("#next-btn");
+      const resultBox = widget.querySelector("#quiz-result");
+      let currentStep = 0;
+
+      function hideAllQuestions() {
+        questions.forEach(q => q.classList.remove('show'));
+      }
+
+      function showQuestion(step) {
+        hideAllQuestions();
+        if (questions[step]) {
+          questions[step].classList.add('show');
+          updateProgress(step);
+        }
+      }
+
+      function updateProgress(step) {
+        widget.querySelector("#quiz-progress").textContent = `Question ${step + 1} of ${questions.length}`;
+        widget.querySelector("#quiz-bar").style.width = `${((step + 1) / questions.length) * 100}%`;
+      }
+
+      // ENHANCEMENT 22: Modified submitQuiz function to prevent auto-scrolling
+      function submitQuiz() {
+        resultBox.innerHTML = `<div id="loading-message">Calculating your philosopher...</div>`;
+        // REMOVED: resultBox.scrollIntoView({ behavior: "smooth" }); - this was causing unwanted scrolling
+
+        setTimeout(() => {
+          let tally = { kant: 0, nietzsche: 0, beauvoir: 0, socrates: 0 };
+          ["q1", "q2", "q3", "q4"].forEach(q => {
+            const ans = quizForm.querySelector(`input[name="${q}"]:checked`);
+            if (ans) tally[ans.value]++;
+          });
+
+          let result = Object.entries(tally).sort((a, b) => b[1] - a[1])[0][0];
+          localStorage.setItem("philosopherResult", result);
+          showResult(result);
+        }, 1500);
+      }
+
+      // ENHANCEMENT 23: Modified showResult function to prevent auto-scrolling
+      function showResult(philosopher) {
+        const messages = {
+          kant: {
+            text: "🧠 You're like Immanuel Kant - (serving kant) – you believe in reason, duty, and universal moral laws.",
+            image: "kant.jpg",
+          },
+          nietzsche: {
+            text: "🔥 You're like Nietzsche – bold, independent, and all about creating your own values.",
+            image: "nietzsche.jpg",
+          },
+          beauvoir: {
+            text: "🌸 You're like Simone de Beauvoir – deeply aware, expressive, and challenging societal norms.",
+            image: "beauvoir.jpg",
+          },
+          socrates: {
+            text: "💬 You're like Socrates – curious, reflective, and never stop asking why.",
+            image: "socrates.jpg",
+          },
+        };
+
+        const { text, image } = messages[philosopher];
+
+        quizForm.style.display = "none";
+        resultBox.innerHTML = `
+          <div class="quiz-result">
+            <img src="${image}" alt="${philosopher}" />
+            <p>${text}</p>
+            <button id="retake-btn">Retake Quiz</button>
+            <button id="share-btn">Share Your Result</button>
+          </div>
+        `;
+
+        widget.querySelector("#retake-btn").addEventListener("click", () => {
+          localStorage.removeItem("philosopherResult");
+          resultBox.innerHTML = "";
+          quizForm.reset();
+          quizForm.style.display = "block";
+          currentStep = 0;
+          showQuestion(currentStep);
+          nextBtn.textContent = "Next Question";
+        });
+
+        widget.querySelector("#share-btn").addEventListener("click", () => {
+          const shareText = `I got ${philosopher.charAt(0).toUpperCase() + philosopher.slice(1)} in the "Which Philosopher Are You?" quiz on Cogito Computo! 🧠`;
+          if (navigator.share) {
+            navigator.share({ title: "Cogito Computo Quiz Result", text: shareText, url: window.location.href })
+              .catch(() => alert("Sharing cancelled."));
+          } else {
+            navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
+            alert("Result copied to clipboard!");
+          }
+        });
+
+        // REMOVED: resultBox.scrollIntoView({ behavior: "smooth" }); - this was causing unwanted scrolling
+        // Users can now see the result without the page jumping around
+      }
+
+      const storedResult = localStorage.getItem("philosopherResult");
+      if (storedResult) {
+        quizForm.style.display = "none";
+        showResult(storedResult);
+      } else {
+        quizForm.style.display = "block";
+        showQuestion(currentStep);
+      }
+
+      nextBtn.addEventListener("click", () => {
+        const currentQuestion = questions[currentStep];
+        const selected = currentQuestion.querySelector("input:checked");
+
+        if (!selected) {
+          alert("Please select an answer.");
+          return;
+        }
+
+        currentStep++;
+        if (currentStep < questions.length) {
+          showQuestion(currentStep);
+          nextBtn.textContent = currentStep === questions.length - 1 ? "Submit" : "Next Question";
+        } else {
+          submitQuiz();
+        }
+      });
+    }, 0);
+
+    return widget;
+  }
+
+  // ENHANCEMENT 24: Initialize shared data on page load
+  async function initializeSharedData() {
+    console.log('Initializing shared data...');
+    
+    // Fetch current like counts from API
+    await fetchLikeCounts();
+    
+    // Fetch current trolley vote counts from API  
+    await fetchTrolleyVotes();
+    
+    console.log('Shared data initialized successfully', { likes: globalLikeCounts, trolley: globalTrolleyData });
+  }
+
+  // ENHANCEMENT 25: Load articles and initialize shared data
+  async function initialize() {
+    // Initialize shared data first
+    await initializeSharedData();
+    
+    // Then load articles
+    await loadArticles();
+  }
+
+  // ENHANCEMENT 26: Start the application with shared data initialization
+  initialize();
+  // Add this to your script.js file
+
+// Push Notification System for New Articles
+class ArticleNotificationSystem {
+  constructor() {
+    this.lastKnownArticleCount = 0;
+    this.subscriptionKey = 'article-notifications-subscribed';
+    this.lastCountKey = 'last-article-count';
+    this.init();
+  }
+
+  async init() {
+    // Check if browser supports notifications
+    if (!('Notification' in window)) {
+      console.log('This browser does not support notifications');
+      return;
+    }
+
+    // Load last known article count
+    this.lastKnownArticleCount = parseInt(localStorage.getItem(this.lastCountKey)) || 0;
+    
+    // Show subscription prompt if not already subscribed
+    this.showSubscriptionPrompt();
+    
+    // Check for new articles periodically
+    this.startPeriodicCheck();
+  }
+
+  showSubscriptionPrompt() {
+    // Check if user already made a decision
+    const isSubscribed = localStorage.getItem(this.subscriptionKey);
+    if (isSubscribed !== null) return;
+
+    // Create notification prompt
+    this.createNotificationPrompt();
+  }
+
+  createNotificationPrompt() {
+    const promptDiv = document.createElement('div');
+    promptDiv.id = 'notification-prompt';
+    promptDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #925682;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+      max-width: 300px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.9rem;
+    `;
+
+    promptDiv.innerHTML = `
+      <div style="margin-bottom: 10px;">
+        📚 Get notified when new articles are published!
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="enable-notifications" style="
+          background: white;
+          color: #925682;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 0.8rem;
+        ">Enable</button>
+        <button id="dismiss-notifications" style="
+          background: transparent;
+          color: white;
+          border: 1px solid white;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 0.8rem;
+        ">Maybe Later</button>
+      </div>
+    `;
+
+    document.body.appendChild(promptDiv);
+
+    // Add event listeners
+    document.getElementById('enable-notifications').onclick = () => this.requestPermission();
+    document.getElementById('dismiss-notifications').onclick = () => this.dismissPrompt();
+  }
+
+  async requestPermission() {
+    try {
+      const permission = await Notification.requestPermission();
+      
+      if (permission === 'granted') {
+        localStorage.setItem(this.subscriptionKey, 'true');
+        this.showSuccessMessage();
+        
+        // Send a welcome notification
+        new Notification('Cogito Computo Notifications Enabled! 🧠', {
+          body: 'You\'ll now get notified when new articles are published.',
+          icon: 'logo.png' // Make sure you have a logo file
+        });
+      } else {
+        localStorage.setItem(this.subscriptionKey, 'false');
+        this.showErrorMessage();
+      }
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      this.showErrorMessage();
+    }
+    
+    this.dismissPrompt();
+  }
+
+  dismissPrompt() {
+    const prompt = document.getElementById('notification-prompt');
+    if (prompt) {
+      prompt.remove();
+    }
+    
+    // If user dismissed, ask again in 3 days
+    if (!localStorage.getItem(this.subscriptionKey)) {
+      const askAgainDate = new Date();
+      askAgainDate.setDate(askAgainDate.getDate() + 3);
+      localStorage.setItem('notification-ask-again', askAgainDate.toISOString());
+    }
+  }
+
+  showSuccessMessage() {
+    this.showMessage('✅ Notifications enabled! You\'ll be notified of new articles.', '#4CAF50');
+  }
+
+  showErrorMessage() {
+    this.showMessage('❌ Notifications blocked. You can enable them in your browser settings.', '#f44336');
+  }
+
+  showMessage(text, color) {
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${color};
+      color: white;
+      padding: 10px 15px;
+      border-radius: 4px;
+      z-index: 1001;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.9rem;
+    `;
+    messageDiv.textContent = text;
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => messageDiv.remove(), 4000);
+  }
+
+  async checkForNewArticles() {
+    try {
+      const API_BASE = 'https://api.sheetbest.com/sheets/29c9e88c-a1a1-4fb7-bb75-12b8fb82264a';
+      const response = await fetch(API_BASE);
+      
+      if (!response.ok) return;
+      
+      const data = await response.json();
+      const articles = data.filter(item => item.ID !== 'trolley' && item.Title);
+      const currentCount = articles.length;
+      
+      // Check if there are new articles
+      if (this.lastKnownArticleCount > 0 && currentCount > this.lastKnownArticleCount) {
+        const newArticleCount = currentCount - this.lastKnownArticleCount;
+        this.sendNewArticleNotification(newArticleCount, articles[0]); // Show latest article
+      }
+      
+      // Update the count
+      this.lastKnownArticleCount = currentCount;
+      localStorage.setItem(this.lastCountKey, currentCount.toString());
+      
+    } catch (error) {
+      console.error('Error checking for new articles:', error);
+    }
+  }
+
+  sendNewArticleNotification(count, latestArticle) {
+    // Check if notifications are enabled
+    if (Notification.permission !== 'granted') return;
+    if (localStorage.getItem(this.subscriptionKey) !== 'true') return;
+
+    const title = count === 1 
+      ? `New Article: ${latestArticle.Title}` 
+      : `${count} New Articles Published!`;
+    
+    const body = count === 1
+      ? latestArticle.Introduction.substring(0, 100) + '...'
+      : `Check out the latest posts on Cogito Computo`;
+
+    const notification = new Notification(title, {
+      body: body,
+      icon: 'logo.png',
+      badge: 'logo.png',
+      tag: 'new-articles', // Prevents duplicate notifications
+      requireInteraction: true // Keeps notification visible until user interacts
+    });
+
+    // Handle notification click
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+      
+      // Scroll to latest article if on home page
+      if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+        setTimeout(() => {
+          const firstArticle = document.querySelector('.article');
+          if (firstArticle) {
+            firstArticle.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 500);
+      }
+    };
+  }
+
+  startPeriodicCheck() {
+    // Check every 10 minutes for new articles
+    setInterval(() => {
+      this.checkForNewArticles();
+    }, 10 * 60 * 1000); // 10 minutes
+
+    // Also check when page becomes visible again
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        this.checkForNewArticles();
+      }
+    });
+  }
+
+  // Manual method to check for new articles (can be called from anywhere)
+  async manualCheck() {
+    await this.checkForNewArticles();
+  }
+
+  // Method to unsubscribe
+  unsubscribe() {
+    localStorage.setItem(this.subscriptionKey, 'false');
+    this.showMessage('🔕 Notifications disabled', '#ff9800');
+  }
+
+  // Method to check subscription status
+  isSubscribed() {
+    return localStorage.getItem(this.subscriptionKey) === 'true' && 
+           Notification.permission === 'granted';
+  }
+}
+
+// Initialize the notification system
+document.addEventListener('DOMContentLoaded', () => {
+  // Create global instance
+  window.articleNotifications = new ArticleNotificationSystem();
+  
+  // Add notification settings to your page (optional)
+  const addNotificationSettings = () => {
+    const nav = document.querySelector('nav');
+    if (nav && window.articleNotifications.isSubscribed()) {
+      const unsubscribeBtn = document.createElement('button');
+      unsubscribeBtn.textContent = '🔔';
+      unsubscribeBtn.title = 'Notification Settings';
+      unsubscribeBtn.style.cssText = `
+        background: none;
+        border: 1px solid #925682;
+        color: #925682;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+        font-size: 0.8rem;
+      `;
+      
+      unsubscribeBtn.onclick = () => {
+        if (confirm('Do you want to disable article notifications?')) {
+          window.articleNotifications.unsubscribe();
+          unsubscribeBtn.remove();
+        }
+      };
+      
+      nav.appendChild(unsubscribeBtn);
+    }
+  };
+  
+  // Add settings after a short delay
+  setTimeout(addNotificationSettings, 1000);
+});
+});
