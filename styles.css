@@ -42,7 +42,7 @@
   background-color: white;
 }
 
-/* === Like Section === */
+/* === Like Button === */
 .like-section {
   margin-top: 8px;
   display: flex;
@@ -387,13 +387,10 @@ nav a.active {
 /* ==== FLEX ROW CONTAINER FOR QUIZ + ARTICLE ==== */
 .flex-row-container {
   display: flex;
-  gap: 1rem;
+  gap: 10px;
   align-items: stretch;
   margin-bottom: 2rem;
   flex-wrap: wrap;
-  justify-content: space-between;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .flex-row-container article.article {
@@ -406,12 +403,9 @@ nav a.active {
   max-width: 50%;
 }
 
-/* FIX 2: Enhanced Quiz Widget Mobile Responsiveness */
+/* ==== QUIZ WIDGET ==== */
 .quiz-widget {
-  flex: 1 1 48%;           /* Same as trolley widget */
-  max-width: 48%;          /* Same as trolley widget */
-  min-width: 280px;        /* Same as trolley widget */
-  box-sizing: border-box;  /* Same as trolley widget */
+  max-width: 100%; /* full width of container */
   font-family: 'Courier Prime', monospace;
   background: var(--background-light);
   padding: 1rem;
@@ -421,9 +415,6 @@ nav a.active {
   transform: translateY(20px);
   animation: fadeInUp 0.7s forwards;
   animation-delay: 0.3s;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
 @keyframes fadeInUp {
@@ -499,59 +490,34 @@ nav a.active {
   background-color: #6f3f61;
 }
 
-/* ==== ENHANCED MOBILE RESPONSIVENESS ==== */
-/* FIX 3: Improved mobile responsiveness for both widgets */
+/* ==== RESPONSIVE ==== */
+.flex-row-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;         /* allow wrapping on small screens */
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.trolley-widget,
+.quiz-widget {
+  flex: 1 1 48%;           /* grow and shrink, base 48% width */
+  max-width: 48%;
+  min-width: 280px;        /* avoid too narrow */
+  box-sizing: border-box;
+}
+
+/* On screens smaller than 700px, stack widgets vertically */
 @media (max-width: 700px) {
-  .flex-row-container {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
   .trolley-widget,
   .quiz-widget {
-    flex-basis: 100% !important;
-    max-width: 100% !important;
-    min-width: 100% !important;
-    width: 100% !important;
-  }
-  
-  .flex-row-container article.article {
-    flex: 1 1 100%;
+    flex-basis: 100%;
     max-width: 100%;
-  }
-  
-  .flex-row-container .quiz-widget {
-    flex: 1 1 100%;
-    max-width: 100%;
+    min-width: 100%;
   }
 }
 
-/* Additional mobile improvements */
-@media (max-width: 600px) {
-  body {
-    padding: 15px;
-  }
-  
-  .quiz-widget {
-    padding: 0.75rem;
-  }
-  
-  .trolley-widget {
-    padding: 12px;
-  }
-  
-  .quiz-widget h3,
-  .trolley-widget h3 {
-    font-size: 0.65rem;
-    margin-bottom: 6px;
-  }
-  
-  .quiz-widget button,
-  .trolley-widget button {
-    font-size: 0.55rem;
-    padding: 4px;
-  }
-}
 
 /* ==== QUIZ TITLE ==== */
 .quiz-title {
