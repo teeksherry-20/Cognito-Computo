@@ -233,22 +233,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Share button clicked - keeping existing functionality
     if (e.target && e.target.classList.contains('share-button')) {
-      const likeSection = e.target.closest('.like-section');
-      const title = likeSection.getAttribute('data-title');
-      const articleLink = likeSection.parentElement.querySelector('a').href;
-
+    e.preventDefault();
+    
+    // Get article information
+    const likeSection = e.target.closest('.like-section');
+    const articleElement = e.target.closest('.article');
+    
+    if (!likeSection || !articleElement) {
+      console.error('Could not find article information');
+      return;
+    }
+    
+    const title = likeSection.getAttribute('data-title');
+    const articleTitle = title || articleElement.querySelector('h2')?.textContent || 'Cogito Computo Article';
+    
+    // Get the article URL
+    let articleUrl;
+    const externalLink = articleElement.querySelector('a[href*="http"]');
+    if (externalLink) {
+      articleUrl = externalLink.href;
+    } else {
+      articleUrl = window.location.href;
+    }
+    
+    // Get article intro
+    const introElement = articleElement.querySelector('.intro, p');
+    const articleText = introElement ? 
+      introElement.textContent.substring(0, 100) + '...' : 
+      'Check out this article from Cogito Computo!';
+    
+    const shareData = {
+      title: articleTitle,
+      text: articleText,
+      url: articleUrl
+    };
+    
+    try {
       if (navigator.share) {
-        navigator.share({
-          title: title,
-          url: articleLink
-        }).catch(console.error);
+        await navigator.share(shareData);
       } else {
-        navigator.clipboard.writeText(articleLink).then(() => {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(articleUrl);
+        alert('Link copied to clipboard!');
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        // Fallback: copy to clipboard
+        try {
+          await navigator.clipboard.writeText(articleUrl);
           alert('Link copied to clipboard!');
-        });
+        } catch (clipboardError) {
+          console.error('Share failed:', error);
+        }
       }
     }
-  });
+  }
 
   // Dark mode toggle - keeping existing functionality
   const toggleButton = document.getElementById('darkModeToggle');
@@ -798,17 +837,6 @@ document.addEventListener('DOMContentLoaded', () => {
           currentStep = 0;
           showQuestion(currentStep);
           nextBtn.textContent = "Next Question";
-        });
-
-        widget.querySelector("#share-btn").addEventListener("click", () => {
-          const shareText = `I got ${philosopher.charAt(0).toUpperCase() + philosopher.slice(1)} in the "Which Philosopher Are You?" quiz on Cogito Computo! 🧠`;
-          if (navigator.share) {
-            navigator.share({ title: "Cogito Computo Quiz Result", text: shareText, url: window.location.href })
-              .catch(() => alert("Sharing cancelled."));
-          } else {
-            navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
-            alert("Result copied to clipboard!");
-          }
         });
 
         // REMOVED: resultBox.scrollIntoView({ behavior: "smooth" }); - this was causing unwanted scrolling
