@@ -37,7 +37,7 @@ app.use(cors({
       'http://127.0.0.1:3000',
       'http://127.0.0.1:8080',
       'http://127.0.0.1:5000',
-      'https://cogito-computo.onrender.com',
+      'cogitocomputo.vercel.app',
       'file://' // Allow local file protocol
     ];
     
@@ -329,4 +329,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
+
 });
