@@ -12,7 +12,9 @@ app.use(express.static(path.join(__dirname)));
 // Load credentials from environment variable
 let credentials;
 try {
-  credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+  // Replace literal \n with actual newlines
+  const rawJson = process.env.GOOGLE_CREDENTIALS_JSON.replace(/\\n/g, "\n");
+  credentials = JSON.parse(rawJson);
   console.log("✅ Loaded Google credentials from environment");
 } catch (err) {
   console.error("❌ Failed to load Google credentials:", err.message);
@@ -33,7 +35,7 @@ app.get("/articles", async (req, res) => {
     console.log("📥 /articles request received"); // debug log
 
     const sheets = google.sheets({ version: "v4", auth });
-    const range = "Sheet1!A:D"; // check this matches your sheet tab + columns
+    const range = "Sheet1!A:D"; // update if your sheet tab/columns differ
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -43,9 +45,7 @@ app.get("/articles", async (req, res) => {
     const rows = response.data.values || [];
     console.log("✅ Rows fetched:", rows.length); // debug log
 
-    if (!rows.length) {
-      return res.json([]);
-    }
+    if (!rows.length) return res.json([]);
 
     const articles = rows.slice(1).map((row) => ({
       date: row[0],
