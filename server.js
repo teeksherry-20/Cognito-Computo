@@ -6,95 +6,82 @@ const path = require("path");
 const app = express();
 app.use(express.json());
 
-// Serve static files (your frontend)
+// Serve static files (frontend)
 app.use(express.static(path.join(__dirname)));
 
-// Load credentials from environment variable
+// --- Load Google credentials from environment ---
 let credentials;
 try {
   credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
-  console.log("✅ Loaded Google credentials from environment");
+  console.log("✅ Loaded Google credentials");
 } catch (err) {
   console.error("❌ Failed to load Google credentials:", err.message);
-  credentials = null; // fallback
 }
 
-// Authenticate with Google Sheets
+// --- Google Auth setup ---
 let auth;
 if (credentials) {
-  try {
-    auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-  } catch (err) {
-    console.error("❌ GoogleAuth initialization failed:", err.message);
-    auth = null;
-  }
+  auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
 }
 
-// ✅ ARTICLES ENDPOINT (only if auth available)
+// --- /articles endpoint ---
 app.get("/articles", async (req, res) => {
-  if (!auth) {
-    console.warn("⚠️ Google Sheets auth not available, returning empty array");
-    return res.json([]);
-  }
+  if (!auth) return res.status(500).json({ error: "Google auth not configured" });
 
   try {
-    console.log("📥 /articles request received");
-
     const sheets = google.sheets({ version: "v4", auth });
-    const range = "Sheet1!A:D";
+    const spreadsheetId = process.env.SPREADSHEET_ID;
+    const range = "Sheet1!A:E"; // Adjust sheet/tab & columns
 
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.SPREADSHEET_ID,
-      range,
-    });
-
+    const response = await sheets.spreadsheets.values.get({ spreadsheetId, range });
     const rows = response.data.values || [];
-    console.log("✅ Rows fetched:", rows.length);
+    console.log("📥 Fetched rows:", rows.length);
 
     if (!rows.length) return res.json([]);
 
     const articles = rows.slice(1).map((row) => ({
-      date: row[0],
-      title: row[1],
-      intro: row[2],
-      genre: row[3],
+      date: row[0] || "",
+      title: row[1] || "",
+      intro: row[2] || "",
+      genre: row[3] || "",
       likes: parseInt(row[4] || "0", 10),
     }));
 
     res.json(articles);
   } catch (err) {
-    console.error("❌ Error in /articles:", err.message, err.stack);
+    console.error("❌ /articles error:", err.response?.data || err.message);
     res.status(500).json({ error: "Failed to fetch articles" });
   }
 });
 
-// ✅ LIKE ENDPOINT
+// --- /like endpoint ---
 app.post("/like", async (req, res) => {
   try {
     const { articleId, newLikeCount } = req.body;
-    console.log(`📌 Like request for: ${articleId}, new count: ${newLikeCount}`);
+    console.log(`📌 Like request: ${articleId}, new count: ${newLikeCount}`);
+    // Note: you could update Google Sheet here if desired
     res.json({ success: true, articleId, newLikeCount });
   } catch (err) {
-    console.error("❌ Error in /like:", err.message);
+    console.error("❌ /like error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Serve index.html for frontend
+// --- Serve index.html ---
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// ✅ Catch-all handler
+// --- Catch-all 404 handler ---
 app.use((req, res) => {
   console.log("⚠️ 404 for path:", req.originalUrl);
   res.status(404).json({ error: "Endpoint not found" });
 });
 
-// Start server
+// --- Start server ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
