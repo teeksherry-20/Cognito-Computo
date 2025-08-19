@@ -12,20 +12,21 @@ app.use(express.static(path.join(__dirname)));
 // Load credentials from environment variable
 let credentials;
 try {
+  if (!process.env.GOOGLE_CREDENTIALS_JSON) {
+    throw new Error("GOOGLE_CREDENTIALS_JSON environment variable is not set");
+  }
   credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
   console.log("✅ Loaded Google credentials from environment");
 } catch (err) {
   console.error("❌ Failed to load Google credentials:", err.message);
+  process.exit(1); // stop server if credentials fail
 }
 
 // Authenticate with Google Sheets
-let auth;
-if (credentials) {
-  auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
-}
+const auth = new google.auth.GoogleAuth({
+  credentials,
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
 
 // ✅ ARTICLES ENDPOINT WITH DEBUG LOGGING
 app.get("/articles", async (req, res) => {
@@ -33,7 +34,7 @@ app.get("/articles", async (req, res) => {
     console.log("📥 /articles request received"); // debug log
 
     const sheets = google.sheets({ version: "v4", auth });
-    const range = "Sheet1!A:D"; // check this matches your sheet tab + columns
+    const range = "Sheet1!A:E"; // ensure this matches your sheet tab + columns
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -91,4 +92,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
