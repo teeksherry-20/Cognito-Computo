@@ -200,6 +200,20 @@ app.post("/like", async (req, res) => {
   }
 });
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files (JS, CSS, images) from project root
+app.use(express.static(__dirname));
+
+// Root route → serve index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: "Endpoint not found" });
@@ -213,3 +227,4 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`🧪 Test Sheets: http://localhost:${PORT}/test-sheets`);
   console.log(`📖 Articles endpoint: http://localhost:${PORT}/articles`);
 });
+
