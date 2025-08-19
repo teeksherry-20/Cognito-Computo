@@ -12,7 +12,7 @@ const articlesPerPage = 5;
 // Improved loadArticles function with better error handling
 async function loadArticles() {
   try {
-    const res = await fetch("http://localhost:3000/articles");
+    const res = await fetch("https://cogito-computo-1cjv.onrender.com/articles");
     
     if (!res.ok) {
       throw new Error(`Server responded with status: ${res.status}`);
@@ -84,7 +84,7 @@ async function loadArticles() {
       container.innerHTML = `
         <div style="text-align: center; padding: 40px; color: #925682; font-family: 'Press Start 2P', monospace; font-size: 0.9rem;">
           <p>⚠️ Unable to load articles</p>
-          <p style="font-size: 0.7rem; margin-top: 10px;">Please check if the server is running on port 3000</p>
+          <p style="font-size: 0.7rem; margin-top: 10px;">Please check if the server is running</p>
           <button onclick="loadArticles()" style="margin-top: 15px; padding: 8px 16px; background: #925682; color: white; border: none; border-radius: 4px; cursor: pointer;">
             🔄 Retry
           </button>
@@ -167,7 +167,7 @@ function attachLikeHandlers() {
       const newLikeCount = currentLikes + 1;
 
       try {
-        const response = await fetch("http://localhost:3000/like", {
+        const response = await fetch("https://cogito-computo-1cjv.onrender.com/like", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -391,7 +391,7 @@ class ArticleNotificationSystem {
 
   async checkForNewArticles() {
     try {
-      const response = await fetch("http://localhost:3000/articles");
+      const response = await fetch("https://cogito-computo-1cjv.onrender.com/articles");
       if (!response.ok) return;
       
       const articles = await response.json();
