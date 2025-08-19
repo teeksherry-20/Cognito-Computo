@@ -2,6 +2,7 @@
 const express = require("express");
 const { google } = require("googleapis");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 app.use(express.json());
@@ -9,13 +10,11 @@ app.use(express.json());
 // Serve static files (your frontend)
 app.use(express.static(path.join(__dirname)));
 
-// Load credentials from environment variable
+// Load credentials directly from JSON file
 let credentials;
 try {
-  // Replace literal \n with actual newlines
-  const rawJson = process.env.GOOGLE_CREDENTIALS_JSON.replace(/\\n/g, "\n");
-  credentials = JSON.parse(rawJson);
-  console.log("✅ Loaded Google credentials from environment");
+  credentials = require("./root-isotope-468903-h9-1e1bd3d2e348.json");
+  console.log("✅ Loaded Google credentials from file");
 } catch (err) {
   console.error("❌ Failed to load Google credentials:", err.message);
 }
@@ -29,13 +28,13 @@ if (credentials) {
   });
 }
 
-// ✅ ARTICLES ENDPOINT WITH DEBUG LOGGING
+// ARTICLES ENDPOINT
 app.get("/articles", async (req, res) => {
   try {
-    console.log("📥 /articles request received"); // debug log
+    console.log("📥 /articles request received");
 
     const sheets = google.sheets({ version: "v4", auth });
-    const range = "Sheet1!A:D"; // update if your sheet tab/columns differ
+    const range = "Sheet1!A:D";
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -43,7 +42,7 @@ app.get("/articles", async (req, res) => {
     });
 
     const rows = response.data.values || [];
-    console.log("✅ Rows fetched:", rows.length); // debug log
+    console.log("✅ Rows fetched:", rows.length);
 
     if (!rows.length) return res.json([]);
 
@@ -62,7 +61,7 @@ app.get("/articles", async (req, res) => {
   }
 });
 
-// ✅ LIKE ENDPOINT
+// LIKE ENDPOINT
 app.post("/like", async (req, res) => {
   try {
     const { articleId, newLikeCount } = req.body;
@@ -75,12 +74,12 @@ app.post("/like", async (req, res) => {
   }
 });
 
-// ✅ Serve index.html for frontend routes
+// Serve index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// ✅ Catch-all handler
+// Catch-all
 app.use((req, res) => {
   console.log("⚠️ 404 for path:", req.originalUrl);
   res.status(404).json({ error: "Endpoint not found" });
