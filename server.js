@@ -30,50 +30,35 @@ if (credentials) {
 // ✅ ARTICLES ENDPOINT WITH DEBUG LOGGING
 app.get("/articles", async (req, res) => {
   try {
-    console.log("📌 /articles request received");
-
-    if (!auth) {
-      console.error("❌ Auth is not initialized");
-      return res.status(500).json({ error: "Auth not initialized" });
-    }
+    console.log("📥 /articles request received"); // debug log
 
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.SPREADSHEET_ID;
-
-    if (!spreadsheetId) {
-      console.error("❌ SPREADSHEET_ID is missing in environment variables");
-      return res.status(500).json({ error: "Spreadsheet ID not set" });
-    }
-
-    console.log("📌 Using Spreadsheet ID:", spreadsheetId);
-
-    const range = "Articles!A2:D"; // <-- change "Articles" if your sheet/tab name is different
-    console.log("📌 Fetching range:", range);
+    const range = "Sheet1!A:D"; // check this matches your sheet tab + columns
 
     const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
+      spreadsheetId: process.env.SPREADSHEET_ID,
       range,
     });
 
-    if (!response.data.values) {
-      console.error("❌ No data returned from Sheets");
-      return res.status(500).json({ error: "No data found in spreadsheet" });
+    const rows = response.data.values || [];
+    console.log("✅ Rows fetched:", rows.length); // debug log
+
+    if (!rows.length) {
+      return res.json([]);
     }
 
-    console.log("📌 Data rows received:", response.data.values.length);
-
-    const articles = response.data.values.map((row, i) => ({
-      title: row[0] || `Untitled ${i + 1}`,
-      intro: row[1] || "",
-      genre: row[2] || "General",
-      date: row[3] || new Date().toISOString(),
-      likes: 0,
+    const articles = rows.slice(1).map((row) => ({
+      date: row[0],
+      title: row[1],
+      intro: row[2],
+      genre: row[3],
+      likes: parseInt(row[4] || "0", 10),
     }));
 
     res.json(articles);
   } catch (err) {
-    console.error("❌ Error fetching articles:", err.message, err.stack);
-    res.status(500).json({ error: err.message });
+    console.error("❌ Error in /articles:", err.message, err.stack);
+    res.status(500).json({ error: "Failed to fetch articles" });
   }
 });
 
@@ -106,3 +91,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
