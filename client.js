@@ -1,4 +1,24 @@
-// Enhanced client.js with improved error handling and fixes
+// Enhanced client.js with improved error handling and environment detection
+
+// Detect environment and set API base URL
+const API_BASE_URL = (() => {
+  const hostname = window.location.hostname;
+  
+  // If running on localhost or local development
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168')) {
+    return window.location.origin; // Use same origin for local development
+  }
+  
+  // For production deployment on Render
+  if (hostname.includes('render.com') || hostname.includes('onrender.com')) {
+    return window.location.origin; // Use same origin
+  }
+  
+  // Default fallback - try current origin first, then fallback to render
+  return window.location.origin;
+})();
+
+console.log('🌐 API Base URL:', API_BASE_URL);
 
 // Global variables for trolley voting (stored locally)
 let trolleyVotes = { A: 0, B: 0 };
@@ -12,13 +32,16 @@ const articlesPerPage = 5;
 // Improved loadArticles function with better error handling
 async function loadArticles() {
   try {
-    const res = await fetch("https://cogito-computo-1cjv.onrender.com/articles");
+    console.log('📡 Fetching articles from:', `${API_BASE_URL}/articles`);
+    
+    const res = await fetch(`${API_BASE_URL}/articles`);
     
     if (!res.ok) {
       throw new Error(`Server responded with status: ${res.status}`);
     }
     
     const articles = await res.json();
+    console.log('📋 Received articles:', articles);
     
     // Ensure articles is an array
     if (!Array.isArray(articles)) {
@@ -84,9 +107,13 @@ async function loadArticles() {
       container.innerHTML = `
         <div style="text-align: center; padding: 40px; color: #925682; font-family: 'Press Start 2P', monospace; font-size: 0.9rem;">
           <p>⚠️ Unable to load articles</p>
-          <p style="font-size: 0.7rem; margin-top: 10px;">Please check if the server is running</p>
+          <p style="font-size: 0.7rem; margin-top: 10px;">Error: ${err.message}</p>
+          <p style="font-size: 0.6rem; margin-top: 5px;">API URL: ${API_BASE_URL}/articles</p>
           <button onclick="loadArticles()" style="margin-top: 15px; padding: 8px 16px; background: #925682; color: white; border: none; border-radius: 4px; cursor: pointer;">
             🔄 Retry
+          </button>
+          <button onclick="testConnection()" style="margin-top: 5px; margin-left: 10px; padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🧪 Test Connection
           </button>
         </div>
       `;
@@ -96,6 +123,49 @@ async function loadArticles() {
     allArticles = [];
     filteredArticles = [];
     updatePaginationControls();
+  }
+}
+
+// Test connection function
+async function testConnection() {
+  console.log('🧪 Testing connection...');
+  
+  try {
+    const healthRes = await fetch(`${API_BASE_URL}/health`);
+    if (healthRes.ok) {
+      const health = await healthRes.json();
+      console.log('✅ Health check passed:', health);
+      
+      const container = document.getElementById("article-container");
+      if (container) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #4CAF50; font-family: 'Press Start 2P', monospace; font-size: 0.9rem;">
+            <p>✅ Server is running!</p>
+            <p style="font-size: 0.7rem; margin-top: 10px;">Status: ${health.status}</p>
+            <p style="font-size: 0.7rem;">Auth: ${health.auth ? '✅ Configured' : '❌ Missing'}</p>
+            <p style="font-size: 0.7rem;">Credentials: ${health.credentials ? '✅ Loaded' : '❌ Missing'}</p>
+            <button onclick="loadArticles()" style="margin-top: 15px; padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              🔄 Try Loading Articles Again
+            </button>
+          </div>
+        `;
+      }
+    } else {
+      throw new Error(`Health check failed: ${healthRes.status}`);
+    }
+  } catch (err) {
+    console.error('❌ Connection test failed:', err);
+    
+    const container = document.getElementById("article-container");
+    if (container) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #f44336; font-family: 'Press Start 2P', monospace; font-size: 0.9rem;">
+          <p>❌ Connection Failed</p>
+          <p style="font-size: 0.7rem; margin-top: 10px;">Error: ${err.message}</p>
+          <p style="font-size: 0.6rem; margin-top: 5px;">Check if your server is running on ${API_BASE_URL}</p>
+        </div>
+      `;
+    }
   }
 }
 
@@ -167,7 +237,7 @@ function attachLikeHandlers() {
       const newLikeCount = currentLikes + 1;
 
       try {
-        const response = await fetch("https://cogito-computo-1cjv.onrender.com/like", {
+        const response = await fetch(`${API_BASE_URL}/like`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -391,7 +461,7 @@ class ArticleNotificationSystem {
 
   async checkForNewArticles() {
     try {
-      const response = await fetch("https://cogito-computo-1cjv.onrender.com/articles");
+      const response = await fetch(`${API_BASE_URL}/articles`);
       if (!response.ok) return;
       
       const articles = await response.json();
@@ -626,19 +696,19 @@ function createQuizWidget() {
     function showResult(philosopher) {
       const messages = {
         kant: {
-          text: "🧠 You're like Immanuel Kant – you believe in reason, duty, and universal moral laws.",
+          text: "🧠 You're like Immanuel Kant — you believe in reason, duty, and universal moral laws.",
           image: "kant.jpg",
         },
         nietzsche: {
-          text: "🔥 You're like Nietzsche – bold, independent, and all about creating your own values.",
+          text: "🔥 You're like Nietzsche — bold, independent, and all about creating your own values.",
           image: "nietzsche.jpg",
         },
         beauvoir: {
-          text: "🌸 You're like Simone de Beauvoir – deeply aware, expressive, and challenging societal norms.",
+          text: "🌸 You're like Simone de Beauvoir — deeply aware, expressive, and challenging societal norms.",
           image: "beauvoir.jpg",
         },
         socrates: {
-          text: "💬 You're like Socrates – curious, reflective, and never stop asking why.",
+          text: "💬 You're like Socrates — curious, reflective, and never stop asking why.",
           image: "socrates.jpg",
         },
       };
@@ -705,6 +775,8 @@ let notificationSystem;
 
 // Main DOMContentLoaded event handler
 document.addEventListener('DOMContentLoaded', async function() {
+  console.log('🚀 Initializing Cogito Computo client...');
+  
   // Initialize trolley votes
   initializeTrolleyVotes();
   
@@ -927,7 +999,9 @@ function debounce(func, wait) {
   };
 }
 
-// Make pagination functions globally accessible
+// Make functions globally accessible
 window.nextPage = nextPage;
 window.prevPage = prevPage;
 window.vote = vote;
+window.testConnection = testConnection;
+window.loadArticles = loadArticles;
