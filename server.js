@@ -16,9 +16,10 @@ app.use(express.static(path.join(__dirname)));
 // --- Load Google credentials from environment ---
 let credentials;
 try {
-  const rawCredentials = process.env.GOOGLE_CREDENTIALS_JSON;
+  // Try both possible environment variable names
+  const rawCredentials = process.env.GOOGLE_CREDENTIALS_JSON || process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   if (!rawCredentials) {
-    throw new Error("GOOGLE_CREDENTIALS_JSON environment variable is not set");
+    throw new Error("Neither GOOGLE_CREDENTIALS_JSON nor GOOGLE_SERVICE_ACCOUNT_JSON environment variable is set");
   }
   
   credentials = JSON.parse(rawCredentials);
