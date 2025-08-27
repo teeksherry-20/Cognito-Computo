@@ -141,31 +141,38 @@ function displayArticles() {
   const endIndex = startIndex + articlesPerPage;
   const articlesToShow = filteredArticles.slice(startIndex, endIndex);
 
-  articleContainer.innerHTML = articlesToShow.map((article, index) => `
-    <div class="article-widget-row">
-      ${index === 1 ? `<div class="quiz-widget"></div>` : ""}
+  articleContainer.innerHTML = articlesToShow.map((article, index) => {
+    // First article → with trolley widget
+    if (index === 0) {
+      return `
+        <div class="article-widget-row">
+          <article class="blog-post with-widget" data-id="${article.id}">
+            ${renderArticleContent(article)}
+          </article>
+          <div class="trolley-widget"></div>
+        </div>
+      `;
+    }
+
+    // Second article → with quiz widget
+    if (index === 1) {
+      return `
+        <div class="article-widget-row reverse">
+          <div class="quiz-widget"></div>
+          <article class="blog-post with-widget" data-id="${article.id}">
+            ${renderArticleContent(article)}
+          </article>
+        </div>
+      `;
+    }
+
+    // All other articles → normal full width
+    return `
       <article class="blog-post" data-id="${article.id}">
-        <div class="article-header">
-          ${extractImagesOnly(article.intro)}
-          <h2 class="article-title">${escapeHtml(article.title)}</h2>
-          <div class="article-meta">
-            <span class="article-date">${formatDate(article.date)}</span>
-            <span class="article-genre">${escapeHtml(article.genre)}</span>
-          </div>
-        </div>
-        <div class="article-intro">
-          ${formatIntroText(article.intro)}
-        </div>
-        <div class="article-footer">
-          <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
-            <button class="read-more-btn" onclick="openModal(${article.id})">Read Full Article →</button>
-            <button class="like-btn" onclick="likeArticle(${article.id})">❤️ <span class="like-count">${article.likes}</span></button>
-          </div>
-        </div>
+        ${renderArticleContent(article)}
       </article>
-      ${index === 0 ? `<div class="trolley-widget"></div>` : ""}
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   updatePagination();
 
@@ -173,6 +180,29 @@ function displayArticles() {
   renderQuizWidget();
   renderTrolleyWidget();
 }
+
+function renderArticleContent(article) {
+  return `
+    <div class="article-header">
+      ${extractImagesOnly(article.intro)}
+      <h2 class="article-title">${escapeHtml(article.title)}</h2>
+      <div class="article-meta">
+        <span class="article-date">${formatDate(article.date)}</span>
+        <span class="article-genre">${escapeHtml(article.genre)}</span>
+      </div>
+    </div>
+    <div class="article-intro">
+      ${formatIntroText(article.intro)}
+    </div>
+    <div class="article-footer">
+      <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
+        <button class="read-more-btn" onclick="openModal(${article.id})">Read Full Article →</button>
+        <button class="like-btn" onclick="likeArticle(${article.id})">❤️ <span class="like-count">${article.likes}</span></button>
+      </div>
+    </div>
+  `;
+}
+
 
 function renderQuizWidget() {
   const quizSlot = document.querySelector('.quiz-widget');
@@ -234,7 +264,7 @@ function renderTrolleyWidget() {
   trolleySlot.innerHTML = `<div class="trolley-widget">
         <h3>The Trolley Problem</h3>
         <video autoplay muted loop>
-          <source src="https://cdn.pixabay.com/video/2019/03/25/22346-326831942_tiny.mp4" type="video/mp4">
+          <source src="trolley.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
         <p>A runaway trolley is heading towards five people. You can pull a lever to divert it to another track, but there's one person on that track. What do you do?</p>
@@ -652,6 +682,7 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
 
 
 
