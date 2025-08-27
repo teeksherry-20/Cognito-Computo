@@ -514,7 +514,7 @@ nav a.active {
   .quiz-widget {
     flex-basis: 100%;
     max-width: 100%;
-    min-width: auto;
+    min-width: 100%;
   }
 }
 
