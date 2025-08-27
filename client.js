@@ -85,6 +85,7 @@ function setupEventListeners() {
 
 // Parse [img:URL] tags into <img>
 // Parse [img:URL] tags into <img> (images only, no text)
+// Parse [img:URL] tags into <img> (images only, no text)
 function parseImages(text) {
   if (!text) return "";
   return (text.match(/\[img:(.*?)\]/g) || [])
@@ -94,6 +95,7 @@ function parseImages(text) {
     })
     .join("");
 }
+
 
 // Load articles
 async function loadArticles() {
@@ -556,4 +558,5 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
 
