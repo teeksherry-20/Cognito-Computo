@@ -117,6 +117,7 @@ async function loadArticles() {
 }
 
 // Display articles
+// Display articles
 function displayArticles() {
   if (filteredArticles.length === 0) {
     noResults.style.display = 'block';
@@ -555,3 +556,4 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
