@@ -260,8 +260,6 @@ function renderTrolleyWidget(container) {
       <source src="trolley.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
-    <p>A runaway trolley is heading towards five people. You can pull a lever to divert it to another track, but there's one person on that track. What do you do?</p>
-    
     <div class="trolley-buttons">
       <button class="trolley-btn" onclick="vote('A')">Pull the Lever<br><small>(Save 5, sacrifice 1)</small></button>
       <button class="trolley-btn" onclick="vote('B')">Do Nothing<br><small>(Let fate decide)</small></button>
@@ -442,8 +440,6 @@ function createWidgets() {
           <source src="https://cdn.pixabay.com/video/2019/03/25/22346-326831942_tiny.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
-        <p>A runaway trolley is heading towards five people. You can pull a lever to divert it to another track, but there's one person on that track. What do you do?</p>
-        
         <div class="trolley-buttons">
           <button class="trolley-btn" onclick="vote('A')">Pull the Lever<br><small>(Save 5, sacrifice 1)</small></button>
           <button class="trolley-btn" onclick="vote('B')">Do Nothing<br><small>(Let fate decide)</small></button>
@@ -716,3 +712,4 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
