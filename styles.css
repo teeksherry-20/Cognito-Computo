@@ -957,3 +957,28 @@ body.dark-mode .purple-box {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ==== ARTICLE + WIDGET ROW LAYOUT ==== */
+.article-widget-row {
+  display: grid;
+  grid-template-columns: 1fr 320px; /* article + widget */
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 40px;
+}
+
+/* If widget should be on the left (quiz) */
+.article-widget-row.reverse {
+  grid-template-columns: 320px 1fr;
+}
+
+/* Make articles slightly narrower */
+.article-widget-row .blog-post {
+  max-width: 100%;
+  background: linear-gradient(135deg, var(--primary-purple), #7a4462);
+  color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
