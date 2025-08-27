@@ -1,668 +1,350 @@
-// Enhanced client.js with backend URL configuration
+// server.js - Fixed version with correct spreadsheet ID
+import express from "express";
+import { google } from "googleapis";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// Detect environment and set API base URL
-const API_BASE_URL = (() => {
-  const hostname = window.location.hostname;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+app.use(express.json());
+
+import cors from 'cors';
+
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://cogitocomputo.netlify.app',
+    /\.netlify\.app$/
+  ],
+  credentials: true
+}));
+
+// Serve static files (frontend)
+app.use(express.static(path.join(__dirname)));
+
+// --- Load Google credentials ---
+let credentials;
+let auth;
+
+// CORRECTED SPREADSHEET ID - matches your browser URL
+const LOCAL_SPREADSHEET_ID = "1eHdXlQOsNwS1a8-69_cW0f8rYvH-BTiMU31bYFOEQa0";
+
+// Updated local credentials
+const LOCAL_CREDENTIALS = {
+  "type": "service_account",
+  "project_id": "root-isotope-468903-h9",
+  "private_key_id": "338015a726007eb7360aac3d60a0c0c6753edf99",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCizLk9kgAXXB0o\nhOyH/VHpPuLl8RLA5PhFFQme0thcNLDGX3QhhzeE1+6DSSi/IR0eKaVNDddGRmR+\nRcL5jIKCdl7PA4MLyFIlnPA1KtBcwRaXADeJDEgrJOV5N9qxm63aBsueHNiQnVvb\nM1xFUqw7OXSwAvLVH2GdXSLlZyRAz03ikXbzHMDXoL/wQ+SFJajw367IgXa81Xhh\nl3+1qqwm96O3rntvwfHMFLD0w58Bmlf0u7eQRmHCoi9joOaTHKN0ZS1BhrRyZJzC\nle4sk/PAhHgtnJLG6p1EQauTv/NUgS3e9mhysQPJeKB77B0q7Y8jf2GNJU/fWp4S\nIbzNVoWfAgMBAAECggEACb69e+0Ial2ONUW3rvA//flQtbj3iWprXh9DQymV3/cb\nedRu7C7e6OnQEjXH5aEC0DJn/bPNZhyCmXhtkmiRy2Nwi23HY2YrXKsHSfd1H4hD\nZOiTanW8wDBmOBpa0fTitEFh4OYTJJz2yalKZa/sNWNcE8kpZg6J1lSj6R2Ccwqd\nR7n6dAq2GAt5ndYC46bHTtsDhbTa6KDxYMghmj40myHGs+HLglOzIuUw6c6kEJz5\ntLwMYEE5zIl80RcgEuyV1RnRvAV//b4mbkHeAux0/KTUOBWRzRwxwnQUpBuSw9yQ\n0vU9WmmYZb86J0BnNWrqKbKyr/jFUmR08Nu4RssboQKBgQDS70UgjMYSQ3RBE+P2\nFU7XtandtORHC4admgexWQCdxHZ8dM9TyhyFeCikSjAGpe5mYNfEfhfv/5HB47C6\nUnPYd56N2UD07I5PaL/SLDuthDL3lY4ERips5MhsznBfaHMoy77877NqXsRJ44QO\nLJC60p9wg3RccyDq5TsS8fqUkQKBgQDFlMpV4FtfHNkvfTC0L2NAUjmC+7SjbO3i\nK+R7ydmz+6LFZjVEe3ogyZ9zgpqFSWW1CfRzvIaqz7SGIP6EvJpjHrtYF7skp29R\nCz+ccGyj3yUBrSX9uGof4thAhTcddChWrSbTGI+nr4JLFDn1KfIY/Z3xQVMomIx8\n/gEEqPTPLwKBgD8jcdyxZqSW3liQfJ7vd98nuIXtnJsLfyrzrTPPwVh4M0NDr7+T\n8v+cnQW4UzHaP0cT2+IsIDwtktKntgG/pn94JtSs4D2wBVUNtMVTijWBKcRkVtM+\nsXpQ7RFspcRZPodKnYuWsGy5myXG3YNkoZnaa/FA1/bIW2UUYp9kIS6RAoGBAIjq\n1dfy1H6xuBN/louWtxmwoSgSkxgY+TQdJIVf2FwwCZjvfgRJ6NTlw3hBTiEFPtTY\n5Cx7vXqK2teD77w+EmKTvlGKiGYbHTm1KMyY38AjdzqVKVmMPQaBpUf4yLvBbd66\nuMfaIlqadhjfGFa7TYhh39x6X00ngVtwjXYUOymDAoGAU9XIQi13s4x1CawsgswD\nZlJZ/zBtqZGiVyzlp9/E0mWiQo9NmJPoqXeuGu9TxRitsMX5KsH0rWigxy7Rs8Eu\nE7wZ2bNFIgGDRIE99CgVOHb8tJmF8nq22gCwpG6686oDPk+KXLT19FSeR19ulztz\nDSeFukZosSODHMgQx/4K5D0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "blog-sheet@root-isotope-468903-h9.iam.gserviceaccount.com",
+  "client_id": "105693710590461283402",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/blog-sheet%40root-isotope-468903-h9.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+};
+
+try {
+  // First try environment variables (for production)
+  const rawCredentials = process.env.GOOGLE_CREDENTIALS_JSON || process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   
-  // If running on localhost or local development
-  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168')) {
-    return 'http://localhost:3000'; // Local development backend
+  if (rawCredentials) {
+    credentials = JSON.parse(rawCredentials);
+    // Fix private key format if needed
+    if (credentials.private_key) {
+      credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+    }
+    console.log("✅ Loaded Google credentials from environment");
+  } else {
+    credentials = LOCAL_CREDENTIALS;
+    console.log("✅ Using local Google credentials for development");
   }
   
-  // For Netlify frontend - point to Render backend
-  if (hostname.includes('netlify.app') || hostname.includes('cogitocomputo.netlify.app')) {
-    return 'https://cogito-computo-1cjv.onrender.com'; // Your Render backend URL
-  }
+  console.log("🔧 Service account email:", credentials.client_email);
+  console.log("🔑 Private key format check:", credentials.private_key.includes('\n') ? '✅ Correct' : '❌ Needs fixing');
   
-  // For Render deployment (if both frontend and backend are on same domain)
-  if (hostname.includes('render.com') || hostname.includes('onrender.com')) {
-    return window.location.origin; // Use same origin
+} catch (err) {
+  console.error("❌ Failed to load Google credentials:", err.message);
+}
+
+// --- Google Auth setup ---
+if (credentials) {
+  try {
+    auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    });
+    
+    console.log("✅ Google Auth initialized successfully");
+    
+  } catch (authErr) {
+    console.error("❌ Failed to initialize Google Auth:", authErr.message);
   }
+}
+
+// --- /articles endpoint ---
+app.get("/articles", async (req, res) => {
+  console.log("📡 Received request for articles");
   
-  // Default fallback to Render backend
-  return 'https://cogito-computo-1cjv.onrender.com';
-})();
+  if (!auth) {
+    console.error("❌ Google auth not configured");
+    return res.status(500).json({ 
+      error: "Google auth not configured",
+      details: "Authentication was not properly initialized"
+    });
+  }
 
-console.log('🌐 API Base URL:', API_BASE_URL);
+  try {
+    console.log("📊 Fetching articles from Google Sheets...");
+    
+    const sheets = google.sheets({ version: "v4", auth });
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    
+    console.log("📋 Using spreadsheet ID:", spreadsheetId);
+    
+    // Updated range to match your sheet structure: A-I columns
+    const range = "Sheet1!A:I";
 
-// Global variables for trolley voting (stored locally)
-let trolleyVotes = { A: 0, B: 0 };
+    const response = await sheets.spreadsheets.values.get({ 
+      spreadsheetId, 
+      range 
+    });
+    
+    const rows = response.data.values || [];
+    console.log("📋 Fetched rows:", rows.length);
 
-// Global variables for filtering and pagination
-let allArticles = [];
-let filteredArticles = [];
-let currentPage = 1;
-const articlesPerPage = 5;
+    if (!rows.length) {
+      console.log("⚠️ No data found in spreadsheet");
+      return res.json([]);
+    }
 
-// DOM elements
-let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, nextPageButton;
-let noResults, modal, modalTitle, modalBody, modalClose, darkModeToggle;
-let currentGenreFilter = '';
+    console.log("📊 First few rows:", rows.slice(0, 3));
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
-  initializeElements();
-  setupEventListeners();
-  loadArticles();
-  createWidgets();
-  setupDarkMode();
+    // Filter out non-article rows (trolley poll data) and map to article format
+    // Based on your sheet: A=ID, B=Option, C=Count, D=Title, E=Date, F=Genre, G=Introduction, H=FullContent, I=Like
+    const articles = rows.slice(1) // Skip header row
+      .filter(row => {
+        // Only include rows that have article data (not trolley poll data)
+        // Check if row has a proper title and date, and starts with "article"
+        return row[0] && row[0].toString().startsWith('article') && row[3] && row[4];
+      })
+      .map((row, index) => ({
+        id: index + 1,
+        date: row[4] || "", // Column E - Date
+        title: row[3] || "", // Column D - Title  
+        intro: row[6] || "", // Column G - Introduction
+        genre: row[5] || "", // Column F - Genre
+        likes: parseInt(row[8] || "0", 10), // Column I - Like
+        fullContent: row[7] || "" // Column H - Full Content (if needed)
+      }));
+
+    console.log("✅ Successfully processed", articles.length, "articles");
+    if (articles.length > 0) {
+      console.log("📄 Sample article:", articles[0]);
+    }
+    
+    res.json(articles);
+    
+  } catch (err) {
+    console.error("❌ /articles error:", err.message);
+    console.error("🔍 Error code:", err.code);
+    
+    // Enhanced error handling
+    let errorMessage = "Failed to fetch articles: " + err.message;
+    let troubleshooting = [];
+    
+    if (err.code === 404) {
+      errorMessage = "Spreadsheet not found (404 error)";
+      troubleshooting.push("❌ The spreadsheet ID might be incorrect");
+      troubleshooting.push("❌ The spreadsheet might have been deleted or moved");
+      troubleshooting.push(`🔍 Current ID: ${LOCAL_SPREADSHEET_ID}`);
+      troubleshooting.push("✅ Go to your Google Sheet and copy the ID from the URL");
+      troubleshooting.push("✅ Update LOCAL_SPREADSHEET_ID in server.js");
+    } else if (err.code === 403) {
+      errorMessage = "Permission denied accessing the Google Sheet (403 error)";
+      troubleshooting.push(`🔧 Share your Google Sheet with: ${credentials.client_email}`);
+      troubleshooting.push("✅ Grant 'Editor' or 'Viewer' access to the service account");
+    } else if (err.message.includes('invalid_grant') || err.message.includes('Invalid JWT Signature')) {
+      errorMessage = "JWT Signature error - service account credentials are invalid";
+      troubleshooting.push("❌ The private key in your service account JSON might be corrupted");
+      troubleshooting.push("✅ Generate new service account credentials");
+    }
+    
+    res.status(500).json({ 
+      error: errorMessage,
+      code: err.code,
+      serviceAccountEmail: credentials?.client_email || 'Not available',
+      spreadsheetId: LOCAL_SPREADSHEET_ID,
+      troubleshooting: troubleshooting
+    });
+  }
 });
 
-function initializeElements() {
-  articleContainer = document.getElementById('article-container');
-  searchInput = document.getElementById('search-input');
-  sortSelect = document.getElementById('sort-select');
-  pageIndicator = document.getElementById('pageIndicator');
-  prevPageButton = document.getElementById('prevPageButton');
-  nextPageButton = document.getElementById('nextPageButton');
-  noResults = document.getElementById('no-results');
-  modal = document.getElementById('modal');
-  modalTitle = document.getElementById('modal-title');
-  modalBody = document.getElementById('modal-body');
-  modalClose = document.getElementById('modal-close');
-  darkModeToggle = document.getElementById('darkModeToggle');
-}
+// --- /trolley-votes endpoint ---
+app.get("/trolley-votes", async (req, res) => {
+  console.log("🚃 Received request for trolley votes");
+  
+  if (!auth) {
+    return res.status(500).json({ error: "Google auth not configured" });
+  }
 
-function setupEventListeners() {
-  // Search functionality
-  searchInput.addEventListener('input', handleSearch);
-  
-  // Sort functionality
-  sortSelect.addEventListener('change', handleSort);
-  
-  // Pagination
-  prevPageButton.addEventListener('click', () => changePage(-1));
-  nextPageButton.addEventListener('click', () => changePage(1));
-  
-  // Navigation
-  document.getElementById('home-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    showAllArticles();
-  });
-  
-  document.querySelectorAll('.genre-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const genre = e.target.getAttribute('data-genre');
-      filterByGenre(genre);
-    });
-  });
-  
-  // Modal functionality
-  modalClose.addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-  
-  // ESC key to close modal
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.style.display !== 'none') {
-      closeModal();
-    }
-  });
-}
-
-// Load articles from backend
-async function loadArticles() {
   try {
-    console.log('📡 Fetching articles from:', `${API_BASE_URL}/articles`);
+    const sheets = google.sheets({ version: "v4", auth });
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    const range = "Sheet1!A:C";
+
+    const response = await sheets.spreadsheets.values.get({ 
+      spreadsheetId, 
+      range 
+    });
     
-    const response = await fetch(`${API_BASE_URL}/articles`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+    const rows = response.data.values || [];
+    
+    // Extract trolley vote data (rows with "trolley" in column A)
+    const trolleyVotes = { A: 0, B: 0 };
+    
+    rows.forEach(row => {
+      if (row[0] === 'trolley') {
+        const option = row[1]; // Column B - Option (A or B)
+        const count = parseInt(row[2] || "0", 10); // Column C - Count
+        if (option === 'A' || option === 'B') {
+          trolleyVotes[option] = count;
+        }
       }
     });
+
+    console.log("🚃 Trolley votes:", trolleyVotes);
+    res.json(trolleyVotes);
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
-    }
-    
-    const articles = await response.json();
-    console.log('✅ Successfully loaded articles:', articles.length);
-    
-    allArticles = articles;
-    filteredArticles = [...allArticles];
-    
-    // Hide loading message
-    const loadingMessage = document.querySelector('.loading-message');
-    if (loadingMessage) {
-      loadingMessage.style.display = 'none';
-    }
-    
-    displayArticles();
-    
-  } catch (error) {
-    console.error('❌ Failed to load articles:', error);
-    
-    // Show error message to user
-    articleContainer.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: #d32f2f; font-family: 'Courier Prime', monospace;">
-        <h3>⚠️ Failed to Load Articles</h3>
-        <p><strong>Error:</strong> ${error.message}</p>
-        <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
-          This might be due to:
-        </p>
-        <ul style="text-align: left; display: inline-block; color: #666; font-size: 0.9rem;">
-          <li>Backend server is starting up (please wait and refresh)</li>
-          <li>CORS configuration issue</li>
-          <li>Google Sheets API authentication problem</li>
-        </ul>
-        <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #925682; color: white; border: none; border-radius: 4px; cursor: pointer;">
-          🔄 Try Again
-        </button>
-      </div>
-    `;
+  } catch (err) {
+    console.error("❌ /trolley-votes error:", err.message);
+    res.status(500).json({ error: err.message });
   }
-}
+});
 
-// Display articles with pagination
-function displayArticles() {
-  if (filteredArticles.length === 0) {
-    noResults.style.display = 'block';
-    articleContainer.innerHTML = '';
-    updatePagination();
-    return;
-  }
-  
-  noResults.style.display = 'none';
-  
-  const startIndex = (currentPage - 1) * articlesPerPage;
-  const endIndex = startIndex + articlesPerPage;
-  const articlesToShow = filteredArticles.slice(startIndex, endIndex);
-  
-  articleContainer.innerHTML = articlesToShow.map(article => `
-    <article class="blog-post" data-id="${article.id}">
-      <div class="article-header">
-        <h2 class="article-title">${escapeHtml(article.title)}</h2>
-        <div class="article-meta">
-          <span class="article-date">${formatDate(article.date)}</span>
-          <span class="article-genre">${escapeHtml(article.genre)}</span>
-        </div>
-      </div>
-      <div class="article-intro">
-        ${formatIntroText(article.intro)}
-      </div>
-      <div class="article-footer">
-        <button class="read-more-btn" onclick="openModal(${article.id})">
-          Read Full Article →
-        </button>
-        <div class="article-actions">
-          <button class="like-btn" onclick="likeArticle(${article.id})" aria-label="Like article">
-            ❤️ <span class="like-count">${article.likes}</span>
-          </button>
-        </div>
-      </div>
-    </article>
-  `).join('');
-  
-  updatePagination();
-}
-
-// Handle search functionality
-function handleSearch() {
-  const searchTerm = searchInput.value.toLowerCase().trim();
-  
-  if (searchTerm === '') {
-    filteredArticles = currentGenreFilter ? 
-      allArticles.filter(article => article.genre === currentGenreFilter) : 
-      [...allArticles];
-  } else {
-    const baseArticles = currentGenreFilter ? 
-      allArticles.filter(article => article.genre === currentGenreFilter) : 
-      allArticles;
-    
-    filteredArticles = baseArticles.filter(article =>
-      article.title.toLowerCase().includes(searchTerm) ||
-      article.intro.toLowerCase().includes(searchTerm) ||
-      article.genre.toLowerCase().includes(searchTerm)
-    );
-  }
-  
-  currentPage = 1;
-  displayArticles();
-}
-
-// Handle sort functionality
-function handleSort() {
-  const sortValue = sortSelect.value;
-  
-  filteredArticles.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    
-    return sortValue === 'latest' ? dateB - dateA : dateA - dateB;
-  });
-  
-  currentPage = 1;
-  displayArticles();
-}
-
-// Genre filtering
-function filterByGenre(genre) {
-  currentGenreFilter = genre;
-  filteredArticles = allArticles.filter(article => article.genre === genre);
-  searchInput.value = ''; // Clear search when filtering by genre
-  currentPage = 1;
-  displayArticles();
-  
-  // Update active navigation state
-  document.querySelectorAll('.genre-link').forEach(link => {
-    link.style.fontWeight = link.getAttribute('data-genre') === genre ? 'bold' : 'normal';
-  });
-}
-
-function showAllArticles() {
-  currentGenreFilter = '';
-  filteredArticles = [...allArticles];
-  searchInput.value = '';
-  currentPage = 1;
-  displayArticles();
-  
-  // Reset navigation state
-  document.querySelectorAll('.genre-link').forEach(link => {
-    link.style.fontWeight = 'normal';
-  });
-}
-
-// Pagination functions
-function changePage(direction) {
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
-  const newPage = currentPage + direction;
-  
-  if (newPage >= 1 && newPage <= totalPages) {
-    currentPage = newPage;
-    displayArticles();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-}
-
-function updatePagination() {
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
-  
-  pageIndicator.textContent = totalPages > 0 ? `Page ${currentPage} of ${totalPages}` : 'No articles';
-  prevPageButton.disabled = currentPage <= 1;
-  nextPageButton.disabled = currentPage >= totalPages;
-}
-
-// Modal functions
-function openModal(articleId) {
-  const article = allArticles.find(a => a.id === articleId);
-  if (!article) return;
-  
-  modalTitle.textContent = article.title;
-  modalBody.innerHTML = `
-    <div class="modal-meta">
-      <span class="modal-date">${formatDate(article.date)}</span>
-      <span class="modal-genre">${escapeHtml(article.genre)}</span>
-    </div>
-    <div class="modal-content-text">
-      ${formatArticleContent(article.fullContent || article.intro)}
-    </div>
-  `;
-  
-  modal.style.display = 'block';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-  modal.style.display = 'none';
-  document.body.style.overflow = 'auto';
-}
-
-// Like functionality
-async function likeArticle(articleId) {
-  const article = allArticles.find(a => a.id === articleId);
-  if (!article) return;
-  
-  const newLikeCount = article.likes + 1;
-  
-  // Optimistically update UI
-  article.likes = newLikeCount;
-  const likeCountElement = document.querySelector(`[data-id="${articleId}"] .like-count`);
-  if (likeCountElement) {
-    likeCountElement.textContent = newLikeCount;
-    likeCountElement.parentElement.style.transform = 'scale(1.2)';
-    setTimeout(() => {
-      likeCountElement.parentElement.style.transform = 'scale(1)';
-    }, 200);
-  }
-  
-  // Send to backend (optional - for future implementation)
+// --- /like endpoint ---
+app.post("/like", async (req, res) => {
   try {
-    await fetch(`${API_BASE_URL}/like`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        articleId,
-        newLikeCount
-      })
-    });
-  } catch (error) {
-    console.warn('❌ Failed to sync like to backend:', error);
-  }
-}
-
-// Create interactive widgets
-function createWidgets() {
-  const widgetContainer = document.getElementById('widgets-container');
-  if (!widgetContainer) return;
-
-  widgetContainer.innerHTML = `
-    <div class="widget-row">
-      <!-- Philosophy Quiz Widget -->
-      <div class="quiz-widget">
-        <h3 class="quiz-title">Which Philosopher Are You?</h3>
-        <div class="quiz-progress-bar-container">
-          <div class="quiz-progress-bar" id="quiz-progress-bar"></div>
-        </div>
-        <div id="quiz-progress">Question 1 of 4</div>
-        
-        <div id="quiz-container">
-          <div class="quiz-question show" data-question="0">
-            <p>What is the nature of reality?</p>
-            <label><input type="radio" name="q0" value="a"> Everything is interconnected and part of one universal substance</label>
-            <label><input type="radio" name="q0" value="b"> Reality is what we can observe and measure empirically</label>
-            <label><input type="radio" name="q0" value="c"> Reality is fundamentally mental or spiritual in nature</label>
-            <label><input type="radio" name="q0" value="d"> We can never truly know the nature of ultimate reality</label>
-          </div>
-          
-          <div class="quiz-question" data-question="1">
-            <p>How should one live a good life?</p>
-            <label><input type="radio" name="q1" value="a"> Through reason, virtue, and acceptance of fate</label>
-            <label><input type="radio" name="q1" value="b"> By maximizing happiness and minimizing suffering for the greatest number</label>
-            <label><input type="radio" name="q1" value="c"> Through authentic self-expression and creating your own meaning</label>
-            <label><input type="radio" name="q1" value="d"> By following moral duties and treating others as ends in themselves</label>
-          </div>
-          
-          <div class="quiz-question" data-question="2">
-            <p>What is the relationship between mind and body?</p>
-            <label><input type="radio" name="q2" value="a"> They are one substance viewed from different perspectives</label>
-            <label><input type="radio" name="q2" value="b"> The mind emerges from complex brain activity</label>
-            <label><input type="radio" name="q2" value="c"> Mind and body are separate, interacting substances</label>
-            <label><input type="radio" name="q2" value="d"> This question reveals the limits of human understanding</label>
-          </div>
-          
-          <div class="quiz-question" data-question="3">
-            <p>What is the source of human knowledge?</p>
-            <label><input type="radio" name="q3" value="a"> Logical reasoning and intuitive understanding of eternal truths</label>
-            <label><input type="radio" name="q3" value="b"> Sensory experience and empirical observation</label>
-            <label><input type="radio" name="q3" value="c"> Personal experience and subjective interpretation</label>
-            <label><input type="radio" name="q3" value="d"> Knowledge is limited by the structure of our minds</label>
-          </div>
-        </div>
-        
-        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
-        
-        <div id="quiz-result" class="quiz-result" style="display: none;">
-          <!-- Result will be populated by JavaScript -->
-        </div>
-      </div>
-      
-      <!-- Trolley Problem Widget -->
-      <div class="trolley-widget">
-        <h3>The Trolley Problem</h3>
-        <video autoplay muted loop>
-          <source src="https://cdn.pixabay.com/video/2019/03/25/22346-326831942_tiny.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <p>A runaway trolley is heading towards five people. You can pull a lever to divert it to another track, but there's one person on that track. What do you do?</p>
-        
-        <div class="trolley-buttons">
-          <button class="trolley-btn" onclick="vote('A')">Pull the Lever<br><small>(Save 5, sacrifice 1)</small></button>
-          <button class="trolley-btn" onclick="vote('B')">Do Nothing<br><small>(Let fate decide)</small></button>
-        </div>
-        
-        <div id="poll-result" class="poll-result" style="display: none;">
-          <!-- Poll results will be shown here -->
-        </div>
-      </div>
-    </div>
-  `;
-  
-  // Load trolley votes
-  loadTrolleyVotes();
-}
-
-// Quiz functionality
-let currentQuestionIndex = 0;
-const totalQuestions = 4;
-let quizAnswers = {};
-
-function nextQuestion() {
-  const currentQuestion = document.querySelector(`.quiz-question[data-question="${currentQuestionIndex}"]`);
-  const selectedAnswer = currentQuestion.querySelector('input[type="radio"]:checked');
-  
-  if (!selectedAnswer) {
-    alert('Please select an answer before continuing.');
-    return;
-  }
-  
-  // Store the answer
-  quizAnswers[`q${currentQuestionIndex}`] = selectedAnswer.value;
-  
-  // Hide current question
-  currentQuestion.classList.remove('show');
-  
-  // Move to next question or show result
-  currentQuestionIndex++;
-  
-  if (currentQuestionIndex < totalQuestions) {
-    // Show next question
-    const nextQuestion = document.querySelector(`.quiz-question[data-question="${currentQuestionIndex}"]`);
-    nextQuestion.classList.add('show');
+    const { articleId, newLikeCount } = req.body;
+    console.log(`👍 Like request: ${articleId}, new count: ${newLikeCount}`);
     
-    // Update progress
-    const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
-    document.getElementById('quiz-progress-bar').style.width = `${progress}%`;
-    document.getElementById('quiz-progress').textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
-  } else {
-    // Show result
-    showQuizResult();
+    // TODO: Update the like count in Google Sheets if needed
+    // This would require finding the right row and updating column I
+    
+    res.json({ success: true, articleId, newLikeCount });
+  } catch (err) {
+    console.error("❌ /like error:", err.message);
+    res.status(500).json({ error: err.message });
   }
-}
+});
 
-function showQuizResult() {
-  // Hide quiz interface
-  document.getElementById('quiz-container').style.display = 'none';
-  document.getElementById('next-btn').style.display = 'none';
-  document.getElementById('quiz-progress').style.display = 'none';
-  document.querySelector('.quiz-progress-bar-container').style.display = 'none';
-  
-  // Calculate result based on answers
-  const result = calculatePhilosopher(quizAnswers);
-  
-  // Show result
-  const resultDiv = document.getElementById('quiz-result');
-  resultDiv.innerHTML = `
-    <img src="${result.image}" alt="${result.name}" onerror="this.src='https://via.placeholder.com/80x80?text=${result.name[0]}'">
-    <h4>${result.name}</h4>
-    <p>${result.description}</p>
-    <div style="margin-top: 15px;">
-      <button id="retake-btn" onclick="retakeQuiz()">🔄 Retake Quiz</button>
-      <button id="share-btn" onclick="shareResult('${result.name}')">📤 Share Result</button>
-    </div>
-  `;
-  resultDiv.style.display = 'block';
-}
+// --- Serve index.html ---
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
-function calculatePhilosopher(answers) {
-  const philosophers = {
-    a: { name: "Spinoza", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Spinoza.jpg/200px-Spinoza.jpg", description: "Like Spinoza, you see reality as one interconnected whole and believe in living according to reason and virtue." },
-    b: { name: "John Stuart Mill", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/John_Stuart_Mill_by_London_Stereoscopic_Company%2C_c1870.jpg/200px-John_Stuart_Mill_by_London_Stereoscopic_Company%2C_c1870.jpg", description: "Like Mill, you're practical and empirical, focused on maximizing happiness and well-being for everyone." },
-    c: { name: "Sartre", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Sartre_1967_crop.jpg/200px-Sartre_1967_crop.jpg", description: "Like Sartre, you believe in authentic self-expression and that existence precedes essence." },
-    d: { name: "Kant", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Kant_gemaelde_3.jpg/200px-Kant_gemaelde_3.jpg", description: "Like Kant, you recognize the limits of human knowledge while maintaining strong moral principles." }
+// --- Enhanced health check endpoint ---
+app.get("/health", (req, res) => {
+  const healthData = {
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    server: {
+      auth: !!auth,
+      credentials: !!credentials,
+      serviceAccountEmail: credentials ? credentials.client_email : null,
+      spreadsheetId: process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID,
+      environment: process.env.NODE_ENV || 'development'
+    }
   };
   
-  // Count answers
-  const counts = { a: 0, b: 0, c: 0, d: 0 };
-  Object.values(answers).forEach(answer => counts[answer]++);
-  
-  // Find most common answer
-  const topAnswer = Object.entries(counts).reduce((a, b) => counts[a[0]] > counts[b[0]] ? a : b)[0];
-  
-  return philosophers[topAnswer] || philosophers.a;
-}
+  res.json(healthData);
+});
 
-function retakeQuiz() {
-  currentQuestionIndex = 0;
-  quizAnswers = {};
-  
-  // Reset UI
-  document.getElementById('quiz-container').style.display = 'block';
-  document.getElementById('next-btn').style.display = 'block';
-  document.getElementById('quiz-progress').style.display = 'block';
-  document.querySelector('.quiz-progress-bar-container').style.display = 'block';
-  document.getElementById('quiz-result').style.display = 'none';
-  
-  // Reset progress
-  document.getElementById('quiz-progress-bar').style.width = '25%';
-  document.getElementById('quiz-progress').textContent = 'Question 1 of 4';
-  
-  // Reset questions
-  document.querySelectorAll('.quiz-question').forEach((q, index) => {
-    q.classList.toggle('show', index === 0);
-    q.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
-  });
-}
-
-function shareResult(philosopher) {
-  if (navigator.share) {
-    navigator.share({
-      title: 'My Philosopher Quiz Result',
-      text: `I got ${philosopher} in the philosophy quiz! Take it yourself:`,
-      url: window.location.href
-    });
-  } else {
-    // Fallback for browsers that don't support Web Share API
-    const text = `I got ${philosopher} in the philosophy quiz! Check it out at ${window.location.href}`;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Result copied to clipboard!');
-    }).catch(() => {
-      alert(`My result: ${philosopher}. Check out this quiz at ${window.location.href}`);
+// --- Test credentials endpoint ---
+app.get("/test-auth", async (req, res) => {
+  if (!auth) {
+    return res.status(500).json({ 
+      error: "No auth configured",
+      hasCredentials: !!credentials,
+      hasAuth: !!auth
     });
   }
-}
-
-// Trolley Problem functionality
-async function vote(option) {
-  trolleyVotes[option]++;
   
-  // Show results immediately
-  showPollResult();
-  
-  // Try to sync with backend
   try {
-    await fetch(`${API_BASE_URL}/trolley-vote`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+    console.log("🧪 Testing Google Sheets API authentication...");
+    
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: "v4", auth });
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    
+    // Try to get spreadsheet metadata
+    const metadata = await sheets.spreadsheets.get({ spreadsheetId });
+    
+    res.json({
+      status: "success",
+      message: "Authentication test passed",
+      spreadsheet: {
+        title: metadata.data.properties.title,
+        id: spreadsheetId,
+        sheets: metadata.data.sheets.map(sheet => ({
+          title: sheet.properties.title,
+          sheetId: sheet.properties.sheetId
+        }))
       },
-      body: JSON.stringify({ option })
+      serviceAccount: credentials.client_email,
+      timestamp: new Date().toISOString()
     });
-  } catch (error) {
-    console.warn('❌ Failed to sync vote to backend:', error);
-  }
-}
-
-async function loadTrolleyVotes() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/trolley-votes`);
-    if (response.ok) {
-      const votes = await response.json();
-      trolleyVotes = votes;
-    }
-  } catch (error) {
-    console.warn('❌ Failed to load trolley votes:', error);
-  }
-}
-
-function showPollResult() {
-  const total = trolleyVotes.A + trolleyVotes.B;
-  const percentA = total > 0 ? Math.round((trolleyVotes.A / total) * 100) : 0;
-  const percentB = total > 0 ? Math.round((trolleyVotes.B / total) * 100) : 0;
-  
-  const resultDiv = document.getElementById('poll-result');
-  resultDiv.innerHTML = `
-    <strong>Results so far:</strong><br>
-    Pull Lever: ${percentA}% (${trolleyVotes.A} votes)<br>
-    Do Nothing: ${percentB}% (${trolleyVotes.B} votes)<br>
-    <small>Total votes: ${total}</small>
-  `;
-  resultDiv.style.display = 'block';
-  
-  // Disable buttons after voting
-  document.querySelectorAll('.trolley-btn').forEach(btn => {
-    btn.disabled = true;
-    btn.style.opacity = '0.6';
-    btn.style.cursor = 'not-allowed';
-  });
-}
-
-// Dark Mode functionality
-function setupDarkMode() {
-  // Check for saved preference or default to light mode
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.body.classList.toggle('dark-mode', savedTheme === 'dark');
-  updateDarkModeToggle();
-  
-  darkModeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    updateDarkModeToggle();
-  });
-}
-
-function updateDarkModeToggle() {
-  const isDark = document.body.classList.contains('dark-mode');
-  darkModeToggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-}
-
-// Utility functions
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function formatDate(dateString) {
-  if (!dateString) return 'No date';
-  
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    
+  } catch (testErr) {
+    console.error("❌ Auth test failed:", testErr.message);
+    
+    res.status(500).json({
+      status: "failed",
+      error: testErr.message,
+      code: testErr.code,
+      serviceAccount: credentials.client_email,
+      spreadsheetId: process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID,
+      timestamp: new Date().toISOString()
     });
-  } catch (error) {
-    return dateString; // Return original if parsing fails
   }
-}
+});
 
-function formatIntroText(intro) {
-  if (!intro) return '<p>No introduction available.</p>';
-  
-  // Convert line breaks to paragraphs
-  const paragraphs = intro.split('\n\n').filter(p => p.trim());
-  return paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
-}
-
-function formatArticleContent(content) {
-  if (!content) return '<p>No content available.</p>';
-  
-  // Handle both plain text and HTML content
-  if (content.includes('<') && content.includes('>')) {
-    // Assume it's HTML
-    return content;
-  } else {
-    // Convert plain text to HTML paragraphs
-    const paragraphs = content.split('\n\n').filter(p => p.trim());
-    return paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
+// --- Catch-all 404 handler ---
+app.use((req, res) => {
+  if (!req.originalUrl.includes('favicon')) {
+    console.log("⚠️ 404 for path:", req.originalUrl);
   }
-}
+  res.status(404).json({ error: "Endpoint not found" });
+});
+
+// --- Start server ---
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🔗 Server URL: http://localhost:${PORT}`);
+  
+  // Enhanced startup diagnostics
+  console.log("\n📋 Environment Status:");
+  console.log("- GOOGLE_CREDENTIALS_JSON:", !!process.env.GOOGLE_CREDENTIALS_JSON ? "✅ Set" : "❌ Using local");
+  console.log("- SPREADSHEET_ID:", !!process.env.SPREADSHEET_ID ? "✅ Set" : "❌ Using local");
+  console.log("- Auth initialized:", !!auth ? "✅ Yes" : "❌ No");
+  console.log("- Service account email:", credentials ? credentials.client_email : "Not available");
+  
+  if (credentials) {
+    console.log("\n🔧 IMPORTANT SETUP STEPS:");
+    console.log("1. 📋 Verify your Google Sheet ID is correct:");
+    console.log("   Current ID:", LOCAL_SPREADSHEET_ID);
+    console.log("   Get the correct ID from your Google Sheet URL");
+    console.log("");
+    console.log("2. 🔧 Share your Google Sheet with the service account:");
+    console.log("   Email:", credentials.client_email);
+    console.log("   Grant 'Editor' or 'Viewer' permission");
+    console.log("");
+    console.log("3. 🔗 Test endpoints:");
+    console.log("   - Health: http://localhost:" + PORT + "/health");
+    console.log("   - Auth test: http://localhost:" + PORT + "/test-auth");
+    console.log("   - Articles: http://localhost:" + PORT + "/articles");
+  }
+});
