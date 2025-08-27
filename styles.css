@@ -170,7 +170,7 @@ nav a.active {
   color: white !important;
   position: relative;
   padding: 25px 25px 40px 25px;
-  margin-bottom: 30px;
+  margin-bottom: 20px !important; /* was 30px */
   border-radius: 8px;
   box-shadow: 0 2px 6px var(--box-shadow-medium);
   display: flex;
@@ -364,6 +364,8 @@ nav a.active {
   justify-content: space-between;
   font-family: 'Courier Prime', monospace;
   color: #222;
+  height: 100%;         /* match article height */
+  box-sizing: border-box;
 }
 
 .trolley-widget video {
@@ -438,6 +440,8 @@ nav a.active {
   transform: translateY(20px);
   animation: fadeInUp 0.7s forwards;
   animation-delay: 0.3s;
+  height: 100%;         /* match article height */
+  box-sizing: border-box;
 }
 
 @keyframes fadeInUp {
@@ -961,24 +965,21 @@ body.dark-mode .purple-box {
 /* ==== ARTICLE + WIDGET ROW LAYOUT ==== */
 .article-widget-row {
   display: grid;
-  grid-template-columns: 1fr 320px; /* article + widget */
-  gap: 20px;
-  align-items: start;
-  margin-bottom: 40px;
+  grid-template-columns: 1fr 300px; /* article + widget */
+  gap: 12px;                        /* smaller gap between article and widget */
+  align-items: stretch;              /* make article stretch same height as widget */
+  margin-bottom: 20px;               /* reduced spacing between rows */
 }
-
 /* If widget should be on the left (quiz) */
 .article-widget-row.reverse {
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 300px 1fr;
 }
-
-/* Make articles slightly narrower */
+/* Articles inside widget row should expand */
 .article-widget-row .blog-post {
   max-width: 100%;
-  background: linear-gradient(135deg, var(--primary-purple), #7a4462);
-  color: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%; /* force equal height with widget */
 }
-
