@@ -821,6 +821,40 @@ body.dark-mode .quiz-widget #share-btn:hover {
   background-color: var(--button-bg-hover);
 }
 
+/* ===== ABOUT ME PAGE ===== */
+.about-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  line-height: 1.6;
+  background: var(--light-bg, #f9f9f9);
+  color: var(--light-text, #222);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Dark mode overrides */
+body.dark-mode .about-container {
+  background: #1e1e1e;
+  color: #ddd;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+body.dark-mode .about-container h1,
+body.dark-mode .about-container h2,
+body.dark-mode .about-container h3 {
+  color: #fff;
+}
+
+body.dark-mode .about-container a {
+  color: #9ecbff;
+}
+
+body.dark-mode .about-container a:hover {
+  color: #6bb7ff;
+}
+
+
 #prevPageButton, #nextPageButton {
   /* example styles */
   padding: 0.5rem 1rem;
