@@ -12,7 +12,7 @@ const API_BASE_URL = (() => {
   // For production - point to your backend server
   // Replace this URL with your actual backend deployment URL
   if (hostname.includes('netlify.app')) {
-    return 'https://your-backend-app.onrender.com'; // Replace with your actual backend URL
+    return 'https://cogito-computo-1cjv.onrender.com/'; // Replace with your actual backend URL
   }
   
   // For Render deployment (if frontend and backend are on same domain)
@@ -37,3 +37,4 @@ let allArticles = [];
 let filteredArticles = [];
 let currentPage = 1;
 const articlesPerPage = 5;
+
