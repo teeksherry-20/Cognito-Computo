@@ -1,9 +1,8 @@
-// server.js - Fixed version with correct CORS and authentication
+// server.js - Fixed version with correct spreadsheet ID
 import express from "express";
 import { google } from "googleapis";
 import path from "path";
 import { fileURLToPath } from "url";
-import cors from 'cors';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,37 +10,29 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json());
 
-// Enhanced CORS configuration
+import cors from 'cors';
+
 app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://cogitocomputo.netlify.app',
-    'https://cogito-computo-1cjv.onrender.com',
-    /\.netlify\.app$/,
-    /\.onrender\.com$/
+    /\.netlify\.app$/
   ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+  credentials: true
 }));
 
-// Handle preflight requests
-app.options('*', cors());
-
-// Serve static files (frontend) - only for local development
-if (process.env.NODE_ENV !== 'production') {
-  app.use(express.static(path.join(__dirname)));
-}
+// Serve static files (frontend)
+app.use(express.static(path.join(__dirname)));
 
 // --- Load Google credentials ---
 let credentials;
 let auth;
 
-// CORRECTED SPREADSHEET ID - From your Google Sheets URL
-const SPREADSHEET_ID = "1eHdXlQOsNwS1a8-69_cW0f8rYvH-BTiMU31bYFOEQa0";
+// CORRECTED SPREADSHEET ID - matches your browser URL
+const LOCAL_SPREADSHEET_ID = "1eHdXlQOsNwS1a8-69_cW0f8rYvH-BTiMU31bYFOEQa0";
 
-// Service account credentials
-const SERVICE_ACCOUNT_CREDENTIALS = {
+// Updated local credentials
+const LOCAL_CREDENTIALS = {
   "type": "service_account",
   "project_id": "root-isotope-468903-h9",
   "private_key_id": "338015a726007eb7360aac3d60a0c0c6753edf99",
@@ -55,21 +46,19 @@ const SERVICE_ACCOUNT_CREDENTIALS = {
   "universe_domain": "googleapis.com"
 };
 
-// Initialize credentials and authentication
 try {
   // First try environment variables (for production)
-  if (process.env.GOOGLE_CREDENTIALS_JSON) {
-    console.log("🔧 Loading credentials from environment variable...");
-    credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
-    
+  const rawCredentials = process.env.GOOGLE_CREDENTIALS_JSON || process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  
+  if (rawCredentials) {
+    credentials = JSON.parse(rawCredentials);
     // Fix private key format if needed
     if (credentials.private_key) {
       credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
     }
     console.log("✅ Loaded Google credentials from environment");
   } else {
-    console.log("🔧 Using local service account credentials...");
-    credentials = SERVICE_ACCOUNT_CREDENTIALS;
+    credentials = LOCAL_CREDENTIALS;
     console.log("✅ Using local Google credentials for development");
   }
   
@@ -95,15 +84,6 @@ if (credentials) {
   }
 }
 
-// Health check middleware
-app.use((req, res, next) => {
-  // Log all incoming requests (except favicon)
-  if (!req.originalUrl.includes('favicon')) {
-    console.log(`📡 ${req.method} ${req.originalUrl} from ${req.get('origin') || 'unknown'}`);
-  }
-  next();
-});
-
 // --- /articles endpoint ---
 app.get("/articles", async (req, res) => {
   console.log("📡 Received request for articles");
@@ -120,7 +100,7 @@ app.get("/articles", async (req, res) => {
     console.log("📊 Fetching articles from Google Sheets...");
     
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.SPREADSHEET_ID || SPREADSHEET_ID;
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
     
     console.log("📋 Using spreadsheet ID:", spreadsheetId);
     
@@ -162,7 +142,7 @@ app.get("/articles", async (req, res) => {
 
     console.log("✅ Successfully processed", articles.length, "articles");
     if (articles.length > 0) {
-      console.log("📄 Sample article:", JSON.stringify(articles[0], null, 2));
+      console.log("📄 Sample article:", articles[0]);
     }
     
     res.json(articles);
@@ -170,7 +150,6 @@ app.get("/articles", async (req, res) => {
   } catch (err) {
     console.error("❌ /articles error:", err.message);
     console.error("🔍 Error code:", err.code);
-    console.error("🔍 Full error:", err);
     
     // Enhanced error handling
     let errorMessage = "Failed to fetch articles: " + err.message;
@@ -180,12 +159,12 @@ app.get("/articles", async (req, res) => {
       errorMessage = "Spreadsheet not found (404 error)";
       troubleshooting.push("❌ The spreadsheet ID might be incorrect");
       troubleshooting.push("❌ The spreadsheet might have been deleted or moved");
-      troubleshooting.push(`🔍 Current ID: ${SPREADSHEET_ID}`);
+      troubleshooting.push(`🔍 Current ID: ${LOCAL_SPREADSHEET_ID}`);
       troubleshooting.push("✅ Go to your Google Sheet and copy the ID from the URL");
-      troubleshooting.push("✅ Update SPREADSHEET_ID in server.js");
+      troubleshooting.push("✅ Update LOCAL_SPREADSHEET_ID in server.js");
     } else if (err.code === 403) {
       errorMessage = "Permission denied accessing the Google Sheet (403 error)";
-      troubleshooting.push(`🔧 Share your Google Sheet with: ${credentials?.client_email}`);
+      troubleshooting.push(`🔧 Share your Google Sheet with: ${credentials.client_email}`);
       troubleshooting.push("✅ Grant 'Editor' or 'Viewer' access to the service account");
     } else if (err.message.includes('invalid_grant') || err.message.includes('Invalid JWT Signature')) {
       errorMessage = "JWT Signature error - service account credentials are invalid";
@@ -197,7 +176,7 @@ app.get("/articles", async (req, res) => {
       error: errorMessage,
       code: err.code,
       serviceAccountEmail: credentials?.client_email || 'Not available',
-      spreadsheetId: SPREADSHEET_ID,
+      spreadsheetId: LOCAL_SPREADSHEET_ID,
       troubleshooting: troubleshooting
     });
   }
@@ -213,7 +192,7 @@ app.get("/trolley-votes", async (req, res) => {
 
   try {
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.SPREADSHEET_ID || SPREADSHEET_ID;
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
     const range = "Sheet1!A:C";
 
     const response = await sheets.spreadsheets.values.get({ 
@@ -245,75 +224,6 @@ app.get("/trolley-votes", async (req, res) => {
   }
 });
 
-// --- /trolley-vote endpoint (POST) ---
-app.post("/trolley-vote", async (req, res) => {
-  console.log("🚃 Received trolley vote:", req.body);
-  
-  if (!auth) {
-    return res.status(500).json({ error: "Google auth not configured" });
-  }
-
-  try {
-    const { option } = req.body;
-    
-    if (!option || !['A', 'B'].includes(option)) {
-      return res.status(400).json({ error: "Invalid option. Must be 'A' or 'B'" });
-    }
-
-    const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.SPREADSHEET_ID || SPREADSHEET_ID;
-    
-    // First, get current votes
-    const getResponse = await sheets.spreadsheets.values.get({ 
-      spreadsheetId, 
-      range: "Sheet1!A:C"
-    });
-    
-    const rows = getResponse.data.values || [];
-    let optionRowIndex = -1;
-    let currentCount = 0;
-    
-    // Find the row for this option
-    rows.forEach((row, index) => {
-      if (row[0] === 'trolley' && row[1] === option) {
-        optionRowIndex = index + 1; // Google Sheets is 1-indexed
-        currentCount = parseInt(row[2] || "0", 10);
-      }
-    });
-    
-    const newCount = currentCount + 1;
-    
-    if (optionRowIndex > 0) {
-      // Update existing row
-      await sheets.spreadsheets.values.update({
-        spreadsheetId,
-        range: `Sheet1!C${optionRowIndex}`,
-        valueInputOption: 'RAW',
-        requestBody: {
-          values: [[newCount]]
-        }
-      });
-    } else {
-      // Add new row (shouldn't happen with your current setup, but good fallback)
-      await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: 'Sheet1!A:C',
-        valueInputOption: 'RAW',
-        requestBody: {
-          values: [['trolley', option, newCount]]
-        }
-      });
-    }
-    
-    console.log(`✅ Updated trolley vote ${option}: ${currentCount} -> ${newCount}`);
-    res.json({ success: true, option, newCount });
-    
-  } catch (err) {
-    console.error("❌ /trolley-vote error:", err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // --- /like endpoint ---
 app.post("/like", async (req, res) => {
   try {
@@ -330,28 +240,10 @@ app.post("/like", async (req, res) => {
   }
 });
 
-// --- Serve index.html (only for local development) ---
-if (process.env.NODE_ENV !== 'production') {
-  app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
-  });
-} else {
-  // For production, just return a simple API info
-  app.get("/", (req, res) => {
-    res.json({
-      message: "Cogito Computo API",
-      version: "1.0.0",
-      endpoints: {
-        articles: "/articles",
-        trolleyVotes: "/trolley-votes",
-        trolleyVote: "POST /trolley-vote",
-        like: "POST /like",
-        health: "/health",
-        testAuth: "/test-auth"
-      }
-    });
-  });
-}
+// --- Serve index.html ---
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 // --- Enhanced health check endpoint ---
 app.get("/health", (req, res) => {
@@ -362,12 +254,11 @@ app.get("/health", (req, res) => {
       auth: !!auth,
       credentials: !!credentials,
       serviceAccountEmail: credentials ? credentials.client_email : null,
-      spreadsheetId: process.env.SPREADSHEET_ID || SPREADSHEET_ID,
+      spreadsheetId: process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID,
       environment: process.env.NODE_ENV || 'development'
     }
   };
   
-  console.log("🏥 Health check:", healthData);
   res.json(healthData);
 });
 
@@ -386,12 +277,12 @@ app.get("/test-auth", async (req, res) => {
     
     const client = await auth.getClient();
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.SPREADSHEET_ID || SPREADSHEET_ID;
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
     
     // Try to get spreadsheet metadata
     const metadata = await sheets.spreadsheets.get({ spreadsheetId });
     
-    const result = {
+    res.json({
       status: "success",
       message: "Authentication test passed",
       spreadsheet: {
@@ -404,10 +295,7 @@ app.get("/test-auth", async (req, res) => {
       },
       serviceAccount: credentials.client_email,
       timestamp: new Date().toISOString()
-    };
-    
-    console.log("✅ Auth test successful:", result);
-    res.json(result);
+    });
     
   } catch (testErr) {
     console.error("❌ Auth test failed:", testErr.message);
@@ -417,7 +305,7 @@ app.get("/test-auth", async (req, res) => {
       error: testErr.message,
       code: testErr.code,
       serviceAccount: credentials.client_email,
-      spreadsheetId: process.env.SPREADSHEET_ID || SPREADSHEET_ID,
+      spreadsheetId: process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID,
       timestamp: new Date().toISOString()
     });
   }
@@ -428,30 +316,17 @@ app.use((req, res) => {
   if (!req.originalUrl.includes('favicon')) {
     console.log("⚠️ 404 for path:", req.originalUrl);
   }
-  res.status(404).json({ 
-    error: "Endpoint not found",
-    availableEndpoints: ["/articles", "/trolley-votes", "/health", "/test-auth"]
-  });
-});
-
-// --- Error handling middleware ---
-app.use((err, req, res, next) => {
-  console.error("💥 Unhandled error:", err);
-  res.status(500).json({ 
-    error: "Internal server error",
-    message: err.message 
-  });
+  res.status(404).json({ error: "Endpoint not found" });
 });
 
 // --- Start server ---
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 Server URL: http://localhost:${PORT}`);
   
   // Enhanced startup diagnostics
   console.log("\n📋 Environment Status:");
-  console.log("- NODE_ENV:", process.env.NODE_ENV || 'development');
   console.log("- GOOGLE_CREDENTIALS_JSON:", !!process.env.GOOGLE_CREDENTIALS_JSON ? "✅ Set" : "❌ Using local");
   console.log("- SPREADSHEET_ID:", !!process.env.SPREADSHEET_ID ? "✅ Set" : "❌ Using local");
   console.log("- Auth initialized:", !!auth ? "✅ Yes" : "❌ No");
@@ -460,7 +335,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   if (credentials) {
     console.log("\n🔧 IMPORTANT SETUP STEPS:");
     console.log("1. 📋 Verify your Google Sheet ID is correct:");
-    console.log("   Current ID:", SPREADSHEET_ID);
+    console.log("   Current ID:", LOCAL_SPREADSHEET_ID);
     console.log("   Get the correct ID from your Google Sheet URL");
     console.log("");
     console.log("2. 🔧 Share your Google Sheet with the service account:");
@@ -471,27 +346,5 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log("   - Health: http://localhost:" + PORT + "/health");
     console.log("   - Auth test: http://localhost:" + PORT + "/test-auth");
     console.log("   - Articles: http://localhost:" + PORT + "/articles");
-    console.log("");
-    console.log("4. 🌐 CORS enabled for:");
-    console.log("   - https://cogitocomputo.netlify.app");
-    console.log("   - https://cogito-computo-1cjv.onrender.com");
-    console.log("   - localhost:3000");
   }
-});
-
-// Graceful shutdown handling
-process.on('SIGTERM', () => {
-  console.log('🛑 SIGTERM received, shutting down gracefully...');
-  server.close(() => {
-    console.log('✅ Process terminated');
-    process.exit(0);
-  });
-});
-
-process.on('SIGINT', () => {
-  console.log('🛑 SIGINT received, shutting down gracefully...');
-  server.close(() => {
-    console.log('✅ Process terminated');
-    process.exit(0);
-  });
 });
