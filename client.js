@@ -84,11 +84,15 @@ function setupEventListeners() {
 }
 
 // Parse [img:URL] tags into <img>
+// Parse [img:URL] tags into <img> (images only, no text)
 function parseImages(text) {
   if (!text) return "";
-  return text.replace(/\[img:(.*?)\]/g, (match, url) => {
-    return `<img src="${url}" alt="article image" class="article-image">`;
-  });
+  return (text.match(/\[img:(.*?)\]/g) || [])
+    .map(match => {
+      const url = match.slice(5, -1); // extract URL
+      return `<img src="${url}" alt="article image" class="article-image">`;
+    })
+    .join("");
 }
 
 // Load articles
@@ -129,7 +133,7 @@ function displayArticles() {
   articleContainer.innerHTML = articlesToShow.map(article => `
     <article class="blog-post" data-id="${article.id}">
       <div class="article-header">
-        ${parseImages(article.intro)}
+        ${parseImages(article.intro)} <!-- ✅ images only -->
         <h2 class="article-title">${escapeHtml(article.title)}</h2>
         <div class="article-meta">
           <span class="article-date">${formatDate(article.date)}</span>
@@ -137,7 +141,7 @@ function displayArticles() {
         </div>
       </div>
       <div class="article-intro">
-        ${formatIntroText(article.intro)}
+        ${formatIntroText(article.intro)} <!-- ✅ text only -->
       </div>
       <div class="article-footer">
         <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
