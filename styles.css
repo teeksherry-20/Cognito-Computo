@@ -42,45 +42,12 @@
   background-color: white;
 }
 
-/* === Like Button === */
+/* === Like Section === */
 .like-section {
   margin-top: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-color: white;
-}
-
-.like-button {
-  cursor: pointer;
-  font-size: 1rem;
-  background: none;
-  border: 1px solid #ff69b4;
-  padding: 4px 10px;
-  border-radius: 8px;
-  color: #ff69b4;
-  transition: background-color 0.2s, color 0.2s;
-  position: relative;
-  overflow: visible;
-  background-color: white;
-  font-color: white;
-}
-
-.like-button:hover:not(:disabled) {
-  background-color: #ff69b4;
-  color: white;
-  font-color: white;
-}
-
-.like-button:disabled {
-  cursor: default;
-  opacity: 0.6;
-  font-color: white;
-}
-
-.like-count {
-  font-family: monospace;
-  font-size: 1rem;
   font-color: white;
 }
 
@@ -193,10 +160,15 @@ nav a.active {
   font-weight: 400;
 }
 
-/* ==== ARTICLES ==== */
+/* ==== MINIMAL ARTICLE CSS FIX - ONLY FIXING VISIBILITY ISSUES ==== */
+
+/* Fix article background and text visibility */
+.blog-post, 
+.article-card,
 .article {
+  background: linear-gradient(135deg, var(--primary-purple), #7a4462) !important;
+  color: white !important;
   position: relative;
-  background-color: var(--primary-purple);
   padding: 25px 25px 40px 25px;
   margin-bottom: 30px;
   border-radius: 8px;
@@ -205,18 +177,28 @@ nav a.active {
   flex-direction: column;
 }
 
-.article h2 {
-  color: #fff;
+/* Fix article title visibility */
+.blog-post h2, 
+.article-card h3,
+.article h2,
+.article-title {
+  color: #fff !important;
 }
 
+/* Fix article text visibility */
+.blog-post p, 
+.article-card p,
 .article p,
-.intro {
-  color: var(--text-light);
+.intro,
+.article-intro {
+  color: var(--text-light) !important;
 }
 
+/* Fix article meta text */
+.article-date,
 .article-header {
+  color: var(--text-light-alt) !important;
   font-size: 0.6rem;
-  color: var(--text-light-alt);
   font-style: italic;
   font-family: 'Press Start 2P', monospace;
   margin-bottom: 0.5rem;
@@ -228,22 +210,63 @@ nav a.active {
   align-self: flex-end;
 }
 
+/* Fix genre tags */
+.genre,
+.article-genre {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+/* Fix read more button */
+.read-more,
 .read-more-btn {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
   font-size: 1rem;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-family: 'Courier Prime', monospace;
-  background-color: #b1a1cc;
-  color: white;
-  border: none;
   border-radius: 5px;
   transition: background-color 0.3s ease;
 }
 
-.read-more-btn:hover,
-.read-more-btn:focus {
-  background-color: #b1a1cc;
-  outline: none;
+.read-more:hover,
+.read-more-btn:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: var(--primary-purple) !important;
+}
+
+/* Fix like button */
+.like-button, 
+.like-btn {
+  background: linear-gradient(135deg, #ff6b9d, #ff8fab) !important;
+  color: white !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+  position: relative;
+  overflow: visible;
+}
+
+.like-button:hover:not(:disabled), 
+.like-btn:hover {
+  background: linear-gradient(135deg, #ff8fab, #ffa8c2) !important;
+}
+
+.like-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Fix like count text */
+.like-count {
+  color: #fff !important;
+  font-family: monospace;
+  font-size: 1rem;
 }
 
 /* ==== FILTERS ==== */
@@ -517,7 +540,6 @@ nav a.active {
     min-width: 100%;
   }
 }
-
 
 /* ==== QUIZ TITLE ==== */
 .quiz-title {
