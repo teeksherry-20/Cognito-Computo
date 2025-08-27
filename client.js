@@ -186,15 +186,15 @@ function displayArticles() {
         ${formatIntroText(article.intro)}
       </div>
       <div class="article-footer">
-        <button class="read-more-btn" onclick="openModal(${article.id})">
-          Read Full Article →
-        </button>
-        <div class="article-actions">
-          <button class="like-btn" onclick="likeArticle(${article.id})" aria-label="Like article">
-            ❤️ <span class="like-count">${article.likes}</span>
-          </button>
-        </div>
-      </div>
+  <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
+    <button class="read-more-btn" onclick="openModal(${article.id})">
+      Read Full Article →
+    </button>
+    <button class="like-btn" onclick="likeArticle(${article.id})">
+      ❤️ <span class="like-count">${article.likes}</span>
+    </button>
+  </div>
+</div>
     </article>
   `).join('');
   
@@ -666,3 +666,4 @@ function formatArticleContent(content) {
     return paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
   }
 }
+
