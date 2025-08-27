@@ -28,13 +28,21 @@ let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, ne
 let noResults, modal, modalTitle, modalBody, modalClose, darkModeToggle;
 let currentGenreFilter = '';
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   initializeElements();
   setupEventListeners();
-  loadArticles();
+
+  try {
+    await loadArticles();
+  } catch (err) {
+    console.error("❌ Error loading articles:", err);
+  }
+
+  // ✅ Always run widgets and dark mode
   createWidgets();
   setupDarkMode();
 });
+
 
 function initializeElements() {
   articleContainer = document.getElementById('article-container');
@@ -561,6 +569,7 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
 
 
 
