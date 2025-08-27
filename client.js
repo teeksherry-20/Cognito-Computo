@@ -1,4 +1,3 @@
-// Enhanced client.js with backend URL configuration
 
 // Detect environment and set API base URL
 const API_BASE_URL = (() => {
@@ -84,17 +83,13 @@ function setupEventListeners() {
 }
 
 // Parse [img:URL] tags into <img>
-// Parse [img:URL] tags into <img> (images only, no text)
-// Parse [img:URL] tags into <img> (images only, no text)
 function parseImages(text) {
   if (!text) return "";
-  return (text.match(/\[img:(.*?)\]/g) || [])
-    .map(match => {
-      const url = match.slice(5, -1); // extract URL
-      return `<img src="${url}" alt="article image" class="article-image">`;
-    })
-    .join("");
+  return text.replace(/\[img:(.*?)\]/g, (match, url) => {
+    return `<img src="${url}" alt="article image" class="article-image">`;
+  });
 }
+
 
 
 // Load articles
