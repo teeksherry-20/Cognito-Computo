@@ -4,42 +4,31 @@
 const API_BASE_URL = (() => {
   const hostname = window.location.hostname;
   
-  // If running on localhost or local development
   if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168')) {
-    return 'http://localhost:3000'; // Local development backend
+    return 'http://localhost:3000';
   }
-  
-  // For Netlify frontend - point to Render backend
   if (hostname.includes('netlify.app') || hostname.includes('cogitocomputo.netlify.app')) {
-    return 'https://cogito-computo-1cjv.onrender.com'; // Your Render backend URL
+    return 'https://cogito-computo-1cjv.onrender.com';
   }
-  
-  // For Render deployment (if both frontend and backend are on same domain)
   if (hostname.includes('render.com') || hostname.includes('onrender.com')) {
-    return window.location.origin; // Use same origin
+    return window.location.origin;
   }
-  
-  // Default fallback to Render backend
   return 'https://cogito-computo-1cjv.onrender.com';
 })();
 
 console.log('🌐 API Base URL:', API_BASE_URL);
 
-// Global variables for trolley voting (stored locally)
 let trolleyVotes = { A: 0, B: 0 };
 
-// Global variables for filtering and pagination
 let allArticles = [];
 let filteredArticles = [];
 let currentPage = 1;
-const articlesPerPage = 5;
+const articlesPerPage = 4;
 
-// DOM elements
 let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, nextPageButton;
 let noResults, modal, modalTitle, modalBody, modalClose, darkModeToggle;
 let currentGenreFilter = '';
 
-// Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
   initializeElements();
   setupEventListeners();
@@ -94,7 +83,15 @@ function setupEventListeners() {
   });
 }
 
-// Load articles from backend
+// Parse [img:URL] tags into <img>
+function parseImages(text) {
+  if (!text) return "";
+  return text.replace(/\[img:(.*?)\]/g, (match, url) => {
+    return `<img src="${url}" alt="article image" class="article-image">`;
+  });
+}
+
+// Load articles
 async function loadArticles() {
   try {
     console.log('📡 Fetching articles from:', `${API_BASE_URL}/articles`);
@@ -115,7 +112,7 @@ async function loadArticles() {
   }
 }
 
-// Display articles with pagination
+// Display articles
 function displayArticles() {
   if (filteredArticles.length === 0) {
     noResults.style.display = 'block';
@@ -131,8 +128,8 @@ function displayArticles() {
 
   articleContainer.innerHTML = articlesToShow.map(article => `
     <article class="blog-post" data-id="${article.id}">
-      ${parseImages(article.intro)}
       <div class="article-header">
+        ${parseImages(article.intro)}
         <h2 class="article-title">${escapeHtml(article.title)}</h2>
         <div class="article-meta">
           <span class="article-date">${formatDate(article.date)}</span>
@@ -140,7 +137,7 @@ function displayArticles() {
         </div>
       </div>
       <div class="article-intro">
-        ${parseImages(formatIntroText(article.intro))}
+        ${formatIntroText(article.intro)}
       </div>
       <div class="article-footer">
         <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
@@ -154,7 +151,6 @@ function displayArticles() {
   updatePagination();
 }
 
-// Handle search functionality
 function handleSearch() {
   const searchTerm = searchInput.value.toLowerCase().trim();
   if (searchTerm === '') {
@@ -171,7 +167,6 @@ function handleSearch() {
   displayArticles();
 }
 
-// Handle sort functionality
 function handleSort() {
   const sortValue = sortSelect.value;
   filteredArticles.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -180,7 +175,6 @@ function handleSort() {
   displayArticles();
 }
 
-// Genre filtering
 function filterByGenre(genre) {
   currentGenreFilter = genre;
   filteredArticles = allArticles.filter(article => article.genre === genre);
@@ -197,7 +191,6 @@ function showAllArticles() {
   displayArticles();
 }
 
-// Pagination functions
 function changePage(direction) {
   const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
   const newPage = currentPage + direction;
@@ -215,23 +208,22 @@ function updatePagination() {
   nextPageButton.disabled = currentPage >= totalPages;
 }
 
-// Modal functions
 function openModal(articleId) {
   const article = allArticles.find(a => a.id === articleId);
   if (!article) return;
 
   modalTitle.textContent = article.title;
   modalBody.innerHTML = `
-    <div class="modal-meta">
+    <div class="modal-meta" style="text-align:center;">
       <span class="modal-date">${formatDate(article.date)}</span>
       <span class="modal-genre">${escapeHtml(article.genre)}</span>
     </div>
-    <div class="modal-content-text">
+    <div class="modal-content-text" style="text-align:center;">
       ${parseImages(formatArticleContent(article.fullContent || article.intro))}
     </div>
   `;
 
-  modal.style.display = 'block';
+  modal.style.display = 'flex'; // ensure flex centering works
   document.body.style.overflow = 'hidden';
 }
 
@@ -240,8 +232,6 @@ function closeModal() {
   document.body.style.overflow = 'auto';
 }
 
-
-// Like functionality
 async function likeArticle(articleId) {
   const article = allArticles.find(a => a.id === articleId);
   if (!article) return;
@@ -520,12 +510,6 @@ function showPollResult() {
   });
 }
 
-function parseImages(text) {
-  if (!text) return "";
-  return text.replace(/\[img:(.*?)\]/g, (match, url) => {
-    return `<img src="${url}" alt="article image" class="article-image">`;
-  });
-}
 // Dark Mode functionality
 function setupDarkMode() {
   // Check for saved preference or default to light mode
