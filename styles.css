@@ -1,21 +1,20 @@
-/* ==== COMPLETE ARTICLE STYLES FIX ==== */
+/* ==== ARTICLE STYLES FIX (PRESERVING ORIGINAL LAYOUT) ==== */
 
-/* Base Article Container */
+/* Base Article Container - Keep original width and layout */
 .blog-post, 
 .article-card,
 .article {
   background: linear-gradient(135deg, #925682, #7a4462) !important;
-  padding: 25px !important;
-  margin-bottom: 25px !important;
-  border-radius: 15px !important;
-  box-shadow: 0 8px 25px rgba(146, 86, 130, 0.2) !important;
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 5px 20px rgba(146, 86, 130, 0.2) !important;
   display: flex !important;
   flex-direction: column !important;
   position: relative !important;
   overflow: hidden !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: all 0.3s ease !important;
   color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Gradient Border Top */
@@ -31,152 +30,112 @@
   background: linear-gradient(90deg, #ff6b9d, #c44569, #6c5ce7, #00cec9) !important;
 }
 
-/* Hover Effects */
+/* Hover Effects - Keep original subtle animation */
 .blog-post:hover, 
 .article-card:hover,
 .article:hover {
-  transform: translateY(-5px) scale(1.02) !important;
-  box-shadow: 0 15px 40px rgba(146, 86, 130, 0.4) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 25px rgba(146, 86, 130, 0.3) !important;
 }
 
-/* Article Header */
+/* Article Header - Keep original structure */
 .article-header {
   display: flex !important;
   justify-content: space-between !important;
-  align-items: flex-start !important;
-  margin-bottom: 15px !important;
-  padding-bottom: 12px !important;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
-  flex-wrap: wrap !important;
-  gap: 10px !important;
+  align-items: center !important;
+  font-size: 0.7rem !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-style: italic !important;
+  font-family: 'Press Start 2P', monospace !important;
+  margin-bottom: 10px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Article Title */
+/* Article Title - Keep original sizing */
 .blog-post h2, 
 .article-card h3,
 .article h2,
 .article-title {
   color: #ffffff !important;
-  font-size: 1.4rem !important;
-  margin: 0 !important;
+  font-size: 1.3rem !important;
+  margin-bottom: 10px !important;
   font-weight: 700 !important;
   line-height: 1.3 !important;
-  font-family: 'Courier Prime', monospace !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-  flex: 1 !important;
 }
 
-/* Article Meta Information */
+/* Article Meta Information - Keep original layout */
 .article-meta {
   display: flex !important;
-  gap: 12px !important;
+  gap: 10px !important;
   align-items: center !important;
-  flex-wrap: wrap !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 0.65rem !important;
 }
 
 .article-date {
   color: rgba(255, 255, 255, 0.8) !important;
-  font-style: italic !important;
 }
 
 .genre,
 .article-genre {
-  background: rgba(255, 255, 255, 0.25) !important;
-  padding: 4px 8px !important;
-  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  padding: 3px 6px !important;
+  border-radius: 10px !important;
   font-size: 0.6rem !important;
   color: white !important;
-  font-weight: bold !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  backdrop-filter: blur(5px) !important;
 }
 
-/* Article Content */
+/* Article Content - Keep original text styling */
 .blog-post p, 
 .article-card p,
 .article p,
 .intro,
 .article-intro {
   color: rgba(255, 255, 255, 0.9) !important;
-  font-size: 1rem !important;
-  margin-bottom: 20px !important;
-  line-height: 1.7 !important;
-  font-family: 'Courier Prime', monospace !important;
-  text-align: justify !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 15px !important;
+  line-height: 1.6 !important;
 }
 
-.article-intro p {
-  margin-bottom: 10px !important;
-}
-
-.article-intro p:last-child {
-  margin-bottom: 0 !important;
-}
-
-/* Article Footer */
+/* Article Footer - Keep original spacing */
 .article-footer {
   margin-top: auto !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   flex-wrap: wrap !important;
-  gap: 15px !important;
-  padding-top: 20px !important;
-  border-top: 2px solid rgba(255, 255, 255, 0.2) !important;
+  gap: 10px !important;
+  padding-top: 15px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Read More Button */
+/* Read More Button - Keep original simple styling */
 .read-more,
 .read-more-btn {
-  font-size: 0.95rem !important;
+  font-size: 0.9rem !important;
   font-weight: bold !important;
   color: #fff !important;
   text-decoration: none !important;
-  padding: 10px 20px !important;
+  padding: 8px 16px !important;
   background: rgba(255, 255, 255, 0.2) !important;
-  border-radius: 25px !important;
+  border-radius: 20px !important;
   transition: all 0.3s ease !important;
-  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
   cursor: pointer !important;
-  font-family: 'Courier Prime', monospace !important;
-  backdrop-filter: blur(10px) !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.read-more::before,
-.read-more-btn::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-  transition: left 0.5s ease !important;
 }
 
 .read-more:hover,
 .read-more-btn:hover {
   background: rgba(255, 255, 255, 0.9) !important;
   color: #925682 !important;
-  transform: translateX(5px) !important;
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3) !important;
+  transform: translateX(3px) !important;
 }
 
-.read-more:hover::before,
-.read-more-btn:hover::before {
-  left: 100% !important;
-}
-
-/* Like Button Section */
+/* Like Button Section - Keep original simple design */
 .like-section,
 .article-actions {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 8px !important;
 }
 
 .like-button, 
@@ -184,49 +143,20 @@
   background: linear-gradient(135deg, #ff6b9d, #ff8fab) !important;
   color: white !important;
   border: none !important;
-  padding: 8px 15px !important;
-  border-radius: 20px !important;
+  padding: 6px 12px !important;
+  border-radius: 15px !important;
   cursor: pointer !important;
-  font-size: 0.85rem !important;
+  font-size: 0.8rem !important;
   font-weight: bold !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
+  transition: all 0.3s ease !important;
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
-  font-family: 'Courier Prime', monospace !important;
-  backdrop-filter: blur(5px) !important;
-}
-
-.like-button::before, 
-.like-btn::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  width: 0 !important;
-  height: 0 !important;
-  background: rgba(255, 255, 255, 0.3) !important;
-  border-radius: 50% !important;
-  transition: all 0.4s ease !important;
-  transform: translate(-50%, -50%) !important;
 }
 
 .like-button:hover:not(:disabled), 
 .like-btn:hover {
   background: linear-gradient(135deg, #ff8fab, #ffa8c2) !important;
-  transform: scale(1.1) !important;
-  box-shadow: 0 5px 20px rgba(255, 107, 157, 0.5) !important;
-}
-
-.like-button:hover:not(:disabled)::before, 
-.like-btn:hover::before {
-  width: 300px !important;
-  height: 300px !important;
-}
-
-.like-button:active, 
-.like-btn:active {
-  transform: scale(0.95) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 3px 10px rgba(255, 107, 157, 0.4) !important;
 }
 
 .like-count {
@@ -234,56 +164,10 @@
   font-size: 0.7rem !important;
   color: #fff !important;
   font-weight: bold !important;
-  margin-left: 5px !important;
 }
 
-/* Dark Mode Adjustments */
-.dark-mode .blog-post,
-.dark-mode .article-card,
-.dark-mode .article {
-  background: linear-gradient(135deg, #3a2a3e, #2d1f31) !important;
-  border: 1px solid rgba(212, 165, 196, 0.2) !important;
-}
-
-.dark-mode .blog-post::before,
-.dark-mode .article-card::before,
-.dark-mode .article::before {
-  background: linear-gradient(90deg, #d4a5c4, #b686a6, #9a6888) !important;
-}
-
-.dark-mode .article-header {
-  border-bottom-color: rgba(212, 165, 196, 0.3) !important;
-}
-
-.dark-mode .article-footer {
-  border-top-color: rgba(212, 165, 196, 0.3) !important;
-}
-
-.dark-mode .genre,
-.dark-mode .article-genre {
-  background: rgba(212, 165, 196, 0.3) !important;
-  border-color: rgba(212, 165, 196, 0.4) !important;
-}
-
-/* Responsive Design */
+/* Responsive Design - Keep original breakpoints */
 @media (max-width: 768px) {
-  .blog-post, 
-  .article-card,
-  .article {
-    padding: 20px !important;
-    margin-bottom: 20px !important;
-  }
-  
-  .article-header {
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-  
-  .article-meta {
-    justify-content: space-between !important;
-    margin-top: 10px !important;
-  }
-  
   .article-footer {
     flex-direction: column !important;
     align-items: stretch !important;
@@ -294,42 +178,6 @@
   .article-actions {
     justify-content: center !important;
   }
-  
-  .blog-post h2, 
-  .article-card h3,
-  .article h2,
-  .article-title {
-    font-size: 1.2rem !important;
-  }
-  
-  .read-more,
-  .read-more-btn {
-    text-align: center !important;
-    width: 100% !important;
-  }
 }
 
-@media (max-width: 480px) {
-  .blog-post, 
-  .article-card,
-  .article {
-    padding: 15px !important;
-  }
-  
-  .blog-post h2, 
-  .article-card h3,
-  .article h2,
-  .article-title {
-    font-size: 1.1rem !important;
-  }
-  
-  .article-meta {
-    font-size: 0.6rem !important;
-  }
-  
-  .genre,
-  .article-genre {
-    font-size: 0.55rem !important;
-    padding: 3px 6px !important;
-  }
-}
+/* Remove dark mode overrides to preserve original theme handling */
