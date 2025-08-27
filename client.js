@@ -32,7 +32,7 @@ let trolleyVotes = { A: 0, B: 0 };
 let allArticles = [];
 let filteredArticles = [];
 let currentPage = 1;
-const articlesPerPage = 4;
+const articlesPerPage = 5;
 
 // DOM elements
 let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, nextPageButton;
@@ -64,22 +64,16 @@ function initializeElements() {
 }
 
 function setupEventListeners() {
-  // Search functionality
   searchInput.addEventListener('input', handleSearch);
-  
-  // Sort functionality
   sortSelect.addEventListener('change', handleSort);
-  
-  // Pagination
   prevPageButton.addEventListener('click', () => changePage(-1));
   nextPageButton.addEventListener('click', () => changePage(1));
-  
-  // Navigation
+
   document.getElementById('home-link').addEventListener('click', (e) => {
     e.preventDefault();
     showAllArticles();
   });
-  
+
   document.querySelectorAll('.genre-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -87,14 +81,12 @@ function setupEventListeners() {
       filterByGenre(genre);
     });
   });
-  
-  // Modal functionality
+
   modalClose.addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
   });
-  
-  // ESC key to close modal
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modal.style.display !== 'none') {
       closeModal();
@@ -106,55 +98,20 @@ function setupEventListeners() {
 async function loadArticles() {
   try {
     console.log('📡 Fetching articles from:', `${API_BASE_URL}/articles`);
-    
-    const response = await fetch(`${API_BASE_URL}/articles`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
-    }
-    
+    const response = await fetch(`${API_BASE_URL}/articles`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
     const articles = await response.json();
-    console.log('✅ Successfully loaded articles:', articles.length);
-    
     allArticles = articles;
     filteredArticles = [...allArticles];
-    
-    // Hide loading message
+
     const loadingMessage = document.querySelector('.loading-message');
-    if (loadingMessage) {
-      loadingMessage.style.display = 'none';
-    }
-    
+    if (loadingMessage) loadingMessage.style.display = 'none';
+
     displayArticles();
-    
   } catch (error) {
     console.error('❌ Failed to load articles:', error);
-    
-    // Show error message to user
-    articleContainer.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: #d32f2f; font-family: 'Courier Prime', monospace;">
-        <h3>⚠️ Failed to Load Articles</h3>
-        <p><strong>Error:</strong> ${error.message}</p>
-        <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
-          This might be due to:
-        </p>
-        <ul style="text-align: left; display: inline-block; color: #666; font-size: 0.9rem;">
-          <li>Backend server is starting up (please wait and refresh)</li>
-          <li>CORS configuration issue</li>
-          <li>Google Sheets API authentication problem</li>
-        </ul>
-        <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #925682; color: white; border: none; border-radius: 4px; cursor: pointer;">
-          🔄 Try Again
-        </button>
-      </div>
-    `;
+    articleContainer.innerHTML = `<div style="text-align: center; padding: 40px; color: #d32f2f;">⚠️ Failed to Load Articles: ${error.message}</div>`;
   }
 }
 
@@ -166,15 +123,15 @@ function displayArticles() {
     updatePagination();
     return;
   }
-  
+
   noResults.style.display = 'none';
-  
   const startIndex = (currentPage - 1) * articlesPerPage;
   const endIndex = startIndex + articlesPerPage;
   const articlesToShow = filteredArticles.slice(startIndex, endIndex);
-  
+
   articleContainer.innerHTML = articlesToShow.map(article => `
     <article class="blog-post" data-id="${article.id}">
+      ${parseImages(article.intro)}
       <div class="article-header">
         <h2 class="article-title">${escapeHtml(article.title)}</h2>
         <div class="article-meta">
@@ -183,44 +140,33 @@ function displayArticles() {
         </div>
       </div>
       <div class="article-intro">
-        ${formatIntroText(article.intro)}
+        ${parseImages(formatIntroText(article.intro))}
       </div>
       <div class="article-footer">
-  <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
-    <button class="read-more-btn" onclick="openModal(${article.id})">
-      Read Full Article →
-    </button>
-    <button class="like-btn" onclick="likeArticle(${article.id})">
-      ❤️ <span class="like-count">${article.likes}</span>
-    </button>
-  </div>
-</div>
+        <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
+          <button class="read-more-btn" onclick="openModal(${article.id})">Read Full Article →</button>
+          <button class="like-btn" onclick="likeArticle(${article.id})">❤️ <span class="like-count">${article.likes}</span></button>
+        </div>
+      </div>
     </article>
   `).join('');
-  
+
   updatePagination();
 }
 
 // Handle search functionality
 function handleSearch() {
   const searchTerm = searchInput.value.toLowerCase().trim();
-  
   if (searchTerm === '') {
-    filteredArticles = currentGenreFilter ? 
-      allArticles.filter(article => article.genre === currentGenreFilter) : 
-      [...allArticles];
+    filteredArticles = currentGenreFilter ? allArticles.filter(article => article.genre === currentGenreFilter) : [...allArticles];
   } else {
-    const baseArticles = currentGenreFilter ? 
-      allArticles.filter(article => article.genre === currentGenreFilter) : 
-      allArticles;
-    
+    const baseArticles = currentGenreFilter ? allArticles.filter(article => article.genre === currentGenreFilter) : allArticles;
     filteredArticles = baseArticles.filter(article =>
       article.title.toLowerCase().includes(searchTerm) ||
       article.intro.toLowerCase().includes(searchTerm) ||
       article.genre.toLowerCase().includes(searchTerm)
     );
   }
-  
   currentPage = 1;
   displayArticles();
 }
@@ -228,14 +174,8 @@ function handleSearch() {
 // Handle sort functionality
 function handleSort() {
   const sortValue = sortSelect.value;
-  
-  filteredArticles.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    
-    return sortValue === 'latest' ? dateB - dateA : dateA - dateB;
-  });
-  
+  filteredArticles.sort((a, b) => new Date(a.date) - new Date(b.date));
+  if (sortValue === 'latest') filteredArticles.reverse();
   currentPage = 1;
   displayArticles();
 }
@@ -244,14 +184,9 @@ function handleSort() {
 function filterByGenre(genre) {
   currentGenreFilter = genre;
   filteredArticles = allArticles.filter(article => article.genre === genre);
-  searchInput.value = ''; // Clear search when filtering by genre
+  searchInput.value = '';
   currentPage = 1;
   displayArticles();
-  
-  // Update active navigation state
-  document.querySelectorAll('.genre-link').forEach(link => {
-    link.style.fontWeight = link.getAttribute('data-genre') === genre ? 'bold' : 'normal';
-  });
 }
 
 function showAllArticles() {
@@ -260,18 +195,12 @@ function showAllArticles() {
   searchInput.value = '';
   currentPage = 1;
   displayArticles();
-  
-  // Reset navigation state
-  document.querySelectorAll('.genre-link').forEach(link => {
-    link.style.fontWeight = 'normal';
-  });
 }
 
 // Pagination functions
 function changePage(direction) {
   const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
   const newPage = currentPage + direction;
-  
   if (newPage >= 1 && newPage <= totalPages) {
     currentPage = newPage;
     displayArticles();
@@ -281,7 +210,6 @@ function changePage(direction) {
 
 function updatePagination() {
   const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
-  
   pageIndicator.textContent = totalPages > 0 ? `Page ${currentPage} of ${totalPages}` : 'No articles';
   prevPageButton.disabled = currentPage <= 1;
   nextPageButton.disabled = currentPage >= totalPages;
@@ -291,7 +219,7 @@ function updatePagination() {
 function openModal(articleId) {
   const article = allArticles.find(a => a.id === articleId);
   if (!article) return;
-  
+
   modalTitle.textContent = article.title;
   modalBody.innerHTML = `
     <div class="modal-meta">
@@ -299,10 +227,10 @@ function openModal(articleId) {
       <span class="modal-genre">${escapeHtml(article.genre)}</span>
     </div>
     <div class="modal-content-text">
-      ${formatArticleContent(article.fullContent || article.intro)}
+      ${parseImages(formatArticleContent(article.fullContent || article.intro))}
     </div>
   `;
-  
+
   modal.style.display = 'block';
   document.body.style.overflow = 'hidden';
 }
@@ -312,35 +240,24 @@ function closeModal() {
   document.body.style.overflow = 'auto';
 }
 
+
 // Like functionality
 async function likeArticle(articleId) {
   const article = allArticles.find(a => a.id === articleId);
   if (!article) return;
-  
   const newLikeCount = article.likes + 1;
-  
-  // Optimistically update UI
   article.likes = newLikeCount;
   const likeCountElement = document.querySelector(`[data-id="${articleId}"] .like-count`);
   if (likeCountElement) {
     likeCountElement.textContent = newLikeCount;
     likeCountElement.parentElement.style.transform = 'scale(1.2)';
-    setTimeout(() => {
-      likeCountElement.parentElement.style.transform = 'scale(1)';
-    }, 200);
+    setTimeout(() => { likeCountElement.parentElement.style.transform = 'scale(1)'; }, 200);
   }
-  
-  // Send to backend (optional - for future implementation)
   try {
     await fetch(`${API_BASE_URL}/like`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        articleId,
-        newLikeCount
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ articleId, newLikeCount })
     });
   } catch (error) {
     console.warn('❌ Failed to sync like to backend:', error);
@@ -603,6 +520,12 @@ function showPollResult() {
   });
 }
 
+function parseImages(text) {
+  if (!text) return "";
+  return text.replace(/\[img:(.*?)\]/g, (match, url) => {
+    return `<img src="${url}" alt="article image" class="article-image">`;
+  });
+}
 // Dark Mode functionality
 function setupDarkMode() {
   // Check for saved preference or default to light mode
@@ -631,40 +554,16 @@ function escapeHtml(text) {
 }
 
 function formatDate(dateString) {
-  if (!dateString) return 'No date';
-  
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  } catch (error) {
-    return dateString; // Return original if parsing fails
-  }
+  const date = new Date(dateString);
+  return isNaN(date) ? '' : date.toLocaleDateString();
 }
 
-function formatIntroText(intro) {
-  if (!intro) return '<p>No introduction available.</p>';
-  
-  // Convert line breaks to paragraphs
-  const paragraphs = intro.split('\n\n').filter(p => p.trim());
-  return paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
+function formatIntroText(text) {
+  if (!text) return '';
+  const plainText = text.replace(/\[img:.*?\]/g, '').trim();
+  return plainText.length > 200 ? plainText.substring(0, 200) + '...' : plainText;
 }
 
-function formatArticleContent(content) {
-  if (!content) return '<p>No content available.</p>';
-  
-  // Handle both plain text and HTML content
-  if (content.includes('<') && content.includes('>')) {
-    // Assume it's HTML
-    return content;
-  } else {
-    // Convert plain text to HTML paragraphs
-    const paragraphs = content.split('\n\n').filter(p => p.trim());
-    return paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
-  }
+function formatArticleContent(text) {
+  return text || '';
 }
-
-
