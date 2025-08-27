@@ -1,4 +1,3 @@
-
 // Detect environment and set API base URL
 const API_BASE_URL = (() => {
   const hostname = window.location.hostname;
@@ -28,11 +27,14 @@ let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, ne
 let noResults, modal, modalTitle, modalBody, modalClose, darkModeToggle;
 let currentGenreFilter = '';
 
+// ==== AUTO REFRESH POLL + LIKES ====
+const REFRESH_INTERVAL = 5000; // 5 seconds
+
 document.addEventListener('DOMContentLoaded', async function() {
   initializeElements();
   setupEventListeners();
 
-  // Try to load articles but don’t block widgets
+  // Try to load articles but don't block widgets
   loadArticles().catch(err => {
     console.error("❌ Error loading articles:", err);
   });
@@ -40,6 +42,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   // ✅ Always load widgets + dark mode regardless of errors
   createWidgets();
   setupDarkMode();
+  
+  // Start auto-refresh
+  startAutoRefresh();
 });
 
 function initializeElements() {
@@ -106,7 +111,6 @@ function extractImagesOnly(text) {
     .join("");
 }
 
-
 // Load articles
 async function loadArticles() {
   try {
@@ -141,47 +145,41 @@ function displayArticles() {
   const endIndex = startIndex + articlesPerPage;
   const articlesToShow = filteredArticles.slice(startIndex, endIndex);
 
-  articleContainer.innerHTML = articlesToShow.map((article, index) => {
-    // First article → with trolley widget
-    if (index === 0) {
-      return `
-        <div class="article-widget-row">
-          <article class="blog-post with-widget" data-id="${article.id}">
-            ${renderArticleContent(article)}
-          </article>
-          <div class="trolley-widget"></div>
-        </div>
-      `;
-    }
+  // Clear container
+  articleContainer.innerHTML = '';
 
-    // Second article → with quiz widget
-    if (index === 1) {
-      return `
-        <div class="article-widget-row reverse">
-          <div class="quiz-widget"></div>
-          <article class="blog-post with-widget" data-id="${article.id}">
-            ${renderArticleContent(article)}
-          </article>
-        </div>
+  // Updated article rendering logic
+  articlesToShow.forEach((article, index) => {
+    const articleElement = document.createElement("div");
+    
+    // On first page only
+    if (currentPage === 1 && index === 0) {
+      articleElement.classList.add("article-widget-row");
+      articleElement.innerHTML = `
+        <article class="blog-post" data-id="${article.id}">${generateArticleHTML(article)}</article>
+        <div class="trolley-widget"></div>
       `;
+      renderTrolleyWidget(articleElement.querySelector(".trolley-widget"));
+    } else if (currentPage === 1 && index === 1) {
+      articleElement.classList.add("article-widget-row", "reverse");
+      articleElement.innerHTML = `
+        <div class="quiz-widget"></div>
+        <article class="blog-post" data-id="${article.id}">${generateArticleHTML(article)}</article>
+      `;
+      renderQuizWidget(articleElement.querySelector(".quiz-widget"));
+    } else {
+      articleElement.classList.add("blog-post");
+      articleElement.setAttribute('data-id', article.id);
+      articleElement.innerHTML = generateArticleHTML(article);
     }
-
-    // All other articles → normal full width
-    return `
-      <article class="blog-post" data-id="${article.id}">
-        ${renderArticleContent(article)}
-      </article>
-    `;
-  }).join('');
+    
+    articleContainer.appendChild(articleElement);
+  });
 
   updatePagination();
-
-  // Inject widgets AFTER HTML exists
-  renderQuizWidget();
-  renderTrolleyWidget();
 }
 
-function renderArticleContent(article) {
+function generateArticleHTML(article) {
   return `
     <div class="article-header">
       ${extractImagesOnly(article.intro)}
@@ -197,87 +195,82 @@ function renderArticleContent(article) {
     <div class="article-footer">
       <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
         <button class="read-more-btn" onclick="openModal(${article.id})">Read Full Article →</button>
-        <button class="like-btn" onclick="likeArticle(${article.id})">❤️ <span class="like-count">${article.likes}</span></button>
+        <button class="like-btn" onclick="likeArticle(${article.id})">❤️ <span id="like-count-${article.id}" class="like-count">${article.likes || 0}</span></button>
       </div>
     </div>
   `;
 }
 
-
-function renderQuizWidget() {
-  const quizSlot = document.querySelector('.quiz-widget');
-  if (!quizSlot) return;
-  quizSlot.innerHTML = `<div class="widget-row">
-      <!-- Philosophy Quiz Widget -->
-      <div class="quiz-widget">
-        <h3 class="quiz-title">Which Philosopher Are You?</h3>
-        <div class="quiz-progress-bar-container">
-          <div class="quiz-progress-bar" id="quiz-progress-bar"></div>
-        </div>
-        <div id="quiz-progress">Question 1 of 4</div>
-        
-        <div id="quiz-container">
-          <div class="quiz-question show" data-question="0">
-            <p>What is the nature of reality?</p>
-            <label><input type="radio" name="q0" value="a"> Everything is interconnected and part of one universal substance</label>
-            <label><input type="radio" name="q0" value="b"> Reality is what we can observe and measure empirically</label>
-            <label><input type="radio" name="q0" value="c"> Reality is fundamentally mental or spiritual in nature</label>
-            <label><input type="radio" name="q0" value="d"> We can never truly know the nature of ultimate reality</label>
-          </div>
-          
-          <div class="quiz-question" data-question="1">
-            <p>How should one live a good life?</p>
-            <label><input type="radio" name="q1" value="a"> Through reason, virtue, and acceptance of fate</label>
-            <label><input type="radio" name="q1" value="b"> By maximizing happiness and minimizing suffering for the greatest number</label>
-            <label><input type="radio" name="q1" value="c"> Through authentic self-expression and creating your own meaning</label>
-            <label><input type="radio" name="q1" value="d"> By following moral duties and treating others as ends in themselves</label>
-          </div>
-          
-          <div class="quiz-question" data-question="2">
-            <p>What is the relationship between mind and body?</p>
-            <label><input type="radio" name="q2" value="a"> They are one substance viewed from different perspectives</label>
-            <label><input type="radio" name="q2" value="b"> The mind emerges from complex brain activity</label>
-            <label><input type="radio" name="q2" value="c"> Mind and body are separate, interacting substances</label>
-            <label><input type="radio" name="q2" value="d"> This question reveals the limits of human understanding</label>
-          </div>
-          
-          <div class="quiz-question" data-question="3">
-            <p>What is the source of human knowledge?</p>
-            <label><input type="radio" name="q3" value="a"> Logical reasoning and intuitive understanding of eternal truths</label>
-            <label><input type="radio" name="q3" value="b"> Sensory experience and empirical observation</label>
-            <label><input type="radio" name="q3" value="c"> Personal experience and subjective interpretation</label>
-            <label><input type="radio" name="q3" value="d"> Knowledge is limited by the structure of our minds</label>
-          </div>
-        </div>
-        
-        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
-        
-        <div id="quiz-result" class="quiz-result" style="display: none;">
-          <!-- Result will be populated by JavaScript -->
-        </div>
-      </div>`;
+function renderQuizWidget(container) {
+  if (!container) return;
+  container.innerHTML = `
+    <h3 class="quiz-title">Which Philosopher Are You?</h3>
+    <div class="quiz-progress-bar-container">
+      <div class="quiz-progress-bar" id="quiz-progress-bar"></div>
+    </div>
+    <div id="quiz-progress">Question 1 of 4</div>
+    
+    <div id="quiz-container">
+      <div class="quiz-question show" data-question="0">
+        <p>What is the nature of reality?</p>
+        <label><input type="radio" name="q0" value="a"> Everything is interconnected and part of one universal substance</label>
+        <label><input type="radio" name="q0" value="b"> Reality is what we can observe and measure empirically</label>
+        <label><input type="radio" name="q0" value="c"> Reality is fundamentally mental or spiritual in nature</label>
+        <label><input type="radio" name="q0" value="d"> We can never truly know the nature of ultimate reality</label>
+      </div>
+      
+      <div class="quiz-question" data-question="1">
+        <p>How should one live a good life?</p>
+        <label><input type="radio" name="q1" value="a"> Through reason, virtue, and acceptance of fate</label>
+        <label><input type="radio" name="q1" value="b"> By maximizing happiness and minimizing suffering for the greatest number</label>
+        <label><input type="radio" name="q1" value="c"> Through authentic self-expression and creating your own meaning</label>
+        <label><input type="radio" name="q1" value="d"> By following moral duties and treating others as ends in themselves</label>
+      </div>
+      
+      <div class="quiz-question" data-question="2">
+        <p>What is the relationship between mind and body?</p>
+        <label><input type="radio" name="q2" value="a"> They are one substance viewed from different perspectives</label>
+        <label><input type="radio" name="q2" value="b"> The mind emerges from complex brain activity</label>
+        <label><input type="radio" name="q2" value="c"> Mind and body are separate, interacting substances</label>
+        <label><input type="radio" name="q2" value="d"> This question reveals the limits of human understanding</label>
+      </div>
+      
+      <div class="quiz-question" data-question="3">
+        <p>What is the source of human knowledge?</p>
+        <label><input type="radio" name="q3" value="a"> Logical reasoning and intuitive understanding of eternal truths</label>
+        <label><input type="radio" name="q3" value="b"> Sensory experience and empirical observation</label>
+        <label><input type="radio" name="q3" value="c"> Personal experience and subjective interpretation</label>
+        <label><input type="radio" name="q3" value="d"> Knowledge is limited by the structure of our minds</label>
+      </div>
+    </div>
+    
+    <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    
+    <div id="quiz-result" class="quiz-result" style="display: none;">
+      <!-- Result will be populated by JavaScript -->
+    </div>
+  `;
 }
 
-function renderTrolleyWidget() {
-  const trolleySlot = document.querySelector('.trolley-widget');
-  if (!trolleySlot) return;
-  trolleySlot.innerHTML = `<div class="trolley-widget">
-        <h3>The Trolley Problem</h3>
-        <video autoplay muted loop>
-          <source src="trolley.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <p>A runaway trolley is heading towards five people. You can pull a lever to divert it to another track, but there's one person on that track. What do you do?</p>
-        
-        <div class="trolley-buttons">
-          <button class="trolley-btn" onclick="vote('A')">Pull the Lever<br><small>(Save 5, sacrifice 1)</small></button>
-          <button class="trolley-btn" onclick="vote('B')">Do Nothing<br><small>(Let fate decide)</small></button>
-        </div>
-        
-        <div id="poll-result" class="poll-result" style="display: none;">
-          <!-- Poll results will be shown here -->
-        </div>
-      </div>`;
+function renderTrolleyWidget(container) {
+  if (!container) return;
+  container.innerHTML = `
+    <h3>The Trolley Problem</h3>
+    <video autoplay muted loop>
+      <source src="trolley.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <p>A runaway trolley is heading towards five people. You can pull a lever to divert it to another track, but there's one person on that track. What do you do?</p>
+    
+    <div class="trolley-buttons">
+      <button class="trolley-btn" onclick="vote('A')">Pull the Lever<br><small>(Save 5, sacrifice 1)</small></button>
+      <button class="trolley-btn" onclick="vote('B')">Do Nothing<br><small>(Let fate decide)</small></button>
+    </div>
+    
+    <div id="poll-result" class="poll-result" style="display: none;">
+      <!-- Poll results will be shown here -->
+    </div>
+  `;
 }
 
 function handleSearch() {
@@ -362,24 +355,24 @@ function closeModal() {
 }
 
 async function likeArticle(articleId) {
-  const article = allArticles.find(a => a.id === articleId);
-  if (!article) return;
-  const newLikeCount = article.likes + 1;
-  article.likes = newLikeCount;
-  const likeCountElement = document.querySelector(`[data-id="${articleId}"] .like-count`);
-  if (likeCountElement) {
-    likeCountElement.textContent = newLikeCount;
-    likeCountElement.parentElement.style.transform = 'scale(1.2)';
-    setTimeout(() => { likeCountElement.parentElement.style.transform = 'scale(1)'; }, 200);
-  }
   try {
-    await fetch(`${API_BASE_URL}/like`, {
+    const response = await fetch(`${API_BASE_URL}/like`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ articleId, newLikeCount })
+      body: JSON.stringify({ articleId })
     });
+    
+    if (response.ok) {
+      const data = await response.json();
+      const likeCountElement = document.getElementById(`like-count-${articleId}`);
+      if (likeCountElement) {
+        likeCountElement.textContent = data.likes;
+        likeCountElement.parentElement.style.transform = 'scale(1.2)';
+        setTimeout(() => { likeCountElement.parentElement.style.transform = 'scale(1)'; }, 200);
+      }
+    }
   } catch (error) {
-    console.warn('❌ Failed to sync like to backend:', error);
+    console.warn('❌ Failed to like article:', error);
   }
 }
 
@@ -463,7 +456,39 @@ function createWidgets() {
     </div>
   `;  
   // Load trolley votes
-  loadTrolleyVotes();
+  loadVotes();
+}
+
+// Auto-refresh functionality
+function startAutoRefresh() {
+  setInterval(async () => {
+    try {
+      // 🔄 Refresh trolley poll
+      await loadVotes();
+      
+      // 🔄 Refresh all article likes
+      const likeCounters = document.querySelectorAll("[id^='like-count-']");
+      for (const el of likeCounters) {
+        const articleId = el.id.replace("like-count-", "");
+        await updateLikes(articleId);
+      }
+    } catch (err) {
+      console.error("❌ Auto-refresh failed:", err);
+    }
+  }, REFRESH_INTERVAL);
+}
+
+async function updateLikes(articleId) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/likes/${articleId}`);
+    const data = await res.json();
+    const likeEl = document.getElementById(`like-count-${articleId}`);
+    if (likeEl) {
+      likeEl.textContent = data.likes;
+    }
+  } catch (err) {
+    console.error(`❌ Failed to update likes for ${articleId}:`, err);
+  }
 }
 
 // Quiz functionality
@@ -588,34 +613,41 @@ function shareResult(philosopher) {
 
 // Trolley Problem functionality
 async function vote(option) {
-  trolleyVotes[option]++;
-  
-  // Show results immediately
-  showPollResult();
-  
-  // Try to sync with backend
   try {
-    await fetch(`${API_BASE_URL}/trolley-vote`, {
+    const response = await fetch(`${API_BASE_URL}/vote`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ option })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ choice: option })
     });
-  } catch (error) {
-    console.warn('❌ Failed to sync vote to backend:', error);
-  }
-}
-
-async function loadTrolleyVotes() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/trolley-votes`);
+    
     if (response.ok) {
       const votes = await response.json();
       trolleyVotes = votes;
+      showPollResult();
     }
   } catch (error) {
-    console.warn('❌ Failed to load trolley votes:', error);
+    console.warn('❌ Failed to vote:', error);
+    // Fallback to local voting
+    trolleyVotes[option]++;
+    showPollResult();
+  }
+}
+
+async function loadVotes() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/votes`);
+    if (response.ok) {
+      const votes = await response.json();
+      trolleyVotes = votes;
+      
+      // Update UI if poll result is visible
+      const pollResult = document.getElementById('poll-result');
+      if (pollResult && pollResult.style.display !== 'none') {
+        showPollResult();
+      }
+    }
+  } catch (error) {
+    console.warn('❌ Failed to load votes:', error);
   }
 }
 
@@ -625,20 +657,22 @@ function showPollResult() {
   const percentB = total > 0 ? Math.round((trolleyVotes.B / total) * 100) : 0;
   
   const resultDiv = document.getElementById('poll-result');
-  resultDiv.innerHTML = `
-    <strong>Results so far:</strong><br>
-    Pull Lever: ${percentA}% (${trolleyVotes.A} votes)<br>
-    Do Nothing: ${percentB}% (${trolleyVotes.B} votes)<br>
-    <small>Total votes: ${total}</small>
-  `;
-  resultDiv.style.display = 'block';
-  
-  // Disable buttons after voting
-  document.querySelectorAll('.trolley-btn').forEach(btn => {
-    btn.disabled = true;
-    btn.style.opacity = '0.6';
-    btn.style.cursor = 'not-allowed';
-  });
+  if (resultDiv) {
+    resultDiv.innerHTML = `
+      <strong>Results so far:</strong><br>
+      Pull Lever: ${percentA}% (${trolleyVotes.A} votes)<br>
+      Do Nothing: ${percentB}% (${trolleyVotes.B} votes)<br>
+      <small>Total votes: ${total}</small>
+    `;
+    resultDiv.style.display = 'block';
+    
+    // Disable buttons after voting
+    document.querySelectorAll('.trolley-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+  }
 }
 
 // Dark Mode functionality
@@ -682,11 +716,3 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
-
-
-
-
-
-
-
-
