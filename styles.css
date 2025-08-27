@@ -572,11 +572,10 @@ nav a.active {
   width: 90%;
   max-width: 70%;
   max-height: 80vh;
-
+  text-align: center;
   padding: 2rem;
   border-radius: 8px;
   font-family: 'Courier Prime', monospace;
-
   overflow-y: auto;
   position: relative;
   box-shadow: 0 5px 20px rgba(0,0,0,0.3);
@@ -591,6 +590,19 @@ nav a.active {
   font-size: 1.5rem;
   cursor: pointer;
 }
+
+.article-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 15px;
+  border-radius: 6px;
+}
+
+.modal-content .article-image {
+  max-width: 90%;
+}
+
 
 /* ==== DARK MODE ==== */
 body.dark-mode {
