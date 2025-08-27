@@ -90,6 +90,15 @@ function parseImages(text) {
   });
 }
 
+function extractImagesOnly(text) {
+  if (!text) return "";
+  return (text.match(/\[img:(.*?)\]/g) || [])
+    .map(match => {
+      const url = match.slice(5, -1);
+      return `<img src="${url}" alt="article image" class="article-image">`;
+    })
+    .join("");
+}
 
 
 // Load articles
@@ -113,8 +122,6 @@ async function loadArticles() {
   }
 }
 
-// Display articles
-// Display articles
 function displayArticles() {
   if (filteredArticles.length === 0) {
     noResults.style.display = 'block';
@@ -131,7 +138,7 @@ function displayArticles() {
   articleContainer.innerHTML = articlesToShow.map(article => `
     <article class="blog-post" data-id="${article.id}">
       <div class="article-header">
-        ${parseImages(article.intro)} <!-- ✅ images only -->
+        ${extractImagesOnly(article.intro)} <!-- ✅ only images -->
         <h2 class="article-title">${escapeHtml(article.title)}</h2>
         <div class="article-meta">
           <span class="article-date">${formatDate(article.date)}</span>
@@ -139,7 +146,7 @@ function displayArticles() {
         </div>
       </div>
       <div class="article-intro">
-        ${formatIntroText(article.intro)} <!-- ✅ text only -->
+        ${formatIntroText(article.intro)} <!-- ✅ only text -->
       </div>
       <div class="article-footer">
         <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
@@ -152,6 +159,7 @@ function displayArticles() {
 
   updatePagination();
 }
+
 
 function handleSearch() {
   const searchTerm = searchInput.value.toLowerCase().trim();
@@ -553,5 +561,6 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
 
 
