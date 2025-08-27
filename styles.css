@@ -893,8 +893,6 @@ body.dark-mode#about .profile-pic {
   border-color: #d4a5c4;
 }
 
-
-
 #prevPageButton, #nextPageButton {
   /* example styles */
   padding: 0.5rem 1rem;
@@ -965,21 +963,30 @@ body.dark-mode .purple-box {
 /* ==== ARTICLE + WIDGET ROW LAYOUT ==== */
 .article-widget-row {
   display: grid;
-  grid-template-columns: 1fr 300px; /* article + widget */
-  gap: 12px;                        /* smaller gap between article and widget */
-  align-items: stretch;              /* make article stretch same height as widget */
-  margin-bottom: 20px;               /* reduced spacing between rows */
+  grid-template-columns: 1fr 320px;  /* article + widget */
+  gap: 16px;                         /* breathing room */
+  align-items: stretch;              /* equal height */
+  margin-bottom: 40px;               /* enough separation between rows */
+  clear: both;                       /* prevents overlap */
 }
-/* If widget should be on the left (quiz) */
+/* Reverse layout (quiz on left, article on right) */
 .article-widget-row.reverse {
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 320px 1fr;
 }
-/* Articles inside widget row should expand */
+/* Articles in widget rows */
 .article-widget-row .blog-post {
   max-width: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%; /* force equal height with widget */
+  height: 100%; /* equal height with widget */
+}
+/* Reduce space for normal (non-widget) articles */
+.blog-post:not(.with-widget) {
+  margin-bottom: 25px; /* closer to original compact look */
+}
+.quiz-widget .quiz-question label {
+  display: block;
+  margin: 6px 0;
 }
