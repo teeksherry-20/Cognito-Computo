@@ -32,7 +32,7 @@ let trolleyVotes = { A: 0, B: 0 };
 let allArticles = [];
 let filteredArticles = [];
 let currentPage = 1;
-const articlesPerPage = 5;
+const articlesPerPage = 4;
 
 // DOM elements
 let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, nextPageButton;
@@ -666,4 +666,5 @@ function formatArticleContent(content) {
     return paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
   }
 }
+
 
