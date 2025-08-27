@@ -33,6 +33,39 @@
   background-color: white;
 }
 
+/* === ABOUT ME PAGE === */
+.about-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  line-height: 1.6;
+  background: #f9f9f9;
+  color: #222;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: 'Courier Prime', monospace;
+}
+
+body.dark-mode .about-container {
+  background: #1e1e1e;
+  color: #ddd;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+body.dark-mode .about-container h1,
+body.dark-mode .about-container h2 {
+  color: #fff;
+}
+
+body.dark-mode .about-container a {
+  color: #9ecbff;
+}
+
+body.dark-mode .about-container a:hover {
+  color: #6bb7ff;
+}
+
+
 /* === Like Section Under "Keep Reading" === */
 .like-section-card {
   margin-top: 10px;
