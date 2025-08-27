@@ -1,569 +1,854 @@
-// Enhanced client.js with backend URL configuration
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
 
-// Detect environment and set API base URL
-const API_BASE_URL = (() => {
-  const hostname = window.location.hostname;
-  
-  // If running on localhost or local development
-  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168')) {
-    return 'http://localhost:3000'; // Local development backend
-  }
-  
-  // For Netlify frontend - point to Render backend
-  if (hostname.includes('netlify.app') || hostname.includes('cogitocomputo.netlify.app')) {
-    return 'https://cogito-computo-1cjv.onrender.com'; // Your Render backend URL
-  }
-  
-  // For Render deployment (if both frontend and backend are on same domain)
-  if (hostname.includes('render.com') || hostname.includes('onrender.com')) {
-    return window.location.origin; // Use same origin
-  }
-  
-  // Default fallback to Render backend
-  return 'https://cogito-computo-1cjv.onrender.com';
-})();
-
-console.log('🌐 API Base URL:', API_BASE_URL);
-
-// Global variables for trolley voting (stored locally)
-let trolleyVotes = { A: 0, B: 0 };
-
-// Global variables for filtering and pagination
-let allArticles = [];
-let filteredArticles = [];
-let currentPage = 1;
-const articlesPerPage = 5;
-
-// DOM elements
-let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, nextPageButton;
-let noResults, modal, modalTitle, modalBody, modalClose, darkModeToggle;
-let currentGenreFilter = '';
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
-  initializeElements();
-  setupEventListeners();
-  loadArticles();
-  createWidgets();
-  setupDarkMode();
-});
-
-function initializeElements() {
-  articleContainer = document.getElementById('article-container');
-  searchInput = document.getElementById('search-input');
-  sortSelect = document.getElementById('sort-select');
-  pageIndicator = document.getElementById('pageIndicator');
-  prevPageButton = document.getElementById('prevPageButton');
-  nextPageButton = document.getElementById('nextPageButton');
-  noResults = document.getElementById('no-results');
-  modal = document.getElementById('modal');
-  modalTitle = document.getElementById('modal-title');
-  modalBody = document.getElementById('modal-body');
-  modalClose = document.getElementById('modal-close');
-  darkModeToggle = document.getElementById('darkModeToggle');
+/* ==== CSS VARIABLES ==== */
+:root {
+  --primary-purple: #925682;
+  --primary-purple-light: #b1a1cc;
+  --primary-purple-lighter: #dcd1ed;
+  --background-light: #f8f5fc;
+  --background-pale: #e7d7f3;
+  --background-pale-alt: #fbe9f3;
+  --text-dark: #222;
+  --text-light: #f9f9f9;
+  --text-light-alt: #e7d7f3;
+  --button-bg: #925682;
+  --button-bg-hover: #b773a3;
+  --link-color: #14bdeb;
+  --box-shadow-light: rgba(0, 0, 0, 0.05);
+  --box-shadow-medium: rgba(0, 0, 0, 0.1);
+  --box-shadow-strong: rgba(0, 0, 0, 0.08);
 }
 
-function setupEventListeners() {
-  searchInput.addEventListener('input', handleSearch);
-  sortSelect.addEventListener('change', handleSort);
-  prevPageButton.addEventListener('click', () => changePage(-1));
-  nextPageButton.addEventListener('click', () => changePage(1));
-
-  document.getElementById('home-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    showAllArticles();
-  });
-
-  document.querySelectorAll('.genre-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const genre = e.target.getAttribute('data-genre');
-      filterByGenre(genre);
-    });
-  });
-
-  modalClose.addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.style.display !== 'none') {
-      closeModal();
-    }
-  });
+.share-button {
+  cursor: pointer;
+  font-size: 1rem;
+  background-color: white;
+  border: 1px solid #777;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-color: black;
+}
+.share-button:hover {
+  background-color: white;
 }
 
-// Load articles from backend
-async function loadArticles() {
-  try {
-    console.log('📡 Fetching articles from:', `${API_BASE_URL}/articles`);
-    const response = await fetch(`${API_BASE_URL}/articles`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+/* === Like Section Under "Keep Reading" === */
+.like-section-card {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: white;
+}
 
-    const articles = await response.json();
-    allArticles = articles;
-    filteredArticles = [...allArticles];
+/* === Like Section === */
+.like-section {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-color: white;
+}
 
-    const loadingMessage = document.querySelector('.loading-message');
-    if (loadingMessage) loadingMessage.style.display = 'none';
+.heart-float {
+  position: absolute;
+  font-size: 1.2rem;
+  animation: float-up 1s ease-out forwards;
+  pointer-events: none;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  user-select: none;
+}
 
-    displayArticles();
-  } catch (error) {
-    console.error('❌ Failed to load articles:', error);
-    articleContainer.innerHTML = `<div style="text-align: center; padding: 40px; color: #d32f2f;">⚠️ Failed to Load Articles: ${error.message}</div>`;
+@keyframes float-up {
+  from {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -30px);
+    opacity: 0;
   }
 }
 
-// Display articles with pagination
-function displayArticles() {
-  if (filteredArticles.length === 0) {
-    noResults.style.display = 'block';
-    articleContainer.innerHTML = '';
-    updatePagination();
-    return;
-  }
-
-  noResults.style.display = 'none';
-  const startIndex = (currentPage - 1) * articlesPerPage;
-  const endIndex = startIndex + articlesPerPage;
-  const articlesToShow = filteredArticles.slice(startIndex, endIndex);
-
-  articleContainer.innerHTML = articlesToShow.map(article => `
-    <article class="blog-post" data-id="${article.id}">
-      ${parseImages(article.intro)}
-      <div class="article-header">
-        <h2 class="article-title">${escapeHtml(article.title)}</h2>
-        <div class="article-meta">
-          <span class="article-date">${formatDate(article.date)}</span>
-          <span class="article-genre">${escapeHtml(article.genre)}</span>
-        </div>
-      </div>
-      <div class="article-intro">
-        ${parseImages(formatIntroText(article.intro))}
-      </div>
-      <div class="article-footer">
-        <div class="article-actions" style="display:flex; gap:10px; align-items:center;">
-          <button class="read-more-btn" onclick="openModal(${article.id})">Read Full Article →</button>
-          <button class="like-btn" onclick="likeArticle(${article.id})">❤️ <span class="like-count">${article.likes}</span></button>
-        </div>
-      </div>
-    </article>
-  `).join('');
-
-  updatePagination();
+/* ==== BASE STYLES ==== */
+body {
+  font-family: 'Courier Prime', monospace;
+  line-height: 1.6;
+  max-width: 800px;
+  min-height: 100%;
+  margin: auto;
+  padding: 20px;
+  background-color: #FFECE7;
+  background-image: url(bg1.jpeg);
+  background-size: 100%;
+  background-position: top;
+  background-attachment: scroll;
+  background-repeat: no-repeat;
+  color: var(--text-dark);
+  transition: background-position 0.5s ease;
 }
 
-// Handle search functionality
-function handleSearch() {
-  const searchTerm = searchInput.value.toLowerCase().trim();
-  if (searchTerm === '') {
-    filteredArticles = currentGenreFilter ? allArticles.filter(article => article.genre === currentGenreFilter) : [...allArticles];
-  } else {
-    const baseArticles = currentGenreFilter ? allArticles.filter(article => article.genre === currentGenreFilter) : allArticles;
-    filteredArticles = baseArticles.filter(article =>
-      article.title.toLowerCase().includes(searchTerm) ||
-      article.intro.toLowerCase().includes(searchTerm) ||
-      article.genre.toLowerCase().includes(searchTerm)
-    );
-  }
-  currentPage = 1;
-  displayArticles();
+main {
+  overflow: visible;
+  height: auto;
 }
 
-// Handle sort functionality
-function handleSort() {
-  const sortValue = sortSelect.value;
-  filteredArticles.sort((a, b) => new Date(a.date) - new Date(b.date));
-  if (sortValue === 'latest') filteredArticles.reverse();
-  currentPage = 1;
-  displayArticles();
+header {
+  padding: 10px 20px;
+  text-align: center;
 }
 
-// Genre filtering
-function filterByGenre(genre) {
-  currentGenreFilter = genre;
-  filteredArticles = allArticles.filter(article => article.genre === genre);
-  searchInput.value = '';
-  currentPage = 1;
-  displayArticles();
+header h1 {
+  color: var(--primary-purple);
+  font-family: 'Press Start 2P', monospace;
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 3px #b9a1d9;
 }
 
-function showAllArticles() {
-  currentGenreFilter = '';
-  filteredArticles = [...allArticles];
-  searchInput.value = '';
-  currentPage = 1;
-  displayArticles();
+nav {
+  font-size: 0.75rem;
+  margin-bottom: 30px;
 }
 
-// Pagination functions
-function changePage(direction) {
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
-  const newPage = currentPage + direction;
-  if (newPage >= 1 && newPage <= totalPages) {
-    currentPage = newPage;
-    displayArticles();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+nav a {
+  font-family: 'Press Start 2P', monospace;
+  text-decoration: none;
+  color: var(--link-color);
+  margin: 0 6px;
+  font-weight: bold;
+  transition: color 0.3s;
 }
 
-function updatePagination() {
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
-  pageIndicator.textContent = totalPages > 0 ? `Page ${currentPage} of ${totalPages}` : 'No articles';
-  prevPageButton.disabled = currentPage <= 1;
-  nextPageButton.disabled = currentPage >= totalPages;
+nav a:hover {
+  text-decoration: underline;
 }
 
-// Modal functions
-function openModal(articleId) {
-  const article = allArticles.find(a => a.id === articleId);
-  if (!article) return;
-
-  modalTitle.textContent = article.title;
-  modalBody.innerHTML = `
-    <div class="modal-meta">
-      <span class="modal-date">${formatDate(article.date)}</span>
-      <span class="modal-genre">${escapeHtml(article.genre)}</span>
-    </div>
-    <div class="modal-content-text">
-      ${parseImages(formatArticleContent(article.fullContent || article.intro))}
-    </div>
-  `;
-
-  modal.style.display = 'block';
-  document.body.style.overflow = 'hidden';
+nav a.active {
+  color: #a27aff;
+  font-weight: bold;
+  border-bottom: 2px solid #a27aff;
 }
 
-function closeModal() {
-  modal.style.display = 'none';
-  document.body.style.overflow = 'auto';
+/* ==== BANNER ==== */
+.banner {
+  background: var(--background-pale);
+  padding: 8px;
+  text-align: center;
+  border-radius: 5px;
+  box-shadow: 0 3px 8px var(--box-shadow-light);
+  margin: 10px 0 20px;
+  animation: fadeIn 1.2s ease-in-out;
 }
 
-
-// Like functionality
-async function likeArticle(articleId) {
-  const article = allArticles.find(a => a.id === articleId);
-  if (!article) return;
-  const newLikeCount = article.likes + 1;
-  article.likes = newLikeCount;
-  const likeCountElement = document.querySelector(`[data-id="${articleId}"] .like-count`);
-  if (likeCountElement) {
-    likeCountElement.textContent = newLikeCount;
-    likeCountElement.parentElement.style.transform = 'scale(1.2)';
-    setTimeout(() => { likeCountElement.parentElement.style.transform = 'scale(1)'; }, 200);
-  }
-  try {
-    await fetch(`${API_BASE_URL}/like`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ articleId, newLikeCount })
-    });
-  } catch (error) {
-    console.warn('❌ Failed to sync like to backend:', error);
-  }
+.banner h2 {
+  margin: 0.3rem 0;
+  font-size: 1.3rem;
+  font-family: 'Courier Prime', monospace;
+  line-height: 1.3;
+  color: var(--primary-purple);
+  background-color: var(--background-light);
+  padding: 0.6rem 1rem;
+  display: inline-block;
+  border: 2px solid var(--primary-purple-light);
+  border-radius: 5px;
+  box-shadow: inset 0 0 5px var(--primary-purple-lighter);
+  font-weight: 400;
 }
 
-// Create interactive widgets
-function createWidgets() {
-  const widgetContainer = document.getElementById('widgets-container');
-  if (!widgetContainer) return;
+/* ==== MINIMAL ARTICLE CSS FIX - ONLY FIXING VISIBILITY ISSUES ==== */
 
-  widgetContainer.innerHTML = `
-    <div class="widget-row">
-      <!-- Philosophy Quiz Widget -->
-      <div class="quiz-widget">
-        <h3 class="quiz-title">Which Philosopher Are You?</h3>
-        <div class="quiz-progress-bar-container">
-          <div class="quiz-progress-bar" id="quiz-progress-bar"></div>
-        </div>
-        <div id="quiz-progress">Question 1 of 4</div>
-        
-        <div id="quiz-container">
-          <div class="quiz-question show" data-question="0">
-            <p>What is the nature of reality?</p>
-            <label><input type="radio" name="q0" value="a"> Everything is interconnected and part of one universal substance</label>
-            <label><input type="radio" name="q0" value="b"> Reality is what we can observe and measure empirically</label>
-            <label><input type="radio" name="q0" value="c"> Reality is fundamentally mental or spiritual in nature</label>
-            <label><input type="radio" name="q0" value="d"> We can never truly know the nature of ultimate reality</label>
-          </div>
-          
-          <div class="quiz-question" data-question="1">
-            <p>How should one live a good life?</p>
-            <label><input type="radio" name="q1" value="a"> Through reason, virtue, and acceptance of fate</label>
-            <label><input type="radio" name="q1" value="b"> By maximizing happiness and minimizing suffering for the greatest number</label>
-            <label><input type="radio" name="q1" value="c"> Through authentic self-expression and creating your own meaning</label>
-            <label><input type="radio" name="q1" value="d"> By following moral duties and treating others as ends in themselves</label>
-          </div>
-          
-          <div class="quiz-question" data-question="2">
-            <p>What is the relationship between mind and body?</p>
-            <label><input type="radio" name="q2" value="a"> They are one substance viewed from different perspectives</label>
-            <label><input type="radio" name="q2" value="b"> The mind emerges from complex brain activity</label>
-            <label><input type="radio" name="q2" value="c"> Mind and body are separate, interacting substances</label>
-            <label><input type="radio" name="q2" value="d"> This question reveals the limits of human understanding</label>
-          </div>
-          
-          <div class="quiz-question" data-question="3">
-            <p>What is the source of human knowledge?</p>
-            <label><input type="radio" name="q3" value="a"> Logical reasoning and intuitive understanding of eternal truths</label>
-            <label><input type="radio" name="q3" value="b"> Sensory experience and empirical observation</label>
-            <label><input type="radio" name="q3" value="c"> Personal experience and subjective interpretation</label>
-            <label><input type="radio" name="q3" value="d"> Knowledge is limited by the structure of our minds</label>
-          </div>
-        </div>
-        
-        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
-        
-        <div id="quiz-result" class="quiz-result" style="display: none;">
-          <!-- Result will be populated by JavaScript -->
-        </div>
-      </div>
-      
-      <!-- Trolley Problem Widget -->
-      <div class="trolley-widget">
-        <h3>The Trolley Problem</h3>
-        <video autoplay muted loop>
-          <source src="https://cdn.pixabay.com/video/2019/03/25/22346-326831942_tiny.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <p>A runaway trolley is heading towards five people. You can pull a lever to divert it to another track, but there's one person on that track. What do you do?</p>
-        
-        <div class="trolley-buttons">
-          <button class="trolley-btn" onclick="vote('A')">Pull the Lever<br><small>(Save 5, sacrifice 1)</small></button>
-          <button class="trolley-btn" onclick="vote('B')">Do Nothing<br><small>(Let fate decide)</small></button>
-        </div>
-        
-        <div id="poll-result" class="poll-result" style="display: none;">
-          <!-- Poll results will be shown here -->
-        </div>
-      </div>
-    </div>
-  `;
-  
-  // Load trolley votes
-  loadTrolleyVotes();
+/* Fix article background and text visibility */
+.blog-post, 
+.article-card,
+.article {
+  background: linear-gradient(135deg, var(--primary-purple), #7a4462) !important;
+  color: white !important;
+  position: relative;
+  padding: 25px 25px 40px 25px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px var(--box-shadow-medium);
+  display: flex;
+  flex-direction: column;
 }
 
-// Quiz functionality
-let currentQuestionIndex = 0;
-const totalQuestions = 4;
-let quizAnswers = {};
-
-function nextQuestion() {
-  const currentQuestion = document.querySelector(`.quiz-question[data-question="${currentQuestionIndex}"]`);
-  const selectedAnswer = currentQuestion.querySelector('input[type="radio"]:checked');
-  
-  if (!selectedAnswer) {
-    alert('Please select an answer before continuing.');
-    return;
-  }
-  
-  // Store the answer
-  quizAnswers[`q${currentQuestionIndex}`] = selectedAnswer.value;
-  
-  // Hide current question
-  currentQuestion.classList.remove('show');
-  
-  // Move to next question or show result
-  currentQuestionIndex++;
-  
-  if (currentQuestionIndex < totalQuestions) {
-    // Show next question
-    const nextQuestion = document.querySelector(`.quiz-question[data-question="${currentQuestionIndex}"]`);
-    nextQuestion.classList.add('show');
-    
-    // Update progress
-    const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
-    document.getElementById('quiz-progress-bar').style.width = `${progress}%`;
-    document.getElementById('quiz-progress').textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
-  } else {
-    // Show result
-    showQuizResult();
-  }
+/* Fix article title visibility */
+.blog-post h2, 
+.article-card h3,
+.article h2,
+.article-title {
+  color: #fff !important;
 }
 
-function showQuizResult() {
-  // Hide quiz interface
-  document.getElementById('quiz-container').style.display = 'none';
-  document.getElementById('next-btn').style.display = 'none';
-  document.getElementById('quiz-progress').style.display = 'none';
-  document.querySelector('.quiz-progress-bar-container').style.display = 'none';
-  
-  // Calculate result based on answers
-  const result = calculatePhilosopher(quizAnswers);
-  
-  // Show result
-  const resultDiv = document.getElementById('quiz-result');
-  resultDiv.innerHTML = `
-    <img src="${result.image}" alt="${result.name}" onerror="this.src='https://via.placeholder.com/80x80?text=${result.name[0]}'">
-    <h4>${result.name}</h4>
-    <p>${result.description}</p>
-    <div style="margin-top: 15px;">
-      <button id="retake-btn" onclick="retakeQuiz()">🔄 Retake Quiz</button>
-      <button id="share-btn" onclick="shareResult('${result.name}')">📤 Share Result</button>
-    </div>
-  `;
-  resultDiv.style.display = 'block';
+/* Fix article text visibility */
+.blog-post p, 
+.article-card p,
+.article p,
+.intro,
+.article-intro {
+  color: var(--text-light) !important;
 }
 
-function calculatePhilosopher(answers) {
-  const philosophers = {
-    a: { name: "Spinoza", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Spinoza.jpg/200px-Spinoza.jpg", description: "Like Spinoza, you see reality as one interconnected whole and believe in living according to reason and virtue." },
-    b: { name: "John Stuart Mill", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/John_Stuart_Mill_by_London_Stereoscopic_Company%2C_c1870.jpg/200px-John_Stuart_Mill_by_London_Stereoscopic_Company%2C_c1870.jpg", description: "Like Mill, you're practical and empirical, focused on maximizing happiness and well-being for everyone." },
-    c: { name: "Sartre", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Sartre_1967_crop.jpg/200px-Sartre_1967_crop.jpg", description: "Like Sartre, you believe in authentic self-expression and that existence precedes essence." },
-    d: { name: "Kant", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Kant_gemaelde_3.jpg/200px-Kant_gemaelde_3.jpg", description: "Like Kant, you recognize the limits of human knowledge while maintaining strong moral principles." }
-  };
-  
-  // Count answers
-  const counts = { a: 0, b: 0, c: 0, d: 0 };
-  Object.values(answers).forEach(answer => counts[answer]++);
-  
-  // Find most common answer
-  const topAnswer = Object.entries(counts).reduce((a, b) => counts[a[0]] > counts[b[0]] ? a : b)[0];
-  
-  return philosophers[topAnswer] || philosophers.a;
+/* Fix article meta text */
+.article-date,
+.article-header {
+  color: var(--text-light-alt) !important;
+  font-size: 0.6rem;
+  font-style: italic;
+  font-family: 'Press Start 2P', monospace;
+  margin-bottom: 0.5rem;
 }
 
-function retakeQuiz() {
-  currentQuestionIndex = 0;
-  quizAnswers = {};
-  
-  // Reset UI
-  document.getElementById('quiz-container').style.display = 'block';
-  document.getElementById('next-btn').style.display = 'block';
-  document.getElementById('quiz-progress').style.display = 'block';
-  document.querySelector('.quiz-progress-bar-container').style.display = 'block';
-  document.getElementById('quiz-result').style.display = 'none';
-  
-  // Reset progress
-  document.getElementById('quiz-progress-bar').style.width = '25%';
-  document.getElementById('quiz-progress').textContent = 'Question 1 of 4';
-  
-  // Reset questions
-  document.querySelectorAll('.quiz-question').forEach((q, index) => {
-    q.classList.toggle('show', index === 0);
-    q.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
-  });
+.article-footer {
+  font-size: 0.6rem;
+  margin-top: auto;
+  align-self: flex-end;
 }
 
-function shareResult(philosopher) {
-  if (navigator.share) {
-    navigator.share({
-      title: 'My Philosopher Quiz Result',
-      text: `I got ${philosopher} in the philosophy quiz! Take it yourself:`,
-      url: window.location.href
-    });
-  } else {
-    // Fallback for browsers that don't support Web Share API
-    const text = `I got ${philosopher} in the philosophy quiz! Check it out at ${window.location.href}`;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Result copied to clipboard!');
-    }).catch(() => {
-      alert(`My result: ${philosopher}. Check out this quiz at ${window.location.href}`);
-    });
-  }
+/* Fix genre tags */
+.genre,
+.article-genre {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
 }
 
-// Trolley Problem functionality
-async function vote(option) {
-  trolleyVotes[option]++;
-  
-  // Show results immediately
-  showPollResult();
-  
-  // Try to sync with backend
-  try {
-    await fetch(`${API_BASE_URL}/trolley-vote`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ option })
-    });
-  } catch (error) {
-    console.warn('❌ Failed to sync vote to backend:', error);
-  }
+/* Fix read more button */
+.read-more,
+.read-more-btn {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: 'Courier Prime', monospace;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
-async function loadTrolleyVotes() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/trolley-votes`);
-    if (response.ok) {
-      const votes = await response.json();
-      trolleyVotes = votes;
-    }
-  } catch (error) {
-    console.warn('❌ Failed to load trolley votes:', error);
+.read-more:hover,
+.read-more-btn:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: var(--primary-purple) !important;
+}
+
+/* Fix like button */
+.like-button, 
+.like-btn {
+  background: linear-gradient(135deg, #ff6b9d, #ff8fab) !important;
+  color: white !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+  position: relative;
+  overflow: visible;
+}
+
+.like-button:hover:not(:disabled), 
+.like-btn:hover {
+  background: linear-gradient(135deg, #ff8fab, #ffa8c2) !important;
+}
+
+.like-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Fix like count text */
+.like-count {
+  color: #fff !important;
+  font-family: monospace;
+  font-size: 1rem;
+}
+
+/* ==== FILTERS ==== */
+.filters {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: var(--background-pale);
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.filters-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  flex-wrap: wrap;
+  align-items: center;
+  max-width: 700px;
+  width: 100%;
+}
+
+.filters-left,
+.filters-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filters label {
+  font-weight: bold;
+  color: #333;
+}
+
+.filters input[type="text"],
+.filters select {
+  padding: 6px 12px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--background-pale);
+}
+
+/* ==== FADE-IN ANIMATION ==== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  will-change: opacity, transform;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==== NO RESULTS ==== */
+#no-results {
+  color: var(--primary-purple);
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
+  display: none;
+}
+
+/* ==== FLEX ROW LAYOUT ==== */
+.flex-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.article.with-widget {
+  flex: 1 1 58%;
+  max-width: 445px;
+  max-height: 700px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ==== TROLLEY WIDGET ==== */
+.trolley-widget {
+  flex: 0 0 50%;
+  max-width: 50%;
+  background-color: var(--background-pale-alt);
+  border: 2px solid #d9a4d4;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 8px var(--box-shadow-strong);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: 'Courier Prime', monospace;
+  color: #222;
+}
+
+.trolley-widget video {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.trolley-widget h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  color: var(--primary-purple);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.trolley-widget button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  background-color: var(--button-bg);
+  color: #fff;
+  border: none;
+  padding: 5px 5px;
+  margin: 5px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.trolley-widget button:hover {
+  background-color: var(--button-bg-hover);
+}
+
+.poll-result {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* ==== FLEX ROW CONTAINER FOR QUIZ + ARTICLE ==== */
+.flex-row-container {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.flex-row-container article.article {
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+.flex-row-container .quiz-widget {
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+/* ==== QUIZ WIDGET ==== */
+.quiz-widget {
+  max-width: 100%; /* full width of container */
+  font-family: 'Courier Prime', monospace;
+  background: var(--background-light);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgb(146 86 130 / 0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.7s forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-function showPollResult() {
-  const total = trolleyVotes.A + trolleyVotes.B;
-  const percentA = total > 0 ? Math.round((trolleyVotes.A / total) * 100) : 0;
-  const percentB = total > 0 ? Math.round((trolleyVotes.B / total) * 100) : 0;
-  
-  const resultDiv = document.getElementById('poll-result');
-  resultDiv.innerHTML = `
-    <strong>Results so far:</strong><br>
-    Pull Lever: ${percentA}% (${trolleyVotes.A} votes)<br>
-    Do Nothing: ${percentB}% (${trolleyVotes.B} votes)<br>
-    <small>Total votes: ${total}</small>
-  `;
-  resultDiv.style.display = 'block';
-  
-  // Disable buttons after voting
-  document.querySelectorAll('.trolley-btn').forEach(btn => {
-    btn.disabled = true;
-    btn.style.opacity = '0.6';
-    btn.style.cursor = 'not-allowed';
-  });
+.quiz-question {
+  display: none;
+  margin-bottom: 1rem;
 }
 
-function parseImages(text) {
-  if (!text) return "";
-  return text.replace(/\[img:(.*?)\]/g, (match, url) => {
-    return `<img src="${url}" alt="article image" class="article-image">`;
-  });
-}
-// Dark Mode functionality
-function setupDarkMode() {
-  // Check for saved preference or default to light mode
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.body.classList.toggle('dark-mode', savedTheme === 'dark');
-  updateDarkModeToggle();
-  
-  darkModeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    updateDarkModeToggle();
-  });
+.quiz-question.show {
+  display: block;
 }
 
-function updateDarkModeToggle() {
-  const isDark = document.body.classList.contains('dark-mode');
-  darkModeToggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+.quiz-progress-bar-container {
+  background-color: #ddd;
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
 }
 
-// Utility functions
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+.quiz-progress-bar {
+  background-color: #925682;
+  height: 100%;
+  width: 0;
+  transition: width 0.3s ease;
 }
 
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return isNaN(date) ? '' : date.toLocaleDateString();
+.quiz-progress {
+  font-size: 0.9rem;
+  margin-bottom: 15px;
 }
 
-function formatIntroText(text) {
-  if (!text) return '';
-  const plainText = text.replace(/\[img:.*?\]/g, '').trim();
-  return plainText.length > 200 ? plainText.substring(0, 200) + '...' : plainText;
+.quiz-result {
+  font-family: 'Courier Prime', monospace;
+  text-align: center;
+  margin-top: 1rem;
 }
 
-function formatArticleContent(text) {
-  return text || '';
+.quiz-result img {
+  max-width: 150px;
+  margin-bottom: 1rem;
+}
+
+.quiz-result p {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+#next-btn,
+#retake-btn,
+#share-btn {
+  background-color: #925682;
+  color: white;
+  border: none;
+  padding: 0.6em 1.2em;
+  font-family: 'Press Start 2P', cursive;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 5px;
+  transition: background-color 0.3s ease;
+}
+
+#next-btn:hover,
+#retake-btn:hover,
+#share-btn:hover {
+  background-color: #6f3f61;
+}
+
+/* ==== RESPONSIVE ==== */
+.flex-row-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;         /* allow wrapping on small screens */
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.trolley-widget,
+.quiz-widget {
+  flex: 1 1 48%;           /* grow and shrink, base 48% width */
+  max-width: 48%;
+  min-width: 280px;        /* avoid too narrow */
+  box-sizing: border-box;
+}
+
+/* On screens smaller than 700px, stack widgets vertically */
+@media (max-width: 700px) {
+  .trolley-widget,
+  .quiz-widget {
+    flex-basis: 100%;
+    max-width: 100%;
+    min-width: 100%;
+  }
+}
+
+/* ==== QUIZ TITLE ==== */
+.quiz-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+  color: #925682;
+  text-align: center;
+}
+
+/* ==== MODAL ==== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: #fff;
+  color: #000;
+  width: 90%;
+  max-width: 70%;
+  max-height: 80vh;
+
+  padding: 2rem;
+  border-radius: 8px;
+  font-family: 'Courier Prime', monospace;
+
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* ==== DARK MODE ==== */
+body.dark-mode {
+  font-family: 'Courier Prime', monospace;
+  line-height: 1.6;
+  max-width: 800px;
+  min-height: 100%;
+  margin: auto;
+  padding: 20px;
+  background-image: url(bg2.jpeg);
+  background-size: 100%;
+  background-position: top;
+  background-attachment: scroll;
+  background-repeat: no-repeat;
+  transition: background-position 0.5s ease;
+  background-color: #1a1a1a;
+  color: #f5f5f5;
+}
+
+/* Shared text colors */
+body.dark-mode,
+body.dark-mode header h1,
+body.dark-mode nav a,
+body.dark-mode .article-header,
+body.dark-mode .read-more,
+body.dark-mode .intro,
+body.dark-mode .article p,
+body.dark-mode footer {
+  color: #f5f5f5;
+}
+
+/* Header/nav/footer background */
+body.dark-mode header,
+body.dark-mode nav,
+body.dark-mode footer {
+  background-color: #222;
+}
+
+/* Link colors */
+body.dark-mode a {
+  color: #90cdf4;
+}
+
+body.dark-mode nav a:hover {
+  color: var(--link-color);
+}
+
+/* Banner */
+body.dark-mode .banner {
+  background: #2c1d36;
+  box-shadow: 0 3px 8px rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .banner h2 {
+  background-color: #332544;
+  color: #e0d2f7;
+  border-color: #5a3e7a;
+  box-shadow: inset 0 0 5px #222;
+}
+
+/* Article box */
+body.dark-mode .article {
+  background-color: #361d37;
+  border-color: #333;
+}
+
+/* Modal */
+body.dark-mode .modal-content {
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+/* Form inputs */
+body.dark-mode input,
+body.dark-mode select {
+  background-color: #1f1f1f;
+  color: #f5f5f5;
+  border: 1px solid #444;
+}
+
+/* Filter section */
+body.dark-mode .filters {
+  background-color: #2a2a2a;
+}
+
+body.dark-mode .filters label {
+  color: #ddd;
+}
+
+/* Pagination buttons */
+body.dark-mode .pagination button {
+  background-color: #2c2c2c;
+  color: #f0f0f0;
+  border: 1px solid #666;
+}
+
+body.dark-mode .pagination button:hover {
+  background-color: #444;
+}
+
+/* Buttons in general */
+body.dark-mode button {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+/* Dark mode toggle button */
+#darkModeToggle {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  padding: 6px 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  background-color: var(--background-light);
+  color: var(--primary-purple);
+  border: 2px solid var(--primary-purple);
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode #darkModeToggle {
+  background-color: #222;
+  color: #f5f5f5;
+  border: 2px solid #555;
+}
+
+/* Dark mode header */
+body.dark-mode header {
+  background-color: #361d37;
+  border-radius: 16px;
+  padding: 1rem;
+  margin: 1rem auto;
+  max-width: 900px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .typewriter-box {
+  background-color: #2e203c;
+  border-color: #8a6ea5;
+  box-shadow: inset 0 0 5px #3d2e50;
+}
+
+body.dark-mode .typewriter-text {
+  color: #f8d9ef;
+  border-right: 2px solid #f8d9ef;
+}
+
+/* Dark mode trolley widget */
+body.dark-mode .trolley-widget {
+  background-color: #2a2a2a;
+  color: #ddd;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .trolley-widget video {
+  filter: brightness(0.7);
+}
+
+body.dark-mode #poll-result {
+  color: white;
+}
+
+/* Dark mode quiz widget */
+body.dark-mode .quiz-widget {
+  background-color: #2a2a2a;
+  color: #ddd;
+  box-shadow: 0 0 15px rgba(146, 86, 130, 0.7);
+}
+
+body.dark-mode .quiz-widget .quiz-progress-bar-container {
+  background-color: #444;
+}
+
+body.dark-mode .quiz-widget .quiz-progress-bar {
+  background-color: var(--primary-purple-light);
+}
+
+body.dark-mode .quiz-widget #next-btn,
+body.dark-mode .quiz-widget #retake-btn,
+body.dark-mode .quiz-widget #share-btn {
+  background-color: var(--button-bg);
+  color: white;
+  border: none;
+}
+
+body.dark-mode .quiz-widget #next-btn:hover,
+body.dark-mode .quiz-widget #retake-btn:hover,
+body.dark-mode .quiz-widget #share-btn:hover {
+  background-color: var(--button-bg-hover);
+}
+
+#prevPageButton, #nextPageButton {
+  /* example styles */
+  padding: 0.5rem 1rem;
+  background-color: #925682;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: 'Courier Prime', monospace;
+  transition: background-color 0.3s ease;
+}
+
+#prevPageButton:disabled, #nextPageButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+#prevPageButton:hover:not(:disabled), #nextPageButton:hover:not(:disabled) {
+  background-color: #7a4462;
+}
+
+.centered-section {
+  text-align: center;
+  margin: 30px 0;
+  font-family: 'Courier Prime', monospace;
+}
+
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 20px;
+}
+
+.purple-box {
+  background-color: #925682;
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-family: 'Courier Prime', monospace;
+}
+
+/* Dark mode override */
+body.dark-mode .purple-box {
+  background-color: #6b3e59;
+  color: #f0e6f8;
+}
+
+.footer-credit {
+  color: #925682;
+  font-family: 'Courier Prime', monospace;
+  margin: 0;
+}
+
+.article.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.article.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
