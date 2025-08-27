@@ -551,32 +551,31 @@ nav a.active {
 }
 
 /* ==== MODAL ==== */
+/* Ensure modal content is centered */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   background-color: rgba(0, 0, 0, 0.8);
   z-index: 9999;
 }
 
+/* Center and size modal content */
 .modal-content {
-  background-color: #fff;
-  color: #000;
+  max-width: 800px;
   width: 90%;
-  max-width: 70%;
   max-height: 80vh;
-
-  padding: 2rem;
-  border-radius: 8px;
+  background: var(--background-color, #fff);
+  color: #000;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center; /* Center align text + images */
   font-family: 'Courier Prime', monospace;
-
   overflow-y: auto;
   position: relative;
   box-shadow: 0 5px 20px rgba(0,0,0,0.3);
@@ -590,6 +589,24 @@ nav a.active {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+}
+
+/* Responsive article images */
+.article-image {
+  display: block;
+  max-width: 100%;
+  max-height: 400px; /* Prevents huge images */
+  width: auto;
+  height: auto;
+  margin: 0 auto 15px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+/* Modal-specific images */
+.modal-content .article-image {
+  max-width: 90%;
+  max-height: 500px;
 }
 
 /* ==== DARK MODE ==== */
@@ -661,6 +678,24 @@ body.dark-mode .article {
 body.dark-mode .modal-content {
   background-color: #2a2a2a;
   color: #fff;
+}
+
+/* Dark mode styles for About Me page */
+body.dark-mode .centered-section {
+  color: #f5f5f5;
+}
+
+body.dark-mode .profile-pic {
+  border: 3px solid #6b3e59;
+}
+
+body.dark-mode .purple-box {
+  background-color: #6b3e59;
+  color: #f0e6f8;
+}
+
+body.dark-mode .footer-credit {
+  color: #b1a1cc;
 }
 
 /* Form inputs */
