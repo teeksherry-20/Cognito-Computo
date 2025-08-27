@@ -177,13 +177,77 @@ function displayArticles() {
 function renderQuizWidget() {
   const quizSlot = document.querySelector('.quiz-widget');
   if (!quizSlot) return;
-  quizSlot.innerHTML = `...quiz HTML here...`;
+  quizSlot.innerHTML = `<div class="widget-row">
+      <!-- Philosophy Quiz Widget -->
+      <div class="quiz-widget">
+        <h3 class="quiz-title">Which Philosopher Are You?</h3>
+        <div class="quiz-progress-bar-container">
+          <div class="quiz-progress-bar" id="quiz-progress-bar"></div>
+        </div>
+        <div id="quiz-progress">Question 1 of 4</div>
+        
+        <div id="quiz-container">
+          <div class="quiz-question show" data-question="0">
+            <p>What is the nature of reality?</p>
+            <label><input type="radio" name="q0" value="a"> Everything is interconnected and part of one universal substance</label>
+            <label><input type="radio" name="q0" value="b"> Reality is what we can observe and measure empirically</label>
+            <label><input type="radio" name="q0" value="c"> Reality is fundamentally mental or spiritual in nature</label>
+            <label><input type="radio" name="q0" value="d"> We can never truly know the nature of ultimate reality</label>
+          </div>
+          
+          <div class="quiz-question" data-question="1">
+            <p>How should one live a good life?</p>
+            <label><input type="radio" name="q1" value="a"> Through reason, virtue, and acceptance of fate</label>
+            <label><input type="radio" name="q1" value="b"> By maximizing happiness and minimizing suffering for the greatest number</label>
+            <label><input type="radio" name="q1" value="c"> Through authentic self-expression and creating your own meaning</label>
+            <label><input type="radio" name="q1" value="d"> By following moral duties and treating others as ends in themselves</label>
+          </div>
+          
+          <div class="quiz-question" data-question="2">
+            <p>What is the relationship between mind and body?</p>
+            <label><input type="radio" name="q2" value="a"> They are one substance viewed from different perspectives</label>
+            <label><input type="radio" name="q2" value="b"> The mind emerges from complex brain activity</label>
+            <label><input type="radio" name="q2" value="c"> Mind and body are separate, interacting substances</label>
+            <label><input type="radio" name="q2" value="d"> This question reveals the limits of human understanding</label>
+          </div>
+          
+          <div class="quiz-question" data-question="3">
+            <p>What is the source of human knowledge?</p>
+            <label><input type="radio" name="q3" value="a"> Logical reasoning and intuitive understanding of eternal truths</label>
+            <label><input type="radio" name="q3" value="b"> Sensory experience and empirical observation</label>
+            <label><input type="radio" name="q3" value="c"> Personal experience and subjective interpretation</label>
+            <label><input type="radio" name="q3" value="d"> Knowledge is limited by the structure of our minds</label>
+          </div>
+        </div>
+        
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+        
+        <div id="quiz-result" class="quiz-result" style="display: none;">
+          <!-- Result will be populated by JavaScript -->
+        </div>
+      </div>`;
 }
 
 function renderTrolleyWidget() {
   const trolleySlot = document.querySelector('.trolley-widget');
   if (!trolleySlot) return;
-  trolleySlot.innerHTML = `...trolley HTML here...`;
+  trolleySlot.innerHTML = `<div class="trolley-widget">
+        <h3>The Trolley Problem</h3>
+        <video autoplay muted loop>
+          <source src="https://cdn.pixabay.com/video/2019/03/25/22346-326831942_tiny.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <p>A runaway trolley is heading towards five people. You can pull a lever to divert it to another track, but there's one person on that track. What do you do?</p>
+        
+        <div class="trolley-buttons">
+          <button class="trolley-btn" onclick="vote('A')">Pull the Lever<br><small>(Save 5, sacrifice 1)</small></button>
+          <button class="trolley-btn" onclick="vote('B')">Do Nothing<br><small>(Let fate decide)</small></button>
+        </div>
+        
+        <div id="poll-result" class="poll-result" style="display: none;">
+          <!-- Poll results will be shown here -->
+        </div>
+      </div>`;
 }
 
 function handleSearch() {
@@ -588,6 +652,7 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
 
 
 
