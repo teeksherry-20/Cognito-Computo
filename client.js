@@ -32,17 +32,15 @@ document.addEventListener('DOMContentLoaded', async function() {
   initializeElements();
   setupEventListeners();
 
-  try {
-    await loadArticles();
-  } catch (err) {
+  // Try to load articles but don’t block widgets
+  loadArticles().catch(err => {
     console.error("❌ Error loading articles:", err);
-  }
+  });
 
-  // ✅ Always run widgets and dark mode
+  // ✅ Always load widgets + dark mode regardless of errors
   createWidgets();
   setupDarkMode();
 });
-
 
 function initializeElements() {
   articleContainer = document.getElementById('article-container');
@@ -274,9 +272,12 @@ async function likeArticle(articleId) {
 
 // Create interactive widgets
 function createWidgets() {
+  console.log("🛠 createWidgets() called");
   const widgetContainer = document.getElementById('widgets-container');
-  if (!widgetContainer) return;
-
+  if (!widgetContainer) {
+    console.warn("⚠️ #widgets-container not found!");
+    return;
+  }
   widgetContainer.innerHTML = `
     <div class="widget-row">
       <!-- Philosophy Quiz Widget -->
@@ -347,8 +348,7 @@ function createWidgets() {
         </div>
       </div>
     </div>
-  `;
-  
+  `;  
   // Load trolley votes
   loadTrolleyVotes();
 }
@@ -569,6 +569,7 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
 
 
 
