@@ -1,16 +1,14 @@
-// server.js - Fixed version with correct spreadsheet ID
 import express from "express";
 import { google } from "googleapis";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from 'cors';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
-
-import cors from 'cors';
 
 app.use(cors({
   origin: [
@@ -23,6 +21,11 @@ app.use(cors({
 
 // Serve static files (frontend)
 app.use(express.static(path.join(__dirname)));
+
+// ==== IN-MEMORY DATA STORE ====
+// (replace with DB if needed later)
+let trolleyVotes = { A: 0, B: 0 };
+let articleLikes = {}; // { articleId: count }
 
 // --- Load Google credentials ---
 let credentials;
@@ -84,7 +87,7 @@ if (credentials) {
   }
 }
 
-// --- /articles endpoint ---
+// ==== ARTICLES (your existing endpoint) ====
 app.get("/articles", async (req, res) => {
   console.log("📡 Received request for articles");
   
@@ -136,7 +139,7 @@ app.get("/articles", async (req, res) => {
         title: row[3] || "", // Column D - Title  
         intro: row[6] || "", // Column G - Introduction
         genre: row[5] || "", // Column F - Genre
-        likes: parseInt(row[8] || "0", 10), // Column I - Like
+        likes: articleLikes[`article${index + 1}`] || parseInt(row[8] || "0", 10), // Use in-memory likes or sheet value
         fullContent: row[7] || "" // Column H - Full Content (if needed)
       }));
 
@@ -182,62 +185,52 @@ app.get("/articles", async (req, res) => {
   }
 });
 
-// --- /trolley-votes endpoint ---
-app.get("/trolley-votes", async (req, res) => {
-  console.log("🚃 Received request for trolley votes");
-  
-  if (!auth) {
-    return res.status(500).json({ error: "Google auth not configured" });
+// ==== TROLLEY VOTES ====
+// Submit a vote
+app.post("/vote", (req, res) => {
+  const { choice } = req.body;
+  if (choice === "A" || choice === "B") {
+    trolleyVotes[choice]++;
+    console.log(`🚃 Vote received: ${choice}. Current votes:`, trolleyVotes);
   }
-
-  try {
-    const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
-    const range = "Sheet1!A:C";
-
-    const response = await sheets.spreadsheets.values.get({ 
-      spreadsheetId, 
-      range 
-    });
-    
-    const rows = response.data.values || [];
-    
-    // Extract trolley vote data (rows with "trolley" in column A)
-    const trolleyVotes = { A: 0, B: 0 };
-    
-    rows.forEach(row => {
-      if (row[0] === 'trolley') {
-        const option = row[1]; // Column B - Option (A or B)
-        const count = parseInt(row[2] || "0", 10); // Column C - Count
-        if (option === 'A' || option === 'B') {
-          trolleyVotes[option] = count;
-        }
-      }
-    });
-
-    console.log("🚃 Trolley votes:", trolleyVotes);
-    res.json(trolleyVotes);
-    
-  } catch (err) {
-    console.error("❌ /trolley-votes error:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  res.json(trolleyVotes);
 });
 
-// --- /like endpoint ---
-app.post("/like", async (req, res) => {
-  try {
-    const { articleId, newLikeCount } = req.body;
-    console.log(`👍 Like request: ${articleId}, new count: ${newLikeCount}`);
-    
-    // TODO: Update the like count in Google Sheets if needed
-    // This would require finding the right row and updating column I
-    
-    res.json({ success: true, articleId, newLikeCount });
-  } catch (err) {
-    console.error("❌ /like error:", err.message);
-    res.status(500).json({ error: err.message });
+// Get vote results
+app.get("/votes", (req, res) => {
+  res.json(trolleyVotes);
+});
+
+// Legacy trolley votes endpoint for backward compatibility
+app.get("/trolley-votes", (req, res) => {
+  res.json(trolleyVotes);
+});
+
+app.post("/trolley-vote", (req, res) => {
+  const { option } = req.body;
+  if (option === "A" || option === "B") {
+    trolleyVotes[option]++;
+    console.log(`🚃 Trolley vote received: ${option}. Current votes:`, trolleyVotes);
   }
+  res.json(trolleyVotes);
+});
+
+// ==== ARTICLE LIKES ====
+// Submit a like
+app.post("/like", (req, res) => {
+  const { articleId } = req.body;
+  const articleKey = `article${articleId}`;
+  if (!articleLikes[articleKey]) articleLikes[articleKey] = 0;
+  articleLikes[articleKey]++;
+  console.log(`💝 Like received for article ${articleId}. New count:`, articleLikes[articleKey]);
+  res.json({ likes: articleLikes[articleKey] });
+});
+
+// Get likes for a specific article
+app.get("/likes/:id", (req, res) => {
+  const articleKey = `article${req.params.id}`;
+  const likes = articleLikes[articleKey] || 0;
+  res.json({ likes });
 });
 
 // --- Serve index.html ---
@@ -255,7 +248,9 @@ app.get("/health", (req, res) => {
       credentials: !!credentials,
       serviceAccountEmail: credentials ? credentials.client_email : null,
       spreadsheetId: process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID,
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV || 'development',
+      trolleyVotes,
+      articleLikes
     }
   };
   
@@ -346,5 +341,7 @@ app.listen(PORT, () => {
     console.log("   - Health: http://localhost:" + PORT + "/health");
     console.log("   - Auth test: http://localhost:" + PORT + "/test-auth");
     console.log("   - Articles: http://localhost:" + PORT + "/articles");
+    console.log("   - Votes: http://localhost:" + PORT + "/votes");
+    console.log("   - Likes: http://localhost:" + PORT + "/likes/1");
   }
 });
