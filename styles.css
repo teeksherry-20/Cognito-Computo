@@ -91,9 +91,45 @@ body {
   transition: background-position 0.5s ease;
 }
 
+/* ==== GRID LAYOUT FOR ARTICLES + SIDEBAR ==== */
 main {
-  overflow: visible;
-  height: auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* articles wider, widgets narrower */
+  gap: 20px; /* space between */
+  align-items: start;
+}
+
+#article-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* spacing between articles */
+}
+
+.widget, .quiz, .poll {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.content-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* left = wider, right = sidebar */
+  gap: 20px;
+  align-items: start;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* spacing between widgets */
+}
+
+.widget {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 header {
@@ -517,31 +553,35 @@ nav a.active {
   background-color: #6f3f61;
 }
 
-/* ==== RESPONSIVE ==== */
-.flex-row-container {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;         /* allow wrapping on small screens */
-  justify-content: space-between;
-  width: 100%;
-  box-sizing: border-box;
+/* ==== RESPONSIVE LAYOUT ==== */
+/* Default: desktop/tablet layout */
+.content-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* articles + sidebar */
+  gap: 20px;
+  align-items: start;
 }
 
-.trolley-widget,
-.quiz-widget {
-  flex: 1 1 48%;           /* grow and shrink, base 48% width */
-  max-width: 48%;
-  min-width: 280px;        /* avoid too narrow */
-  box-sizing: border-box;
-}
-
-/* On screens smaller than 700px, stack widgets vertically */
-@media (max-width: 700px) {
-  .trolley-widget,
-  .quiz-widget {
-    flex-basis: 100%;
-    max-width: 100%;
-    min-width: 100%;
+/* Mobile layout */
+@media (max-width: 768px) {
+  main {
+    grid-template-columns: 1fr; /* single column for main */
+  }
+  
+  .content-layout {
+    grid-template-columns: 1fr; /* single column */
+  }
+  
+  .sidebar {
+    margin-top: 20px; /* space below articles */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center widgets horizontally */
+  }
+  
+  .widget {
+    width: 90%;   /* not edge-to-edge, some breathing room */
+    max-width: 400px; /* don't stretch too wide on big phones */
   }
 }
 
@@ -969,24 +1009,4 @@ body.dark-mode .purple-box {
   margin-bottom: 40px;               /* enough separation between rows */
   clear: both;                       /* prevents overlap */
 }
-/* Reverse layout (quiz on left, article on right) */
-.article-widget-row.reverse {
-  grid-template-columns: 320px 1fr;
-}
-/* Articles in widget rows */
-.article-widget-row .blog-post {
-  max-width: 100%;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%; /* equal height with widget */
-}
-/* Reduce space for normal (non-widget) articles */
-.blog-post:not(.with-widget) {
-  margin-bottom: 25px; /* closer to original compact look */
-}
-.quiz-widget .quiz-question label {
-  display: block;
-  margin: 6px 0;
-}
+/* Reverse layout (quiz on left, article on
