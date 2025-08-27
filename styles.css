@@ -33,39 +33,6 @@
   background-color: white;
 }
 
-/* === ABOUT ME PAGE === */
-.about-container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-  line-height: 1.6;
-  background: #f9f9f9;
-  color: #222;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  font-family: 'Courier Prime', monospace;
-}
-
-body.dark-mode .about-container {
-  background: #1e1e1e;
-  color: #ddd;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-}
-
-body.dark-mode .about-container h1,
-body.dark-mode .about-container h2 {
-  color: #fff;
-}
-
-body.dark-mode .about-container a {
-  color: #9ecbff;
-}
-
-body.dark-mode .about-container a:hover {
-  color: #6bb7ff;
-}
-
-
 /* === Like Section Under "Keep Reading" === */
 .like-section-card {
   margin-top: 10px;
@@ -854,38 +821,74 @@ body.dark-mode .quiz-widget #share-btn:hover {
   background-color: var(--button-bg-hover);
 }
 
-/* ===== ABOUT ME PAGE ===== */
-.about-container {
+/* === ABOUT ME PAGE === */
+#about main {
   max-width: 800px;
   margin: 40px auto;
   padding: 20px;
+  font-family: 'Courier Prime', monospace;
   line-height: 1.6;
-  background: var(--light-bg, #f9f9f9);
-  color: var(--light-text, #222);
+  background: #f9f9f9;
+  color: #222;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Dark mode overrides */
-body.dark-mode .about-container {
+#about .profile-pic {
+  display: block;
+  margin: 0 auto 20px;
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #925682;
+}
+
+#about h1, 
+#about h2 {
+  text-align: center;
+  color: #925682;
+  margin-bottom: 15px;
+  font-family: 'Press Start 2P', monospace;
+}
+
+#about .article {
+  margin: 30px 0;
+}
+
+#about a {
+  color: #925682;
+  text-decoration: none;
+}
+
+#about a:hover {
+  text-decoration: underline;
+}
+
+/* === DARK MODE === */
+body.dark-mode#about main {
   background: #1e1e1e;
   color: #ddd;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
 
-body.dark-mode .about-container h1,
-body.dark-mode .about-container h2,
-body.dark-mode .about-container h3 {
-  color: #fff;
+body.dark-mode#about h1, 
+body.dark-mode#about h2 {
+  color: #d4a5c4;
 }
 
-body.dark-mode .about-container a {
+body.dark-mode#about a {
   color: #9ecbff;
 }
 
-body.dark-mode .about-container a:hover {
+body.dark-mode#about a:hover {
   color: #6bb7ff;
 }
+
+body.dark-mode#about .profile-pic {
+  border-color: #d4a5c4;
+}
+
 
 
 #prevPageButton, #nextPageButton {
