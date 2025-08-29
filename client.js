@@ -20,7 +20,7 @@ let trolleyVotes = { A: 0, B: 0 };
 let allArticles = [];
 let filteredArticles = [];
 let currentPage = 1;
-const articlesPerPage = 4;
+const articlesPerPage = 5;
 
 let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, nextPageButton;
 let noResults, modal, modalTitle, modalBody, modalClose, darkModeToggle;
@@ -711,4 +711,5 @@ function formatIntroText(text) {
 function formatArticleContent(text) {
   return text || '';
 }
+
 
