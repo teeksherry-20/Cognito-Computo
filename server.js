@@ -12,8 +12,7 @@ const __dirname = path.dirname(__filename);
 
 // === GOOGLE AUTH ===
 // Load your service account key file
-const serviceKey = JSON.parse(fs.readFileSync("root-isotope-468903-h9-1e1bd3d2e348.json", "utf8"));
-
+const serviceKey = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
 const auth = new google.auth.GoogleAuth({
   credentials: serviceKey,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
@@ -190,3 +189,4 @@ app.get("/votes", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
+
