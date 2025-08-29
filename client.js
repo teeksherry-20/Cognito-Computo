@@ -17,21 +17,20 @@ const API_BASE_URL = (() => {
 console.log('🌐 API Base URL:', API_BASE_URL);
 
 let trolleyVotes = { A: 0, B: 0 };
-
 let allArticles = [];
 let filteredArticles = [];
 let currentPage = 1;
-const articlesPerPage = 4;
+const articlesPerPage = 999999;
 
 let articleContainer, searchInput, sortSelect, pageIndicator, prevPageButton, nextPageButton;
 let noResults, modal, modalTitle, modalBody, modalClose, darkModeToggle;
 let currentGenreFilter = '';
 
 // ==== AUTO REFRESH POLL + LIKES ====
-const REFRESH_INTERVAL = 5000; // 5 seconds
+const REFRESH_INTERVAL = 2000; // 2 seconds
 
 document.addEventListener('DOMContentLoaded', async function() {
-  initializeElements();
+  initializeElements();this.scripts
   setupEventListeners();
 
   // Try to load articles but don't block widgets
