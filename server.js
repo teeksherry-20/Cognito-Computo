@@ -3,10 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { google } from "googleapis";
-import dotenv from "dotenv";
 import fs from "fs";
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,10 +17,15 @@ const SPREADSHEET_ID = process.env.SHEET_ID;
 
 let credentials;
 try {
-  credentials = JSON.parse(
-    process.env.GOOGLE_CREDENTIALS ||
+  // Prefer environment variable GOOGLE_CREDENTIALS_JSON
+  if (process.env.GOOGLE_CREDENTIALS_JSON) {
+    credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+  } else {
+    // Fallback: read local JSON file when running locally
+    credentials = JSON.parse(
       fs.readFileSync("root-isotope-468903-h9-1e1bd3d2e348.json", "utf-8")
-  );
+    );
+  }
 } catch (err) {
   console.error("❌ Failed to load Google credentials:", err);
   process.exit(1);
@@ -56,7 +58,7 @@ app.get("/articles", async (req, res) => {
     const articles = rows
       .map((row, index) => {
         const title = row[3];
-        if (!title) return null; // Title is the only required field
+        if (!title) return null; // Title required
 
         return {
           id: row[0] || `article-${index}`,
