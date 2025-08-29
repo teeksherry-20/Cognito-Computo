@@ -87,7 +87,7 @@ if (credentials) {
   }
 }
 
-// ==== ARTICLES (your existing endpoint) ====
+// ==== ARTICLES ENDPOINT - FIXED VERSION ====
 app.get("/articles", async (req, res) => {
   console.log("📡 Received request for articles");
   
@@ -107,7 +107,6 @@ app.get("/articles", async (req, res) => {
     
     console.log("📋 Using spreadsheet ID:", spreadsheetId);
     
-    // Updated range to match your sheet structure: A-I columns
     const range = "Sheet1!A:I";
 
     const response = await sheets.spreadsheets.values.get({ 
@@ -125,25 +124,34 @@ app.get("/articles", async (req, res) => {
 
     console.log("📊 First few rows:", rows.slice(0, 3));
 
-    // Filter out non-article rows (trolley poll data) and map to article format
-    // Based on your sheet: A=ID, B=Option, C=Count, D=Title, E=Date, F=Genre, G=Introduction, H=FullContent, I=Like
+    // Filter and map articles - FIXED VERSION
     const articles = rows.slice(1) // Skip header row
-      .filter(row => {
-        // Only include rows that have article data (not trolley poll data)
-        // Check if row has a proper title and date, and starts with "article"
-        return row[0] && row[0].toString().startsWith('article') && row[3] && row[4];
+      .map((row, originalIndex) => {
+        // Check if this is an article row (not trolley poll data)
+        const isArticleRow = row[0] && row[0].toString().startsWith('article') && row[3] && row[4];
+        
+        if (!isArticleRow) return null; // Will be filtered out
+        
+        // Extract article number from the ID (e.g., "article 1" -> 1)
+        const articleNumber = row[0].toString().replace('article ', '').trim();
+        const articleId = parseInt(articleNumber) || (originalIndex + 1);
+        
+        return {
+          id: articleId,
+          date: row[4] || "", // Column E - Date
+          title: row[3] || "", // Column D - Title  
+          intro: row[6] || "", // Column G - Introduction
+          genre: row[5] || "", // Column F - Genre
+          likes: articleLikes[`article${articleId}`] || parseInt(row[8] || "0", 10),
+          fullContent: row[7] || "" // Column H - Full Content
+        };
       })
-      .map((row, index) => ({
-        id: index + 1,
-        date: row[4] || "", // Column E - Date
-        title: row[3] || "", // Column D - Title  
-        intro: row[6] || "", // Column G - Introduction
-        genre: row[5] || "", // Column F - Genre
-        likes: articleLikes[`article${index + 1}`] || parseInt(row[8] || "0", 10), // Use in-memory likes or sheet value
-        fullContent: row[7] || "" // Column H - Full Content (if needed)
-      }));
+      .filter(article => article !== null) // Remove null entries
+      .sort((a, b) => a.id - b.id); // Sort by article ID to maintain order
 
     console.log("✅ Successfully processed", articles.length, "articles");
+    console.log("📄 Article IDs found:", articles.map(a => a.id));
+    
     if (articles.length > 0) {
       console.log("📄 Sample article:", articles[0]);
     }
@@ -154,7 +162,6 @@ app.get("/articles", async (req, res) => {
     console.error("❌ /articles error:", err.message);
     console.error("🔍 Error code:", err.code);
     
-    // Enhanced error handling
     let errorMessage = "Failed to fetch articles: " + err.message;
     let troubleshooting = [];
     
@@ -222,7 +229,7 @@ app.post("/like", (req, res) => {
   const articleKey = `article${articleId}`;
   if (!articleLikes[articleKey]) articleLikes[articleKey] = 0;
   articleLikes[articleKey]++;
-  console.log(`💝 Like received for article ${articleId}. New count:`, articleLikes[articleKey]);
+  console.log(`👍 Like received for article ${articleId}. New count:`, articleLikes[articleKey]);
   res.json({ likes: articleLikes[articleKey] });
 });
 
