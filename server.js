@@ -107,7 +107,7 @@ app.get("/articles", async (req, res) => {
     console.log("📋 Using spreadsheet ID:", spreadsheetId);
     
     // Get data from the correct range
-    const range = "Sheet1!A:J"; // Extended to include column J for potential future data
+    const range = "Sheet1!A:I"; // A through I to match your columns
 
     const response = await sheets.spreadsheets.values.get({ 
       spreadsheetId, 
@@ -126,7 +126,7 @@ app.get("/articles", async (req, res) => {
     console.log("📊 Header row:", rows[0]);
     console.log("📊 First data row:", rows[1]);
 
-    // FIXED: Parse articles correctly based on your sheet structure
+    // Parse articles correctly based on your sheet structure
     const articles = [];
     
     for (let i = 1; i < rows.length; i++) {
@@ -147,17 +147,20 @@ app.get("/articles", async (req, res) => {
         // A: ID, B: Option, C: Count, D: Title, E: Date, F: Genre, G: Introduction, H: Full Content, I: Likes
         const article = {
           id: articleId,
-          title: row[3] || "", // Column D
-          date: row[4] || "", // Column E  
-          genre: row[5] || "", // Column F
-          intro: row[6] || "", // Column G
-          fullContent: row[7] || "", // Column H
-          likes: articleLikes[`article${articleId}`] || parseInt(row[8] || "0", 10) // Column I
+          title: (row[3] || "").toString().trim(), // Column D (index 3)
+          date: (row[4] || "").toString().trim(), // Column E (index 4)
+          genre: (row[5] || "").toString().trim(), // Column F (index 5)  
+          intro: (row[6] || "").toString().trim(), // Column G (index 6)
+          fullContent: (row[7] || "").toString().trim(), // Column H (index 7)
+          likes: articleLikes[`article${articleId}`] || parseInt((row[8] || "0").toString(), 10) // Column I (index 8)
         };
         
-        // Only add if title exists
-        if (article.title) {
+        // Only add if title exists and is not empty
+        if (article.title && article.title.length > 0) {
           articles.push(article);
+          console.log(`✅ Added article ${articleId}: "${article.title}"`);
+        } else {
+          console.log(`⚠️ Skipping article ${articleId}: no title found`);
         }
       }
     }
@@ -175,7 +178,8 @@ app.get("/articles", async (req, res) => {
         date: articles[0].date,
         genre: articles[0].genre,
         hasIntro: !!articles[0].intro,
-        hasFullContent: !!articles[0].fullContent
+        hasFullContent: !!articles[0].fullContent,
+        likes: articles[0].likes
       });
     }
     
@@ -345,7 +349,7 @@ app.get("/debug-sheet", async (req, res) => {
     // Get raw data to debug
     const response = await sheets.spreadsheets.values.get({ 
       spreadsheetId, 
-      range: "Sheet1!A:J"
+      range: "Sheet1!A:I"
     });
     
     const rows = response.data.values || [];
