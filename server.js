@@ -1,92 +1,36 @@
 import express from "express";
+import fetch from "node-fetch";
 import { google } from "googleapis";
+import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import cors from "cors";
+
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
+// === GOOGLE AUTH ===
+const auth = new google.auth.GoogleAuth({
+  credentials: JSON.parse(process.env.GOOGLE_SERVICE_KEY),
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
+
+const LOCAL_SPREADSHEET_ID = "1_9tdU0ivf_5I06v77gEsGbfbR88pmPCtTwSCMCHgwhM";
+
+// === MIDDLEWARE ===
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "https://cogitocomputo.netlify.app",
-      /\.netlify\.app$/,
-    ],
-    credentials: true,
-  })
-);
+// === ROUTES ===
 
-// Serve static files (frontend)
-app.use(express.static(path.join(__dirname)));
-
-// --- Load Google credentials ---
-let credentials;
-let auth;
-
-const LOCAL_SPREADSHEET_ID = "1eHdXlQOsNwS1a8-69_cW0f8rYvH-BTiMU31bYFOEQa0";
-
-const LOCAL_CREDENTIALS = {
-  type: "service_account",
-  project_id: "root-isotope-468903-h9",
-  private_key_id: "338015a726007eb7360aac3d60a0c0c6753edf99",
-  private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n") || "-----BEGIN PRIVATE KEY-----\nXXXX\n-----END PRIVATE KEY-----\n",
-  client_email: "blog-sheet@root-isotope-468903-h9.iam.gserviceaccount.com",
-  client_id: "105693710590461283402",
-  auth_uri: "https://accounts.google.com/o/oauth2/auth",
-  token_uri: "https://oauth2.googleapis.com/token",
-  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url:
-    "https://www.googleapis.com/robot/v1/metadata/x509/blog-sheet%40root-isotope-468903-h9.iam.gserviceaccount.com",
-  universe_domain: "googleapis.com",
-};
-
-try {
-  const rawCredentials =
-    process.env.GOOGLE_CREDENTIALS_JSON ||
-    process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-
-  if (rawCredentials) {
-    credentials = JSON.parse(rawCredentials);
-    if (credentials.private_key) {
-      credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
-    }
-    console.log("✅ Loaded Google credentials from environment");
-  } else {
-    credentials = LOCAL_CREDENTIALS;
-    console.log("✅ Using local Google credentials for development");
-  }
-
-  console.log("🔧 Service account email:", credentials.client_email);
-} catch (err) {
-  console.error("❌ Failed to load Google credentials:", err.message);
-}
-
-if (credentials) {
-  try {
-    auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-    console.log("✅ Google Auth initialized successfully");
-  } catch (authErr) {
-    console.error("❌ Failed to initialize Google Auth:", authErr.message);
-  }
-}
-
-// ==== ARTICLES ENDPOINT ====
+// Fetch all articles
 app.get("/articles", async (req, res) => {
-  if (!auth) {
-    return res.status(500).json({ error: "Google auth not configured" });
-  }
   try {
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId =
-      process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -94,37 +38,23 @@ app.get("/articles", async (req, res) => {
     });
 
     const rows = response.data.values || [];
-    const articles = [];
+    const articles = rows
+      .filter(r => r[0] && r[0] !== "trolley")
+      .map(r => ({
+        id: r[0],
+        option: r[1] || "",
+        count: r[2] || "0",
+        title: r[3] || "",
+        date: r[4] || "",
+        genre: r[5] || "",
+        introduction: r[6] || "",
+        content: r[7] || "",
+        likes: r[8] || "0",
+      }));
 
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      if (!row || row.length === 0) continue;
-
-      const idCell = row[0] ? row[0].toString().trim() : "";
-      if (idCell.startsWith("article")) {
-        const articleNumber = idCell.replace("article", "").trim();
-        const articleId = parseInt(articleNumber) || i;
-
-        const article = {
-          id: articleId,
-          title: (row[3] || "").toString().trim(),
-          date: (row[4] || "").toString().trim(),
-          genre: (row[5] || "").toString().trim(),
-          intro: (row[6] || "").toString().trim(),
-          fullContent: (row[7] || "").toString().trim(),
-          likes: parseInt((row[8] || "0").toString(), 10),
-        };
-
-        if (article.title) {
-          articles.push(article);
-        }
-      }
-    }
-
-    articles.sort((a, b) => a.id - b.id);
     res.json(articles);
   } catch (err) {
-    console.error("❌ /articles error:", err.message);
+    console.error("❌ Error fetching articles:", err.message);
     res.status(500).json({ error: "Failed to fetch articles" });
   }
 });
@@ -134,8 +64,7 @@ app.post("/like", async (req, res) => {
   const { articleId } = req.body; // e.g. "article3"
   try {
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId =
-      process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -143,13 +72,10 @@ app.post("/like", async (req, res) => {
     });
 
     const rows = response.data.values || [];
-
     for (let i = 0; i < rows.length; i++) {
       if (rows[i][0] === articleId) {
-        const likeIndex = 8; // Column I
-        rows[i][likeIndex] = (
-          parseInt(rows[i][likeIndex] || "0", 10) + 1
-        ).toString();
+        const likeIndex = 8; // col I
+        rows[i][likeIndex] = (parseInt(rows[i][likeIndex] || "0", 10) + 1).toString();
 
         await sheets.spreadsheets.values.update({
           spreadsheetId,
@@ -169,12 +95,12 @@ app.post("/like", async (req, res) => {
   }
 });
 
+// === GET current likes ===
 app.get("/likes/:id", async (req, res) => {
-  const articleId = `article${req.params.id}`;
+  const { id } = req.params;
   try {
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId =
-      process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -183,15 +109,15 @@ app.get("/likes/:id", async (req, res) => {
 
     const rows = response.data.values || [];
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i][0] === articleId) {
-        return res.json({
-          likes: parseInt(rows[i][8] || "0", 10),
-        });
+      if (rows[i][0] === id) {
+        const likeIndex = 8;
+        return res.json({ likes: parseInt(rows[i][likeIndex] || "0", 10) });
       }
     }
 
     res.status(404).json({ error: "Article not found" });
   } catch (err) {
+    console.error("❌ Error fetching likes:", err.message);
     res.status(500).json({ error: "Failed to fetch likes" });
   }
 });
@@ -201,8 +127,7 @@ app.post("/vote", async (req, res) => {
   const { option } = req.body; // "A" or "B"
   try {
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId =
-      process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -232,11 +157,8 @@ app.post("/vote", async (req, res) => {
     });
 
     const tally = rows
-      .filter((r) => r[0] === "trolley")
-      .reduce(
-        (acc, r) => ({ ...acc, [r[1]]: parseInt(r[2] || "0", 10) }),
-        {}
-      );
+      .filter(r => r[0] === "trolley")
+      .reduce((acc, r) => ({ ...acc, [r[1]]: parseInt(r[2] || "0", 10) }), {});
 
     res.json({ votes: tally });
   } catch (err) {
@@ -245,11 +167,11 @@ app.post("/vote", async (req, res) => {
   }
 });
 
+// === GET current votes ===
 app.get("/votes", async (req, res) => {
   try {
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId =
-      process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -258,25 +180,17 @@ app.get("/votes", async (req, res) => {
 
     const rows = response.data.values || [];
     const tally = rows
-      .filter((r) => r[0] === "trolley")
-      .reduce(
-        (acc, r) => ({ ...acc, [r[1]]: parseInt(r[2] || "0", 10) }),
-        {}
-      );
+      .filter(r => r[0] === "trolley")
+      .reduce((acc, r) => ({ ...acc, [r[1]]: parseInt(r[2] || "0", 10) }), {});
 
     res.json({ votes: tally });
   } catch (err) {
+    console.error("❌ Error fetching votes:", err.message);
     res.status(500).json({ error: "Failed to fetch votes" });
   }
 });
 
-// --- Serve index.html ---
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-// --- Start server ---
-const PORT = process.env.PORT || 3000;
+// === START SERVER ===
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
