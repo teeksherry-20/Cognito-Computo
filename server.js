@@ -17,11 +17,9 @@ const SPREADSHEET_ID = process.env.SHEET_ID;
 
 let credentials;
 try {
-  // Prefer environment variable GOOGLE_CREDENTIALS_JSON
   if (process.env.GOOGLE_CREDENTIALS_JSON) {
     credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
   } else {
-    // Fallback: read local JSON file when running locally
     credentials = JSON.parse(
       fs.readFileSync("root-isotope-468903-h9-1e1bd3d2e348.json", "utf-8")
     );
@@ -44,7 +42,7 @@ let votes = { A: 0, B: 0 };
 
 // ===== Routes =====
 
-// ✅ Fetch all articles
+// ✅ Fetch all articles (with improved error logging)
 app.get("/articles", async (req, res) => {
   try {
     const range = "Sheet1!A:I";
@@ -58,8 +56,7 @@ app.get("/articles", async (req, res) => {
     const articles = rows
       .map((row, index) => {
         const title = row[3];
-        if (!title) return null; // Title required
-
+        if (!title) return null;
         return {
           id: row[0] || `article-${index}`,
           genre: row[1] || "General",
@@ -77,8 +74,8 @@ app.get("/articles", async (req, res) => {
     console.log(`✅ Sending ${articles.length} articles`);
     res.json(articles);
   } catch (error) {
-    console.error("❌ Error fetching articles:", error);
-    res.status(500).send("Error fetching articles");
+    console.error("❌ Error in /articles route:", error.message, error.stack);
+    res.status(500).send("Error fetching articles: " + error.message);
   }
 });
 
