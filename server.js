@@ -23,7 +23,7 @@ app.use(cors({
 app.use(express.static(path.join(__dirname)));
 
 // ==== IN-MEMORY DATA STORE ====
-let trolleyVotes = { A: 0, B: 0 };
+let trolleyVotes = { A: 0, B: 0 }; // loaded from sheet on startup
 let articleLikes = {}; // { articleId: count } - loaded from sheet on startup
 
 // --- Load Google credentials ---
@@ -83,6 +83,96 @@ if (credentials) {
     
   } catch (authErr) {
     console.error("❌ Failed to initialize Google Auth:", authErr.message);
+  }
+}
+
+// ==== NEW FUNCTIONS: UPDATE TROLLEY VOTES IN GOOGLE SHEET ====
+async function updateTrolleyVoteInSheet(option, newCount) {
+  if (!auth) {
+    console.warn("Cannot update trolley votes: auth not configured");
+    return false;
+  }
+
+  try {
+    const sheets = google.sheets({ version: "v4", auth });
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    
+    // Find the trolley vote rows (should be rows 2 and 3)
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: "Sheet1!A:C"
+    });
+    
+    const rows = response.data.values || [];
+    
+    // Find the trolley option row
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const idCell = row[0] ? row[0].toString().trim() : "";
+      const optionCell = row[1] ? row[1].toString().trim() : "";
+      
+      if (idCell === "trolley" && optionCell === option) {
+        // Update the count column (column C, index 2)
+        const range = `Sheet1!C${i + 1}`;
+        
+        await sheets.spreadsheets.values.update({
+          spreadsheetId,
+          range,
+          valueInputOption: 'RAW',
+          resource: {
+            values: [[newCount]]
+          }
+        });
+        
+        console.log(`Updated trolley vote ${option} in sheet: ${newCount}`);
+        return true;
+      }
+    }
+    
+    console.warn(`Trolley option ${option} not found in sheet`);
+    return false;
+    
+  } catch (error) {
+    console.error(`Failed to update trolley vote ${option} in sheet:`, error.message);
+    return false;
+  }
+}
+
+// ==== LOAD INITIAL TROLLEY VOTES FROM SHEET ====
+async function loadTrolleyVotesFromSheet() {
+  if (!auth) {
+    console.warn("Cannot load trolley votes: auth not configured");
+    return;
+  }
+
+  try {
+    const sheets = google.sheets({ version: "v4", auth });
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: "Sheet1!A:C"
+    });
+    
+    const rows = response.data.values || [];
+    
+    // Load trolley votes from sheet
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const idCell = row[0] ? row[0].toString().trim() : "";
+      const optionCell = row[1] ? row[1].toString().trim() : "";
+      
+      if (idCell === "trolley" && (optionCell === "A" || optionCell === "B")) {
+        const count = parseInt((row[2] || "0").toString(), 10);
+        trolleyVotes[optionCell] = count;
+        console.log(`Loaded ${count} votes for trolley option ${optionCell}`);
+      }
+    }
+    
+    console.log("Trolley votes loaded from sheet:", trolleyVotes);
+    
+  } catch (error) {
+    console.error("Failed to load trolley votes from sheet:", error.message);
   }
 }
 
@@ -311,12 +401,15 @@ app.get("/articles", async (req, res) => {
   }
 });
 
-// ==== TROLLEY VOTES ====
-app.post("/vote", (req, res) => {
+// ==== UPDATED TROLLEY VOTES WITH SHEET PERSISTENCE ====
+app.post("/vote", async (req, res) => {
   const { choice } = req.body;
   if (choice === "A" || choice === "B") {
     trolleyVotes[choice]++;
-    console.log(`🚃 Vote received: ${choice}. Current votes:`, trolleyVotes);
+    console.log(`Vote received: ${choice}. New count:`, trolleyVotes[choice]);
+    
+    // Update the Google Sheet with the new vote count
+    await updateTrolleyVoteInSheet(choice, trolleyVotes[choice]);
   }
   res.json(trolleyVotes);
 });
@@ -330,11 +423,14 @@ app.get("/trolley-votes", (req, res) => {
   res.json(trolleyVotes);
 });
 
-app.post("/trolley-vote", (req, res) => {
+app.post("/trolley-vote", async (req, res) => {
   const { option } = req.body;
   if (option === "A" || option === "B") {
     trolleyVotes[option]++;
-    console.log(`🚃 Trolley vote received: ${option}. Current votes:`, trolleyVotes);
+    console.log(`Trolley vote received: ${option}. New count:`, trolleyVotes[option]);
+    
+    // Update the Google Sheet with the new vote count
+    await updateTrolleyVoteInSheet(option, trolleyVotes[option]);
   }
   res.json(trolleyVotes);
 });
