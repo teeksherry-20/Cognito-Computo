@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname)));
 
 // ==== IN-MEMORY DATA STORE ====
 let trolleyVotes = { A: 0, B: 0 };
-let articleLikes = {}; // { articleId: count }
+let articleLikes = {}; // { articleId: count } - loaded from sheet on startup
 
 // --- Load Google credentials ---
 let credentials;
@@ -86,6 +86,97 @@ if (credentials) {
   }
 }
 
+// ==== NEW FUNCTION: UPDATE LIKES IN GOOGLE SHEET ====
+async function updateLikeInSheet(articleId, newLikeCount) {
+  if (!auth) {
+    console.warn("⚠️ Cannot update sheet: auth not configured");
+    return false;
+  }
+
+  try {
+    const sheets = google.sheets({ version: "v4", auth });
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    
+    // Find the row for this article
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: "Sheet1!A:I"
+    });
+    
+    const rows = response.data.values || [];
+    
+    // Find the article row
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const idCell = row[0] ? row[0].toString().trim() : "";
+      
+      if (idCell === `article${articleId}`) {
+        // Update the likes column (column I, index 8)
+        const range = `Sheet1!I${i + 1}`;
+        
+        await sheets.spreadsheets.values.update({
+          spreadsheetId,
+          range,
+          valueInputOption: 'RAW',
+          resource: {
+            values: [[newLikeCount]]
+          }
+        });
+        
+        console.log(`✅ Updated likes for article ${articleId} in sheet: ${newLikeCount}`);
+        return true;
+      }
+    }
+    
+    console.warn(`⚠️ Article ${articleId} not found in sheet`);
+    return false;
+    
+  } catch (error) {
+    console.error(`❌ Failed to update likes in sheet for article ${articleId}:`, error.message);
+    return false;
+  }
+}
+
+// ==== LOAD INITIAL LIKES FROM SHEET ====
+async function loadLikesFromSheet() {
+  if (!auth) {
+    console.warn("⚠️ Cannot load likes: auth not configured");
+    return;
+  }
+
+  try {
+    const sheets = google.sheets({ version: "v4", auth });
+    const spreadsheetId = process.env.SPREADSHEET_ID || LOCAL_SPREADSHEET_ID;
+    
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: "Sheet1!A:I"
+    });
+    
+    const rows = response.data.values || [];
+    
+    // Load likes from sheet
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const idCell = row[0] ? row[0].toString().trim() : "";
+      
+      if (idCell.startsWith("article")) {
+        const articleNumber = idCell.replace("article", "").trim();
+        const articleKey = `article${articleNumber}`;
+        const likes = parseInt((row[8] || "0").toString(), 10);
+        
+        articleLikes[articleKey] = likes;
+        console.log(`📊 Loaded ${likes} likes for ${articleKey}`);
+      }
+    }
+    
+    console.log("✅ Likes loaded from sheet:", articleLikes);
+    
+  } catch (error) {
+    console.error("❌ Failed to load likes from sheet:", error.message);
+  }
+}
+
 // ==== FIXED ARTICLES ENDPOINT ====
 app.get("/articles", async (req, res) => {
   console.log("📡 Received request for articles");
@@ -142,6 +233,7 @@ app.get("/articles", async (req, res) => {
         // Extract article number from ID (e.g., "article 1" -> 1)
         const articleNumber = idCell.replace("article", "").trim();
         const articleId = parseInt(articleNumber) || i;
+        const articleKey = `article${articleId}`;
         
         // Map columns correctly based on your sheet:
         // A: ID, B: Option, C: Count, D: Title, E: Date, F: Genre, G: Introduction, H: Full Content, I: Likes
@@ -152,13 +244,13 @@ app.get("/articles", async (req, res) => {
           genre: (row[5] || "").toString().trim(), // Column F (index 5)  
           intro: (row[6] || "").toString().trim(), // Column G (index 6)
           fullContent: (row[7] || "").toString().trim(), // Column H (index 7)
-          likes: articleLikes[`article${articleId}`] || parseInt((row[8] || "0").toString(), 10) // Column I (index 8)
+          likes: articleLikes[articleKey] || parseInt((row[8] || "0").toString(), 10) // Use in-memory count or sheet value
         };
         
         // Only add if title exists and is not empty
         if (article.title && article.title.length > 0) {
           articles.push(article);
-          console.log(`✅ Added article ${articleId}: "${article.title}"`);
+          console.log(`✅ Added article ${articleId}: "${article.title}" (${article.likes} likes)`);
         } else {
           console.log(`⚠️ Skipping article ${articleId}: no title found`);
         }
@@ -247,13 +339,19 @@ app.post("/trolley-vote", (req, res) => {
   res.json(trolleyVotes);
 });
 
-// ==== ARTICLE LIKES ====
-app.post("/like", (req, res) => {
+// ==== UPDATED ARTICLE LIKES WITH SHEET PERSISTENCE ====
+app.post("/like", async (req, res) => {
   const { articleId } = req.body;
   const articleKey = `article${articleId}`;
+  
   if (!articleLikes[articleKey]) articleLikes[articleKey] = 0;
   articleLikes[articleKey]++;
+  
   console.log(`👍 Like received for article ${articleId}. New count:`, articleLikes[articleKey]);
+  
+  // Update the Google Sheet with the new like count
+  await updateLikeInSheet(articleId, articleLikes[articleKey]);
+  
   res.json({ likes: articleLikes[articleKey] });
 });
 
@@ -365,7 +463,8 @@ app.get("/debug-sheet", async (req, res) => {
         if (index === 0) return false; // Skip header
         const idCell = row[0] ? row[0].toString().trim() : "";
         return idCell.startsWith("article");
-      })
+      }),
+      currentLikes: articleLikes
     });
     
   } catch (err) {
@@ -386,9 +485,13 @@ app.use((req, res) => {
 
 // --- Start server ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 Server URL: http://localhost:${PORT}`);
+  
+  // Load likes from sheet on startup
+  console.log("📊 Loading likes from Google Sheet...");
+  await loadLikesFromSheet();
   
   // Enhanced startup diagnostics
   console.log("\n📋 Environment Status:");
@@ -405,7 +508,7 @@ app.listen(PORT, () => {
     console.log("");
     console.log("2. 🔧 Share your Google Sheet with the service account:");
     console.log("   Email:", credentials.client_email);
-    console.log("   Grant 'Editor' or 'Viewer' permission");
+    console.log("   Grant 'Editor' permission (required for updating likes)");
     console.log("");
     console.log("3. 🔗 Test endpoints:");
     console.log("   - Health: http://localhost:" + PORT + "/health");
