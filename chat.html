@@ -366,7 +366,28 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
     }
+    
+    #home-btn {
+      background: linear-gradient(45deg, #666, #888);
+      border: 1px solid #666;
+      border-radius: 6px;
+      color: #fff;
+      padding: 8px 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 200;
+    }
 
+    #home-btn:hover {
+      background: linear-gradient(45deg, #888, #666);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+    }
     /* Mobile optimizations */
     @media (max-width: 768px) {
       #chat-container {
@@ -393,6 +414,12 @@
         top: 5px;
         right: 5px;
       }
+      #home-btn {
+        font-size: 7px;
+        padding: 6px 10px;
+        top: 5px;
+        right: 5px;
+      }
 
       .bottom-interface {
         padding: 8px;
@@ -414,9 +441,9 @@
     <div class="boot-text">MCQ flow system enabled...</div>
     <div class="boot-text">Ready to explore <span class="cursor-blink">█</span></div>
   </div>
-
+  
   <button id="reset-btn">RESET</button>
-
+  <button id="home-btn"><a href="index.html">HOME</a></button>
   <div id="chat-container"></div>
 
   <div class="bottom-interface">
