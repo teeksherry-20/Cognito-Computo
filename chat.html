@@ -1481,7 +1481,7 @@
           const btn = document.createElement("button");
           btn.classList.add("reaction-btn");
           btn.textContent = opt;
-          btn.onclick = () => handleOption(node, opt);
+          btn.onclick = (e) => handleOption(node, opt, e);
           optionsEl.appendChild(btn);
         });
         
@@ -1493,7 +1493,7 @@
     }, 800);
   }
 
-  function handleOption(node, selected) {
+  function handleOption(node, selected, event) {
     if (isTyping) return;
     
     // Initialize audio on first user interaction
