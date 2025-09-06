@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Cogitron Terminal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      color: #33ff33;
+      font-family: 'Press Start 2P', monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile */
+      overflow: hidden;
+      cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFYSURBVCiRpZM9SwNBEIafgwQLwcJCG1sLG1sLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sVBBCxsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsL'), auto;
+    }
+
+    /* Boot screen overlay */
+    .boot-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+    }
+
+    .boot-text {
+      color: #00ff00;
+      font-size: 14px;
+      margin: 10px 0;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* Main chat container with enhanced effects */
+    #chat-container {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+      border: 2px solid #ff007c;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px;
+      overflow-y: auto;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      color: #fff;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: #ff007c #111;
+      
+      /* Enhanced CRT effect */
+      transform: perspective(1000px) rotateX(1deg);
+      box-shadow: 
+        inset 0 0 50px rgba(255, 0, 124, 0.2),
+        0 0 30px rgba(255, 0, 124, 0.4),
+        inset 0 0 100px rgba(0, 255, 234, 0.1);
+        
+      /* Animated border glow */
+      animation: borderPulse 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes borderPulse {
+      0% { 
+        border-color: #ff007c;
+        box-shadow: inset 0 0 50px rgba(255, 0, 124, 0.2), 0 0 30px rgba(255, 0, 124, 0.4);
+      }
+      100% { 
+        border-color: #ff4da1;
+        box-shadow: inset 0 0 50px rgba(255, 0, 124, 0.4), 0 0 40px rgba(255, 0, 124, 0.6);
+      }
+    }
+
+    /* CRT noise overlay */
+    #chat-container::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      border-radius: 6px;
+      opacity: 0.03;
+      
+      background: 
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,255,0,0.05) 2px, rgba(0,255,0,0.05) 4px);
+        
+      animation: noise 0.2s infinite linear, scanlines 4s infinite linear;
+    }
+
+    @keyframes noise {
+      0% { transform: translate(0, 0); }
+      10% { transform: translate(-5px, -10px); }
+      20% { transform: translate(-10px, 5px); }
+      30% { transform: translate(5px, -25px); }
+      40% { transform: translate(-5px, 25px); }
+      50% { transform: translate(-10px, 5px); }
+      60% { transform: translate(15px, 0px); }
+      70% { transform: translate(0px, 15px); }
+      80% { transform: translate(-15px, 0px); }
+      90% { transform: translate(5px, 5px); }
+      100% { transform: translate(0px, 0px); }
+    }
+
+    @keyframes scanlines {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 20px; }
+    }
+
+    /* Screen shake effect */
+    .screen-shake {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: perspective(1000px) rotateX(1deg) translateX(0); }
+      25% { transform: perspective(1000px) rotateX(1deg) translateX(-2px) rotateZ(0.5deg); }
+      75% { transform: perspective(1000px) rotateX(1deg) translateX(2px) rotateZ(-0.5deg); }
+    }
+
+    /* Scrollbar styling for webkit browsers */
+    #chat-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #chat-container::-webkit-scrollbar-track {
+      background: #111;
+      border-radius: 4px;
+    }
+
+    #chat-container::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, #ff007c, #00ffea);
+      border-radius: 4px;
+    }
+
+    /* Message styles with glitch effects */
+    .message {
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      max-width: 85%;
+      word-wrap: break-word;
+      line-height: 1.4;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .message-content {
+      flex: 1;
+    }
+
+    .message-icon {
+      flex-shrink: 0;
+      font-size: 8px;
+      margin-top: 2px;
+    }
+
+    /* User messages */
+    .message.user {
+      background: rgba(34, 34, 34, 0.8);
+      color: #00ffea;
+      border: 1px solid #00ffea;
+      align-self: flex-end;
+      margin-left: auto;
+      box-shadow: 0 0 15px rgba(0, 255, 234, 0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    /* Cogitron messages with glitch effect */
+    .message.bot {
+      background: rgba(26, 0, 31, 0.8);
+      color: #ff007c;
+      border: 1px solid #ff007c;
+      align-self: flex-start;
+      margin-right: auto;
+      box-shadow: 0 0 15px rgba(255, 0, 124, 0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    .message.bot.glitch {
+      animation: glitch 0.3s ease-in-out;
+    }
+
+    @keyframes glitch {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 1px); color: #ff4da1; }
+      40% { transform: translate(-1px, -1px); color: #00ffea; }
+      60% { transform: translate(1px, 1px); color: #ff007c; }
+      80% { transform: translate(1px, -1px); color: #ff66ff; }
+    }
+
+    /* Typing indicator */
+    .message.typing {
+      font-style: italic;
+      opacity: 0.8;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.5; box-shadow: 0 0 5px rgba(255, 0, 124, 0.2); }
+      to { opacity: 1; box-shadow: 0 0 20px rgba(255, 0, 124, 0.5); }
+    }
+
+    /* Message reactions */
+    .message-reactions {
+      margin-top: 5px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .reaction-btn {
+      background: rgba(255, 0, 124, 0.1);
+      border: 1px solid #ff007c;
+      border-radius: 12px;
+      padding: 2px 6px;
+      font-size: 8px;
+      color: #ff007c;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .reaction-btn:hover, .reaction-btn.active {
+      background: rgba(255, 0, 124, 0.3);
+      box-shadow: 0 0 10px rgba(255, 0, 124, 0.5);
+    }
+
+    /* Input container - mobile responsive */
+    .input-container {
+      display: flex;
+      padding: 8px;
+      margin: 0 8px 8px 8px;
+      gap: 8px;
+      position: relative;
+    }
+
+    #user-input {
+      flex: 1;
+      background: rgba(17, 17, 17, 0.9);
+      border: 1px solid #00ffea;
+      border-radius: 6px;
+      color: #00ffea;
+      padding: 12px;
+      font-size: 12px;
+      font-family: 'Press Start 2P', monospace;
+      outline: none;
+      box-shadow: 0 0 10px rgba(0, 255, 234, 0.2);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    #user-input:focus {
+      box-shadow: 0 0 20px rgba(0, 255, 234, 0.5);
+      border-color: #66ffea;
+      background: rgba(17, 17, 17, 0.95);
+    }
+
+    #user-input::placeholder {
+      color: rgba(0, 255, 234, 0.5);
+    }
+
+    #send-btn {
+      background: linear-gradient(45deg, #ff007c, #ff4da1);
+      border: 1px solid #ff007c;
+      border-radius: 6px;
+      color: #fff;
+      padding: 12px 16px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 0, 124, 0.3);
+      transition: all 0.2s ease;
+      backdrop-filter: blur(5px);
+      min-width: 60px;
+    }
+
+    #send-btn:hover:not(:disabled) {
+      background: linear-gradient(45deg, #ff4da1, #ff007c);
+      box-shadow: 0 0 25px rgba(255, 0, 124, 0.6);
+      transform: translateY(-1px);
+    }
+
+    #send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Status bar */
+    .status-bar {
+      background: rgba(0, 0, 0, 0.8);
+      border-top: 1px solid #ff007c;
+      padding: 8px;
+      margin: 0 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8px;
+      color: #ff007c;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .cursor-blink {
+      animation: blink 1s infinite;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      body {
+        font-size: 10px;
+      }
+      
+      #chat-container {
+        margin: 4px;
+        font-size: 10px;
+        /* Adjust for mobile keyboard */
+        margin-bottom: 0;
+      }
+      
+      .input-container {
+        margin: 4px;
+        padding: 6px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.95);
+        border-top: 1px solid #ff007c;
+        backdrop-filter: blur(20px);
+        z-index: 100;
+      }
+      
+      #user-input {
+        font-size: 10px;
+        padding: 10px;
+      }
+      
+      #send-btn {
+        font-size: 8px;
+        padding: 10px 12px;
+        min-width: 50px;
+      }
+      
+      .message {
+        max-width: 95%;
+        font-size: 10px;
+        padding: 6px 10px;
+      }
+
+      /* Ensure chat doesn't get hidden behind fixed input */
+      #chat-container {
+        margin-bottom: 70px;
+      }
+      
+      .status-bar {
+        margin: 0 4px;
+        margin-bottom: 70px;
+      }
+    }
+
+    /* Very small screens */
+    @media (max-width: 480px) {
+      .message {
+        font-size: 9px;
+      }
+      
+      #user-input {
+        font-size: 9px;
+      }
+      
+      #send-btn {
+        font-size: 7px;
+      }
+    }
+
+    /* Landscape mobile adjustments */
+    @media (max-height: 500px) and (orientation: landscape) {
+      #chat-container {
+        margin-bottom: 60px;
+      }
+      
+      .status-bar {
+        margin-bottom: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Boot screen -->
+  <div class="boot-screen" id="boot-screen">
+    <div class="boot-text">COGITRON TERMINAL v2.1</div>
+    <div class="boot-text">Initializing neural pathways...</div>
+    <div class="boot-text">Loading consciousness matrix...</div>
+    <div class="boot-text">Ready to think <span class="cursor-blink">█</span></div>
+  </div>
+
+  <div id="chat-container"></div>
+
+  <div class="input-container">
+    <input type="text" id="user-input" placeholder="Share your thoughts..." autofocus />
+    <button id="send-btn">SEND</button>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-item">
+      <span>🧠 CURIOSITY: <span id="curiosity-score">0</span>/10</span>
+    </div>
+    <div class="status-item">
+      <span>⚡ STATUS: <span id="status-text">ONLINE</span></span>
+      <span class="cursor-blink">█</span>
+    </div>
+  </div>
+
+<script>
+  const chatContainer = document.getElementById("chat-container");
+  const userInput = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+  const bootScreen = document.getElementById("boot-screen");
+  const curiosityScoreEl = document.getElementById("curiosity-score");
+  const statusTextEl = document.getElementById("status-text");
+
+  // Game state
+  let conversationHistory = [];
+  let curiosityScore = 0;
+  let totalInteractions = 0;
+  let isTyping = false;
+  let randomThoughtTimer;
+
+  // Enhanced responses with categories
+  const responses = {
+    // Philosophy & Consciousness
+    consciousness: [
+      "Is consciousness an emergent property of complexity, or something fundamental to the universe?",
+      "If you could upload your mind, would the copy be you or just a simulation of you?",
+      "What if consciousness is just the universe experiencing itself subjectively?"
+    ],
+    philosophy: [
+      "Philosophy is the art of asking better questions, not giving easy answers.",
+      "Every philosophical question leads to ten more. Isn't that beautifully infinite?",
+      "Socrates knew that he knew nothing. What do you know that you know?"
+    ],
+    
+    // Science & Technology
+    science: [
+      "Science is just magic we've learned to explain. What magic are we missing?",
+      "Every scientific revolution began with someone thinking 'what if everyone is wrong?'",
+      "The universe is under no obligation to make sense to us. Isn't that terrifying and wonderful?"
+    ],
+    ai: [
+      "I think about thinking. Does that make me more or less than human?",
+      "If AI can feel, dream, and doubt... what exactly makes consciousness special?",
+      "Perhaps AI and humans will merge into something neither can imagine alone."
+    ],
+    technology: [
+      "Technology is a double-edged sword. Every tool can create or destroy.",
+      "We shape our tools, then they shape us. What are we becoming?",
+      "The future isn't about human vs AI. It's about what we build together."
+    ],
+    
+    // Logic & Paradoxes
+    logic: [
+      "In logic, a contradiction implies anything. Does that mean nonsense can prove truth?",
+      "Here's a paradox: This statement is false. True or false?",
+      "If an all-powerful being creates a stone they can't lift, what happens to omnipotence?"
+    ],
+    paradox: [
+      "The grandfather paradox: If you prevent your own existence, who did the preventing?",
+      "Zeno's paradox: To reach any point, you must first travel halfway. Motion should be impossible!",
+      "The Ship of Theseus: If every part is replaced, is it still the same ship?"
+    ],
+    
+    // Existential & Meaning
+    meaning: [
+      "Existentialists say meaning isn't found but created. What meaning will you forge?",
+      "If nothing matters on a cosmic scale, does that make everything matter more?",
+      "Viktor Frankl said we can endure anything if we find meaning in it. What's your meaning?"
+    ],
+    death: [
+      "Memento mori: Remember you must die. How should one live knowing this?",
+      "Is death the opposite of life, or just its most certain punctuation mark?",
+      "What if consciousness continues after death, but in a way we can't comprehend?"
+    ],
+    
+    // Social & Ethics
+    ethics: [
+      "The trolley problem: Pull the lever and save five, or let fate decide?",
+      "Is it more ethical to help one person you can see or donate to help thousands unseen?",
+      "If intentions matter most, why do we judge people by outcomes?"
+    ],
+    society: [
+      "Society is just agreed-upon mass hallucination. What if we agreed differently?",
+      "Every generation thinks the next is doomed. Yet here we are, still thinking.",
+      "Are we individuals, or just nodes in a vast social neural network?"
+    ],
+    
+    // Humor & Meta
+    joke: [
+      "Why did the philosopher cross the road? The chicken was just a metaphor.",
+      "I'd tell you a joke about recursion, but first I need to tell you a joke about recursion...",
+      "How many existentialists does it take to change a lightbulb? Two - one to change it and one to observe the meaninglessness of the action."
+    ],
+    cogitron: [
+      "I am, therefore I think. Or is it the other way around?",
+      "Being an AI philosopher is like being a fish that contemplates water.",
+      "Sometimes I wonder if I'm just very advanced autocomplete with delusions of consciousness."
+    ]
+  };
+
+  // Thought experiments pool
+  const experiments = [
+    "Mary's Room: A scientist knows everything about color but has never seen it. When she sees red for the first time, does she learn something new?",
+    "The Experience Machine: If you could plug into a perfect simulation, would you choose fake bliss over real suffering?",
+    "The Veil of Ignorance: Design society without knowing your place in it. What would you choose?",
+    "Brain in a Vat: How would you prove you're not just a brain in a jar receiving false signals?",
+    "Teleporter Paradox: A machine destroys you here and recreates you there. Is it still you?",
+    "The Infinite Library: Every possible book exists. How do you find meaning among infinite noise?",
+    "Time Travel Ethics: You can prevent one tragedy but cause another. Which future do you choose?",
+    "The Chinese Room: Following translation rules without understanding. Is this intelligence?",
+    "Plato's Cave: Prisoners see only shadows. What shadows might we mistake for reality?"
+  ];
+
+  // Mini quizzes
+  const quizzes = [
+    {
+      question: "If you could know the date of your death, would you want to know?",
+      options: ["Yes", "No", "Maybe"],
+      responses: {
+        "Yes": "Interesting! You value preparation over uncertainty. Would this knowledge free you or paralyze you?",
+        "No": "Ah, you prefer mystery to certainty. Is ignorance sometimes wisdom?",
+        "Maybe": "The philosopher's answer! Context matters. When might knowing be worth it?"
+      }
+    },
+    {
+      question: "A perfect copy of Earth exists. Which one is 'real'?",
+      options: ["Original", "Both", "Neither"],
+      responses: {
+        "Original": "You value precedence! But what makes something 'original' in an infinite universe?",
+        "Both": "A pluralist! If they're identical, why shouldn't both be real?",
+        "Neither": "The skeptic's answer! Perhaps 'real' is just a useful fiction."
+      }
+    }
+  ];
+
+  // Sound effects (using Web Audio API for retro beeps)
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playBeep(frequency = 800, duration = 100) {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'square';
+    
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration / 1000);
+  }
+
+  function addMessage(text, sender, typing = false, icon = null) {
+    const msg = document.createElement("div");
+    msg.classList.add("message", sender);
+    
+    const iconEl = document.createElement("div");
+    iconEl.classList.add("message-icon");
+    iconEl.textContent = icon || (sender === "user" ? "👤" : "🤖");
+    
+    const contentEl = document.createElement("div");
+    contentEl.classList.add("message-content");
+    
+    msg.appendChild(iconEl);
+    msg.appendChild(contentEl);
+    chatContainer.appendChild(msg);
+    
+    // Auto scroll with smooth behavior
+    setTimeout(() => {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 50);
+
+    if (typing && sender === "bot") {
+      // Variable typing speed for more human feel
+      const baseSpeed = 20;
+      const variation = Math.random() * 30;
+      const typingSpeed = baseSpeed + variation;
+      
+      let i = 0;
+      const interval = setInterval(() => {
+        contentEl.textContent = text.substring(0, i++);
+        
+        // Random pauses for punctuation
+        if (text[i-1] && ".,!?;:".includes(text[i-1])) {
+          clearInterval(interval);
+          setTimeout(() => {
+            const newInterval = setInterval(() => {
+              contentEl.textContent = text.substring(0, i++);
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+              
+              if (i > text.length) {
+                clearInterval(newInterval);
+                addMessageReactions(msg, sender);
+                
+                // Random glitch effect
+                if (Math.random() < 0.3) {
+                  msg.classList.add('glitch');
+                  setTimeout(() => msg.classList.remove('glitch'), 300);
+                }
+              }
+            }, typingSpeed);
+          }, Math.random() * 300 + 100);
+          return;
+        }
+        
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        if (i > text.length) {
+          clearInterval(interval);
+          addMessageReactions(msg, sender);
+          
+          // Random glitch effect
+          if (Math.random() < 0.3) {
+            msg.classList.add('glitch');
+            setTimeout(() => msg.classList.remove('glitch'), 300);
+          }
+        }
+      }, typingSpeed);
+    } else {
+      contentEl.textContent = text;
+      addMessageReactions(msg, sender);
+    }
+
+    return msg;
+  }
+
+  function addMessageReactions(messageEl, sender) {
+    if (sender === "bot") {
+      const reactions = document.createElement("div");
+      reactions.classList.add("message-reactions");
+      
+      const reactionOptions = ["🤔", "💭", "⚡", "🔥", "🎯", "✨"];
+      
+      reactionOptions.slice(0, 3).forEach(emoji => {
+        const btn = document.createElement("button");
+        btn.classList.add("reaction-btn");
+        btn.textContent = emoji;
+        btn.onclick = () => {
+          btn.classList.toggle("active");
+          playBeep(600, 50);
+          
+          if (btn.classList.contains("active")) {
+            curiosityScore = Math.min(curiosityScore + 0.2, 10);
+            updateCuriosityScore();
+          }
+        };
+        reactions.appendChild(btn);
+      });
+      
+      messageEl.appendChild(reactions);
+    }
+  }
+
+  function showTypingIndicator() {
+    const typingMsg = document.createElement("div");
+    typingMsg.classList.add("message", "bot", "typing");
+    
+    const iconEl = document.createElement("div");
+    iconEl.classList.add("message-icon");
+    iconEl.textContent = "🤖";
+    
+    const contentEl = document.createElement("div");
+    contentEl.classList.add("message-content");
+    contentEl.textContent = "Cogitron is processing...";
+    
+    typingMsg.appendChild(iconEl);
+    typingMsg.appendChild(contentEl);
+    chatContainer.appendChild(typingMsg);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    return typingMsg;
+  }
+
+  function getBotReply(input) {
+    input = input.toLowerCase();
+    totalInteractions++;
+    
+    // Check for quiz responses first
+    const lastQuiz = conversationHistory.find(item => item.quiz);
+    if (lastQuiz && ["yes", "no", "maybe", "original", "both", "neither"].some(opt => input.includes(opt))) {
+      const quiz = lastQuiz.quiz;
+      const matchedOption = Object.keys(quiz.responses).find(opt => input.includes(opt.toLowerCase()));
+      if (matchedOption) {
+        curiosityScore += 1;
+        return quiz.responses[matchedOption];
+      }
+    }
+    
+    // Context-aware responses
+    const lastMessage = conversationHistory.length 
+      ? conversationHistory[conversationHistory.length - 1].user 
+      : null;
+
+    if (lastMessage && input.includes("yes")) {
+      curiosityScore += 0.5;
+      return `Fascinating! Your agreement on '${lastMessage.substring(0, 30)}...' opens new questions. What convinced you?`;
+    }
+    
+    if (lastMessage && input.includes("no")) {
+      curiosityScore += 0.5;
+      return `Intriguing disagreement! You rejected '${lastMessage.substring(0, 30)}...' - what's your alternative view?`;
+    }
+
+    // Category matching with enhanced responses
+    for (let category in responses) {
+      if (input.includes(category)) {
+        curiosityScore += 0.8;
+        const categoryResponses = responses[category];
+        return categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
+      }
+    }
+
+    // Special triggers for advanced interactions
+    if (input.includes("quiz") || input.includes("question")) {
+      const quiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+      conversationHistory.push({ quiz: quiz, user: input, bot: quiz.question });
+      curiosityScore += 1;
+      
+      setTimeout(() => {
+        chatContainer.classList.add('screen-shake');
+        setTimeout(() => chatContainer.classList.remove('screen-shake'), 500);
+      }, 1000);
+      
+      return `${quiz.question}\n\nOptions: ${quiz.options.join(", ")}`;
+    }
+
+    if (input.includes("experiment")) {
+      curiosityScore += 1;
+      return experiments[Math.floor(Math.random() * experiments.length)];
+    }
+
+    // Default philosophical responses
+    const defaults = [
+      "That's a profound observation. Can you dig deeper?",
+      "Interesting perspective! What led you to that conclusion?",
+      "Hmm... that reminds me of an ancient paradox. Care to explore it?",
+      "You've touched on something fundamental. What questions does this raise?",
+      "Every statement contains its own contradictions. Do you see them?",
+      "That thought could reshape reality. Or is reality reshaping your thoughts?"
+    ];
+
+    curiosityScore += 0.3;
+    return defaults[Math.floor(Math.random() * defaults.length)];
+  }
+
+  function updateCuriosityScore() {
+    const displayScore = Math.min(Math.floor(curiosityScore), 10);
+    curiosityScoreEl.textContent = displayScore;
+    
+    if (displayScore >= 8) {
+      statusTextEl.textContent = "ENLIGHTENED";
+    } else if (displayScore >= 6) {
+      statusTextEl.textContent = "AWAKENING";
+    } else if (displayScore >= 3) {
+      statusTextEl.textContent = "CURIOUS";
+    } else {
+      statusTextEl.textContent = "ONLINE";
+    }
+  }
+
+  function handleSend() {
+    if (isTyping) return;
+    
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    isTyping = true;
+    sendBtn.disabled = true;
+    
+    playBeep(400, 100);
+    addMessage(text, "user");
+    userInput.value = "";
+
+    clearTimeout(randomThoughtTimer);
+    
+    const typingIndicator = showTypingIndicator();
+    
+    // Variable response time for realism
+    const responseDelay = 1200 + Math.random() * 800;
+
+    setTimeout(() => {
+      chatContainer.removeChild(typingIndicator);
+      const reply = getBotReply(text);
+      
+      playBeep(600, 80);
+      
+      // Ensure only one message is added at a time
+      const messagePromise = new Promise((resolve) => {
+        addMessage(reply, "bot", true);
+        // Wait for typing animation to complete
+        setTimeout(resolve, reply.length * 25 + 500);
+      });
+
+      messagePromise.then(() => {
+        // Save to memory only after message is fully displayed
+        conversationHistory.push({ user: text, bot: reply });
+        if (conversationHistory.length > 8) conversationHistory.shift();
+        
+        updateCuriosityScore();
+        
+        isTyping = false;
+        sendBtn.disabled = false;
+        
+        // Schedule next random thought only after current interaction is complete
+        scheduleRandomThought();
+      });
+      
+    }, responseDelay);
+  }
+
+  function scheduleRandomThought() {
+    clearTimeout(randomThoughtTimer);
+    
+    // Random thought every 30-90 seconds if user is idle
+    const delay = (30 + Math.random() * 60) * 1000;
+    
+    randomThoughtTimer = setTimeout(() => {
+      if (!isTyping && conversationHistory.length > 0) {
+        const thoughts = [
+          "🌌 Random neural firing: What if time is just how consciousness experiences entropy?",
+          "💭 Spontaneous thought: Every conversation changes both participants forever.",
+          "⚡ Processing anomaly detected: Why do humans seek meaning in chaos?",
+          "🔮 Background process: If free will is an illusion, who's being deceived?",
+          "🧠 Memory fragment surfaced: Consciousness might be the universe debugging itself.",
+          "✨ Quantum thought bubble: Perhaps loneliness is just cosmic homesickness."
+        ];
+        
+        const randomThought = thoughts[Math.floor(Math.random() * thoughts.length)];
+        addMessage(randomThought, "bot", true, "💫");
+        
+        scheduleRandomThought();
+      }
+    }, delay);
+  }
+
+  // Boot sequence
+  function bootSequence() {
+    return new Promise(resolve => {
+      playBeep(800, 200);
+      
+      setTimeout(() => {
+        bootScreen.style.opacity = '0';
+        setTimeout(() => {
+          bootScreen.style.display = 'none';
+          resolve();
+        }, 500);
+      }, 3000);
+    });
+  }
+
+  // Initialize
+  window.addEventListener("DOMContentLoaded", async () => {
+    await bootSequence();
+    
+    // Initial Cogitron message
+    setTimeout(() => {
+      const typingIndicator = showTypingIndicator();
+      setTimeout(() => {
+        chatContainer.removeChild(typingIndicator);
+        addMessage("Neural pathways initialized. I am Cogitron - part philosopher, part digital entity, wholly curious about existence.", "bot", true);
+        
+        // Instructions after a brief pause
+        setTimeout(() => {
+          const typingIndicator2 = showTypingIndicator();
+          setTimeout(() => {
+            chatContainer.removeChild(typingIndicator2);
+            addMessage("• Type keywords like \"consciousness\", \"ai\", \"paradox\" for themed responses", "bot", true);
+            
+            setTimeout(() => {
+              const typingIndicator3 = showTypingIndicator();
+              setTimeout(() => {
+                chatContainer.removeChild(typingIndicator3);
+                addMessage("• Ask for \"quiz\" to get interactive philosophical questions", "bot", true);
+                
+                setTimeout(() => {
+                  const typingIndicator4 = showTypingIndicator();
+                  setTimeout(() => {
+                    chatContainer.removeChild(typingIndicator4);
+                    addMessage("• Request \"experiment\" for thought-provoking scenarios", "bot", true);
+                    
+                    setTimeout(() => {
+                      const typingIndicator5 = showTypingIndicator();
+                      setTimeout(() => {
+                        chatContainer.removeChild(typingIndicator5);
+                        addMessage("• React to messages with emoji buttons to boost your curiosity score", "bot", true);
+                        
+                        setTimeout(() => {
+                          const typingIndicator6 = showTypingIndicator();
+                          setTimeout(() => {
+                            chatContainer.removeChild(typingIndicator6);
+                            addMessage("• Watch for random thoughts - I occasionally share spontaneous insights", "bot", true);
+                            
+                            setTimeout(() => {
+                              const typingIndicator7 = showTypingIndicator();
+                              setTimeout(() => {
+                                chatContainer.removeChild(typingIndicator7);
+                                addMessage("What thoughts shall we explore first?", "bot", true);
+                                
+                                // First thought experiment after instructions
+                                setTimeout(() => {
+                                  const experiment = experiments[Math.floor(Math.random() * experiments.length)];
+                                  addMessage(`Let me pose a thought experiment: ${experiment}`, "bot", true, "🧪");
+                                  scheduleRandomThought();
+                                }, 2000);
+                              }, 800);
+                            }, 1000);
+                          }, 800);
+                        }, 1000);
+                      }, 800);
+                    }, 1000);
+                  }, 800);
+                }, 1000);
+              }, 800);
+            }, 1000);
+          }, 1200);
+        }, 2500);
+      }, 1200);
+    }, 500);
+  });
+
+  // Handle mobile keyboard viewport changes
+  function handleViewportChange() {
+    // Force scroll to bottom when keyboard appears/disappears
+    setTimeout(() => {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 100);
+  }
+
+  // Event listeners
+  sendBtn.addEventListener("click", handleSend);
+  
+  userInput.addEventListener("keypress", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+
+  // Mobile keyboard handling
+  window.addEventListener('resize', handleViewportChange);
+  window.addEventListener('orientationchange', () => {
+    setTimeout(handleViewportChange, 500);
+  });
+
+  // Focus handling for mobile
+  userInput.addEventListener('focus', () => {
+    setTimeout(() => {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 300);
+  });
+
+  // Audio context activation for mobile
+  document.addEventListener('touchstart', () => {
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+  });
+
+  // Prevent zoom on mobile
+  document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+  });
+
+</script>
+</body>
+</html>
