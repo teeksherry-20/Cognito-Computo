@@ -428,7 +428,7 @@
     <div class="boot-text">Ready to explore <span class="cursor-blink">█</span></div>
   </div>
 
-  <button id="reset-btn">RESET</button>
+  <button id="reset-btn" onclick="resetSession()">RESET</button>
 
   <div id="chat-container"></div>
 
@@ -1471,24 +1471,26 @@
         chatContainer.removeChild(typingIndicator);
       }
       
-      const messageEl = addMessage(node.question, "bot", true);
+      const messageEl = addMessage(node.question, "bot", false);
       
       setTimeout(() => {
-        const optionsEl = document.createElement("div");
-        optionsEl.classList.add("message-reactions");
-        
-        node.options.forEach(opt => {
-          const btn = document.createElement("button");
-          btn.classList.add("reaction-btn");
-          btn.textContent = opt;
-          btn.onclick = (e) => handleOption(node, opt, e);
-          optionsEl.appendChild(btn);
-        });
-        
-        messageEl.appendChild(optionsEl);
-        scrollToBottom();
-        isTyping = false;
-      }, Math.max(node.question.length * 25, 1000));
+  // mark typing finished before creating buttons so they are active immediately
+  isTyping = false;
+
+  const optionsEl = document.createElement("div");
+  optionsEl.classList.add("message-reactions");
+  
+  node.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.classList.add("reaction-btn");
+    btn.textContent = opt;
+    btn.onclick = (e) => handleOption(node, opt, e);
+    optionsEl.appendChild(btn);
+  });
+  
+  messageEl.appendChild(optionsEl);
+  scrollToBottom();
+}, Math.max(node.question.length * 25, 1000));
       
     }, 800);
   }
