@@ -236,6 +236,104 @@
       pointer-events: none;
     }
 
+    /* Session Summary Styles */
+    .session-summary {
+      background: rgba(0, 0, 0, 0.95);
+      border: 2px solid #ff007c;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      animation: summaryAppear 0.5s ease-out;
+    }
+
+    @keyframes summaryAppear {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .summary-header {
+      color: #ff007c;
+      font-size: 12px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .profile-title {
+      font-size: 14px;
+      margin: 15px 0;
+      text-shadow: 0 0 10px currentColor;
+      animation: profileGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes profileGlow {
+      0% { text-shadow: 0 0 5px currentColor; }
+      100% { text-shadow: 0 0 15px currentColor, 0 0 25px currentColor; }
+    }
+
+    .profile-description {
+      color: #fff;
+      font-size: 9px;
+      line-height: 1.6;
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .curiosity-final-score {
+      font-size: 16px;
+      margin: 20px 0;
+      color: #00ffea;
+      text-shadow: 0 0 10px #00ffea;
+    }
+
+    .profile-traits {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .trait {
+      background: rgba(255, 0, 124, 0.1);
+      border: 1px solid #ff007c;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 7px;
+      color: #ff007c;
+    }
+
+    .summary-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .summary-btn {
+      background: linear-gradient(45deg, #ff007c, #ff6b00);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      padding: 12px 20px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .summary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 0, 124, 0.5);
+    }
+
+    .summary-btn.home-btn {
+      background: linear-gradient(45deg, #00ffea, #0066cc);
+    }
+
     /* Fixed bottom interface */
     .bottom-interface {
       position: fixed;
@@ -344,8 +442,18 @@
       animation: blink 1s infinite;
     }
 
-    /* Enhanced reset button */
-    #reset-btn {
+    /* Top buttons */
+    .top-buttons {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 200;
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Enhanced reset and home buttons */
+    .top-btn {
       background: linear-gradient(45deg, #666, #888);
       border: 1px solid #666;
       border-radius: 6px;
@@ -355,39 +463,24 @@
       font-size: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 200;
+      text-transform: uppercase;
     }
 
-    #reset-btn:hover {
+    .top-btn:hover {
       background: linear-gradient(45deg, #888, #666);
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
     }
-    
-    #home-btn {
-      background: linear-gradient(45deg, #666, #888);
-      border: 1px solid #666;
-      border-radius: 6px;
-      color: #fff;
-      padding: 8px 12px;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 200;
+
+    .home-btn {
+      background: linear-gradient(45deg, #00ffea, #0066cc);
+      border: 1px solid #00ffea;
     }
 
-    #home-btn:hover {
-      background: linear-gradient(45deg, #888, #666);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+    .home-btn:hover {
+      background: linear-gradient(45deg, #0066cc, #00ffea);
     }
+
     /* Mobile optimizations */
     @media (max-width: 768px) {
       #chat-container {
@@ -408,15 +501,12 @@
         min-height: 32px;
       }
 
-      #reset-btn {
+      .top-btn {
         font-size: 7px;
         padding: 6px 10px;
-        top: 5px;
-        right: 5px;
       }
-      #home-btn {
-        font-size: 7px;
-        padding: 6px 10px;
+
+      .top-buttons {
         top: 5px;
         right: 5px;
       }
@@ -427,6 +517,15 @@
 
       .meter-label, .meter-score {
         font-size: 7px;
+      }
+
+      .profile-traits {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-actions {
+        flex-direction: column;
+        align-items: center;
       }
     }
   </style>
@@ -441,9 +540,12 @@
     <div class="boot-text">MCQ flow system enabled...</div>
     <div class="boot-text">Ready to explore <span class="cursor-blink">█</span></div>
   </div>
-  
-  <button id="reset-btn">RESET</button>
-  <button id="home-btn"><a href="index.html">HOME</a></button>
+
+  <div class="top-buttons">
+    <button id="home-btn" class="top-btn home-btn">Home</button>
+    <button id="reset-btn" class="top-btn">Reset</button>
+  </div>
+
   <div id="chat-container"></div>
 
   <div class="bottom-interface">
@@ -480,12 +582,59 @@
   // DOM elements
   const chatContainer = document.getElementById("chat-container");
   const resetBtn = document.getElementById("reset-btn");
+  const homeBtn = document.getElementById("home-btn");
   const bootScreen = document.getElementById("boot-screen");
   const currentNodeEl = document.getElementById("current-node");
   const statusTextEl = document.getElementById("status-text");
   const curiosityFill = document.getElementById("curiosity-fill");
   const curiosityScoreEl = document.getElementById("curiosity-score");
   const rankTitleEl = document.getElementById("rank-title");
+
+  // Curiosity profiles based on score ranges
+  const curiosityProfiles = [
+    {
+      min: 0, max: 29,
+      title: "The Cautious Observer",
+      description: "You approach philosophical questions with careful consideration, preferring to observe rather than dive deep into uncertainty. Your measured approach shows wisdom in recognizing the complexity of existence.",
+      traits: ["Methodical thinking", "Risk-aware", "Practical wisdom", "Grounded perspective"],
+      color: "#666666"
+    },
+    {
+      min: 30, max: 59,
+      title: "The Curious Seeker", 
+      description: "Your mind is opening to philosophy's vast questions. You show genuine interest in exploring ideas while maintaining healthy skepticism. The journey of inquiry has begun.",
+      traits: ["Growing curiosity", "Open-minded", "Question-driven", "Balanced inquiry"],
+      color: "#00ffea"
+    },
+    {
+      min: 60, max: 99,
+      title: "The Deep Questioner",
+      description: "You embrace philosophical complexity and aren't afraid to venture into uncertain territory. Your curiosity drives you to examine fundamental assumptions about reality.",
+      traits: ["Loves complexity", "Challenges assumptions", "Comfortable with ambiguity", "Intellectually brave"],
+      color: "#ff007c"
+    },
+    {
+      min: 100, max: 149,
+      title: "The Wisdom Explorer",
+      description: "Your philosophical curiosity knows few bounds. You eagerly engage with the most challenging questions, finding joy in paradox and mystery rather than simple answers.",
+      traits: ["Embraces paradox", "Loves intellectual risk", "Seeks deeper truth", "Philosophically adventurous"],
+      color: "#ff6b00"
+    },
+    {
+      min: 150, max: 199,
+      title: "The Philosophical Sage",
+      description: "You demonstrate rare philosophical courage, diving into questions that challenge the very foundations of knowledge and existence. Your curiosity transcends conventional boundaries.",
+      traits: ["Transcendent thinking", "Foundational questioning", "Comfort with mystery", "Intellectual fearlessness"],
+      color: "#ffff00"
+    },
+    {
+      min: 200, max: 999,
+      title: "The Consciousness Pioneer", 
+      description: "Your insatiable curiosity pushes the boundaries of human inquiry. You fearlessly explore the deepest mysteries of mind, reality, and existence with the passion of a true philosophical pioneer.",
+      traits: ["Boundless curiosity", "Reality questioning", "Existence exploration", "Ultimate truth seeking"],
+      color: "#ff0066"
+    }
+  ];
 
   // Complete philosophical conversation flow
   const terminalFlow = [
@@ -1019,8 +1168,18 @@
       next: {
         "New exploration": "start",
         "Different path": "start", 
-        "End session": "conversation_end",
+        "End session": "session_summary",
         "Reflect more": "final_reflection"
+      }
+    },
+
+    {
+      id: "session_summary",
+      question: "SESSION COMPLETE - Generating curiosity profile...",
+      options: ["View Results"],
+      curiosity: {"View Results": 0},
+      next: {
+        "View Results": "exit_to_index"
       }
     }
   ];
@@ -1035,43 +1194,83 @@
     { min: 200, title: "CONSCIOUSNESS PIONEER" }
   ];
 
+  // Get curiosity profile for score
+  function getCuriosityProfile(score) {
+    return curiosityProfiles.find(profile => score >= profile.min && score <= profile.max) || curiosityProfiles[0];
+  }
+
+  // Display session summary
+  function displaySessionSummary() {
+    const profile = getCuriosityProfile(gameState.curiosityScore);
+    
+    // Hide bottom interface during summary
+    document.querySelector('.bottom-interface').style.display = 'none';
+    
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'session-summary';
+    summaryDiv.innerHTML = `
+      <div class="summary-header">PHILOSOPHICAL JOURNEY COMPLETE</div>
+      <div class="curiosity-final-score">Final Curiosity Score: ${gameState.curiosityScore}</div>
+      <div class="profile-title" style="color: ${profile.color}">${profile.title}</div>
+      <div class="profile-description">${profile.description}</div>
+      <div class="profile-traits">
+        ${profile.traits.map(trait => `<div class="trait">${trait}</div>`).join('')}
+      </div>
+      <div class="summary-actions">
+        <button class="summary-btn home-btn" onclick="window.location.href='index.html'">Return Home</button>
+        <button class="summary-btn" onclick="resetSession()">New Journey</button>
+      </div>
+    `;
+    
+    chatContainer.innerHTML = '';
+    chatContainer.appendChild(summaryDiv);
+    scrollToBottom();
+    
+    // Play completion sound
+    playSound('message');
+  }
+
   // Sound effects
   function playSound(type) {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let frequency, duration;
-    
-    switch(type) {
-      case 'click':
-        frequency = 800;
-        duration = 0.1;
-        break;
-      case 'message':
-        frequency = 400;
-        duration = 0.2;
-        break;
-      case 'typing':
-        frequency = 600;
-        duration = 0.05;
-        break;
-      default:
-        frequency = 500;
-        duration = 0.1;
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      let frequency, duration;
+      
+      switch(type) {
+        case 'click':
+          frequency = 800;
+          duration = 0.1;
+          break;
+        case 'message':
+          frequency = 400;
+          duration = 0.2;
+          break;
+        case 'typing':
+          frequency = 600;
+          duration = 0.05;
+          break;
+        default:
+          frequency = 500;
+          duration = 0.1;
+      }
+      
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'square';
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + duration);
+    } catch (error) {
+      // Silently handle audio context errors
     }
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = frequency;
-    oscillator.type = 'square';
-    
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration);
   }
 
   // Show typing indicator
@@ -1199,6 +1398,17 @@
     
     // Find next node
     const nextNodeId = nodeData.next[selectedOption];
+    
+    // Special handling for session summary
+    if (nextNodeId === 'session_summary') {
+      showTypingIndicator();
+      setTimeout(() => {
+        hideTypingIndicator();
+        displaySessionSummary();
+      }, 1500);
+      return;
+    }
+    
     const nextNode = terminalFlow.find(node => node.id === nextNodeId);
     
     if (nextNode) {
@@ -1306,11 +1516,17 @@
     curiosityFill.style.width = '0%';
     rankTitleEl.textContent = 'NOVICE THINKER';
     
+    // Show bottom interface again
+    document.querySelector('.bottom-interface').style.display = 'block';
+    
     startConversation();
   }
 
   // Event listeners
   resetBtn.addEventListener('click', resetSession);
+  homeBtn.addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
 
   // Initialize on page load
   window.addEventListener('load', initializeTerminal);
