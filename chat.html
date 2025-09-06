@@ -939,12 +939,8 @@
                                 chatContainer.removeChild(typingIndicator7);
                                 addMessage("What thoughts shall we explore first?", "bot", true);
                                 
-                                // First thought experiment after instructions
-                                setTimeout(() => {
-                                  const experiment = experiments[Math.floor(Math.random() * experiments.length)];
-                                  addMessage(`Let me pose a thought experiment: ${experiment}`, "bot", true, "🧪");
-                                  scheduleRandomThought();
-                                }, 2000);
+                                // Stop here - let user initiate conversation
+                                scheduleRandomThought();
                               }, 800);
                             }, 1000);
                           }, 800);
@@ -977,6 +973,12 @@
       e.preventDefault();
       handleSend();
     }
+  });
+
+  // Home button event listener
+  homeBtn.addEventListener("click", () => {
+    playBeep(500, 100);
+    window.location.href = "index.html";
   });
 
   // Mobile keyboard handling
