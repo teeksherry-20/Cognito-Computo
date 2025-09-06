@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Cogitron Terminal</title>
+  <title>Cogitron Terminal v2.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * {
@@ -19,9 +19,9 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      height: 100dvh; /* Dynamic viewport height for mobile */
+      height: 100dvh;
       overflow: hidden;
-      cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFYSURBVCiRpZM9SwNBEIafgwQLwcJCG1sLG1sLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sVBBCxsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsL'), auto;
+      cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFYSURBVCiRpZM9SwNBEIafgwQLwcJCG1sLG1sLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sdDGQhsLbSy0sVBBCxsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsLbSy0sVBBBBsL'), auto;
     }
 
     /* Boot screen overlay */
@@ -52,8 +52,8 @@
       51%, 100% { opacity: 0; }
     }
 
-    /* Main chat container with enhanced effects */
-    #chat-container {
+    /* Enhanced terminal container */
+    #terminal-container {
       position: relative;
       flex: 1;
       display: flex;
@@ -61,15 +61,11 @@
       background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
       border: 2px solid #ff007c;
       border-radius: 8px;
-      padding: 10px;
       margin: 8px;
-      overflow-y: auto;
+      overflow: hidden;
       font-family: 'Press Start 2P', monospace;
       font-size: 11px;
       color: #fff;
-      scroll-behavior: smooth;
-      scrollbar-width: thin;
-      scrollbar-color: #ff007c #111;
       
       /* Enhanced CRT effect */
       transform: perspective(1000px) rotateX(1deg);
@@ -93,8 +89,20 @@
       }
     }
 
+    /* Terminal output area */
+    #terminal-output {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: #ff007c #111;
+      position: relative;
+      z-index: 1;
+    }
+
     /* CRT noise overlay */
-    #chat-container::after {
+    #terminal-container::after {
       content: "";
       position: absolute;
       top: 0;
@@ -104,6 +112,7 @@
       pointer-events: none;
       border-radius: 6px;
       opacity: 0.03;
+      z-index: 2;
       
       background: 
         repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px),
@@ -114,15 +123,15 @@
 
     @keyframes noise {
       0% { transform: translate(0, 0); }
-      10% { transform: translate(-5px, -10px); }
-      20% { transform: translate(-10px, 5px); }
-      30% { transform: translate(5px, -25px); }
-      40% { transform: translate(-5px, 25px); }
-      50% { transform: translate(-10px, 5px); }
-      60% { transform: translate(15px, 0px); }
-      70% { transform: translate(0px, 15px); }
-      80% { transform: translate(-15px, 0px); }
-      90% { transform: translate(5px, 5px); }
+      10% { transform: translate(-1px, -2px); }
+      20% { transform: translate(-2px, 1px); }
+      30% { transform: translate(1px, -1px); }
+      40% { transform: translate(-1px, 2px); }
+      50% { transform: translate(-2px, 1px); }
+      60% { transform: translate(2px, 0px); }
+      70% { transform: translate(0px, 2px); }
+      80% { transform: translate(-2px, 0px); }
+      90% { transform: translate(1px, 1px); }
       100% { transform: translate(0px, 0px); }
     }
 
@@ -131,134 +140,96 @@
       100% { background-position: 0 20px; }
     }
 
-    /* Screen shake effect */
-    .screen-shake {
-      animation: shake 0.5s ease-in-out;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: perspective(1000px) rotateX(1deg) translateX(0); }
-      25% { transform: perspective(1000px) rotateX(1deg) translateX(-2px) rotateZ(0.5deg); }
-      75% { transform: perspective(1000px) rotateX(1deg) translateX(2px) rotateZ(-0.5deg); }
-    }
-
     /* Scrollbar styling for webkit browsers */
-    #chat-container::-webkit-scrollbar {
+    #terminal-output::-webkit-scrollbar {
       width: 8px;
     }
 
-    #chat-container::-webkit-scrollbar-track {
+    #terminal-output::-webkit-scrollbar-track {
       background: #111;
       border-radius: 4px;
     }
 
-    #chat-container::-webkit-scrollbar-thumb {
+    #terminal-output::-webkit-scrollbar-thumb {
       background: linear-gradient(to bottom, #ff007c, #00ffea);
       border-radius: 4px;
     }
 
-    /* Message styles with glitch effects */
-    .message {
-      margin: 8px 0;
-      padding: 8px 12px;
-      border-radius: 6px;
-      max-width: 85%;
-      word-wrap: break-word;
+    /* Terminal line styles */
+    .terminal-line {
+      margin: 4px 0;
       line-height: 1.4;
+      word-wrap: break-word;
+      opacity: 0;
+      animation: fadeIn 0.3s ease-in forwards;
       position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
     }
 
-    .message-content {
-      flex: 1;
+    @keyframes fadeIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(5px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
     }
 
-    .message-icon {
-      flex-shrink: 0;
-      font-size: 8px;
-      margin-top: 2px;
-    }
-
-    /* User messages */
-    .message.user {
-      background: rgba(34, 34, 34, 0.8);
+    /* Color scheme for different types of output */
+    .line-user {
       color: #00ffea;
-      border: 1px solid #00ffea;
-      align-self: flex-end;
-      margin-left: auto;
-      box-shadow: 0 0 15px rgba(0, 255, 234, 0.3);
-      backdrop-filter: blur(5px);
     }
 
-    /* Cogitron messages with glitch effect */
-    .message.bot {
-      background: rgba(26, 0, 31, 0.8);
+    .line-command {
+      color: #ffff00;
+    }
+
+    .line-output {
+      color: #33ff33;
+    }
+
+    .line-error {
+      color: #ff4444;
+    }
+
+    .line-system {
       color: #ff007c;
-      border: 1px solid #ff007c;
-      align-self: flex-start;
-      margin-right: auto;
-      box-shadow: 0 0 15px rgba(255, 0, 124, 0.3);
-      backdrop-filter: blur(5px);
     }
 
-    .message.bot.glitch {
-      animation: glitch 0.3s ease-in-out;
+    .line-info {
+      color: #cc99ff;
     }
 
-    @keyframes glitch {
-      0%, 100% { transform: translate(0); }
-      20% { transform: translate(-2px, 1px); color: #ff4da1; }
-      40% { transform: translate(-1px, -1px); color: #00ffea; }
-      60% { transform: translate(1px, 1px); color: #ff007c; }
-      80% { transform: translate(1px, -1px); color: #ff66ff; }
+    .line-warning {
+      color: #ffaa00;
     }
 
-    /* Typing indicator */
-    .message.typing {
-      font-style: italic;
-      opacity: 0.8;
-      animation: pulse 1s infinite alternate;
+    .line-success {
+      color: #44ff44;
     }
 
-    @keyframes pulse {
-      from { opacity: 0.5; box-shadow: 0 0 5px rgba(255, 0, 124, 0.2); }
-      to { opacity: 1; box-shadow: 0 0 20px rgba(255, 0, 124, 0.5); }
-    }
-
-    /* Message reactions */
-    .message-reactions {
-      margin-top: 5px;
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-
-    .reaction-btn {
-      background: rgba(255, 0, 124, 0.1);
-      border: 1px solid #ff007c;
-      border-radius: 12px;
-      padding: 2px 6px;
-      font-size: 8px;
+    /* Prompt styling */
+    .terminal-prompt {
       color: #ff007c;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      margin-right: 8px;
     }
 
-    .reaction-btn:hover, .reaction-btn.active {
-      background: rgba(255, 0, 124, 0.3);
-      box-shadow: 0 0 10px rgba(255, 0, 124, 0.5);
+    .terminal-cursor {
+      animation: blink 1s infinite;
+      color: #00ffea;
     }
 
     /* Input container - mobile responsive */
     .input-container {
       display: flex;
-      padding: 8px;
-      margin: 0 8px 8px 8px;
+      padding: 8px 15px;
       gap: 8px;
+      border-top: 1px solid #ff007c;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
       position: relative;
+      z-index: 3;
     }
 
     #user-input {
@@ -337,14 +308,15 @@
     .status-bar {
       background: rgba(0, 0, 0, 0.8);
       border-top: 1px solid #ff007c;
-      padding: 8px;
-      margin: 0 8px;
+      padding: 8px 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 8px;
       color: #ff007c;
       backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 3;
     }
 
     .status-item {
@@ -363,16 +335,13 @@
         font-size: 10px;
       }
       
-      #chat-container {
+      #terminal-container {
         margin: 4px;
         font-size: 10px;
-        /* Adjust for mobile keyboard */
         margin-bottom: 0;
       }
       
       .input-container {
-        margin: 4px;
-        padding: 6px;
         position: fixed;
         bottom: 0;
         left: 0;
@@ -381,6 +350,8 @@
         border-top: 1px solid #ff007c;
         backdrop-filter: blur(20px);
         z-index: 100;
+        margin: 0;
+        padding: 6px;
       }
       
       #user-input {
@@ -394,26 +365,23 @@
         min-width: 50px;
       }
       
-      .message {
-        max-width: 95%;
+      .terminal-line {
         font-size: 10px;
-        padding: 6px 10px;
       }
 
-      /* Ensure chat doesn't get hidden behind fixed input */
-      #chat-container {
+      /* Ensure terminal doesn't get hidden behind fixed input */
+      #terminal-container {
         margin-bottom: 70px;
       }
       
       .status-bar {
-        margin: 0 4px;
         margin-bottom: 70px;
       }
     }
 
     /* Very small screens */
     @media (max-width: 480px) {
-      .message {
+      .terminal-line {
         font-size: 9px;
       }
       
@@ -428,7 +396,7 @@
 
     /* Landscape mobile adjustments */
     @media (max-height: 500px) and (orientation: landscape) {
-      #chat-container {
+      #terminal-container {
         margin-bottom: 60px;
       }
       
@@ -436,18 +404,38 @@
         margin-bottom: 60px;
       }
     }
+
+    /* Typing indicator */
+    .typing-dots {
+      display: inline-block;
+      animation: typingDots 1.4s infinite;
+    }
+
+    .typing-dots::after {
+      content: '';
+      animation: typingDots 1.4s infinite;
+    }
+
+    @keyframes typingDots {
+      0%, 20% { content: ''; }
+      40% { content: '.'; }
+      60% { content: '..'; }
+      80%, 100% { content: '...'; }
+    }
   </style>
 </head>
 <body>
   <!-- Boot screen -->
   <div class="boot-screen" id="boot-screen">
-    <div class="boot-text">COGITRON TERMINAL v2.1</div>
+    <div class="boot-text">COGITRON TERMINAL v2.5</div>
     <div class="boot-text">Initializing neural pathways...</div>
     <div class="boot-text">Loading consciousness matrix...</div>
     <div class="boot-text">Ready to think <span class="cursor-blink">█</span></div>
   </div>
 
-  <div id="chat-container"></div>
+  <div id="terminal-container">
+    <div id="terminal-output"></div>
+  </div>
 
   <div class="input-container">
     <input type="text" id="user-input" placeholder="Share your thoughts..." autofocus />
@@ -466,7 +454,8 @@
   </div>
 
 <script>
-  const chatContainer = document.getElementById("chat-container");
+  // DOM elements
+  const terminalOutput = document.getElementById("terminal-output");
   const userInput = document.getElementById("user-input");
   const sendBtn = document.getElementById("send-btn");
   const homeBtn = document.getElementById("homeBtn");
@@ -476,10 +465,17 @@
 
   // Game state
   let conversationHistory = [];
+  let commandHistory = [];
+  let commandHistoryIndex = -1;
   let curiosityScore = 0;
   let totalInteractions = 0;
-  let isTyping = false;
+  let isProcessing = false;
   let randomThoughtTimer;
+  let currentTypingAnimation = null;
+
+  // Virtual buffer for performance (only keep recent lines in DOM)
+  const MAX_VISIBLE_LINES = 100;
+  const terminalLines = [];
 
   // Enhanced responses with categories
   const responses = {
@@ -580,8 +576,8 @@
       question: "If you could know the date of your death, would you want to know?",
       options: ["Yes", "No", "Maybe"],
       responses: {
-        "Yes": "Interesting! You value preparation over uncertainty. Would this knowledge free you or paralyze you?",
-        "No": "Ah, you prefer mystery to certainty. Is ignorance sometimes wisdom?",
+        "Yes": "You value preparation over uncertainty. Would this knowledge free you or paralyze you?",
+        "No": "You prefer mystery to certainty. Is ignorance sometimes wisdom?",
         "Maybe": "The philosopher's answer! Context matters. When might knowing be worth it?"
       }
     },
@@ -596,153 +592,130 @@
     }
   ];
 
-  // Sound effects (using Web Audio API for retro beeps)
+  // Sound effects using Web Audio API
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-  function playBeep(frequency = 800, duration = 100) {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = frequency;
-    oscillator.type = 'square';
-    
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration / 1000);
+  function playBeep(frequency = 800, duration = 100, volume = 0.1) {
+    try {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'square';
+      
+      gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + duration / 1000);
+    } catch (e) {
+      // Silently fail if audio context is not available
+    }
   }
 
-  // Smooth scroll function using requestAnimationFrame
-  function scrollToBottom() {
+  // Smooth scrolling using requestAnimationFrame
+  function smoothScrollToBottom() {
     requestAnimationFrame(() => {
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+      terminalOutput.scrollTop = terminalOutput.scrollHeight;
     });
   }
 
-  function addMessage(text, sender, typing = false, icon = null) {
-    const msg = document.createElement("div");
-    msg.classList.add("message", sender);
-    
-    const iconEl = document.createElement("div");
-    iconEl.classList.add("message-icon");
-    iconEl.textContent = icon || (sender === "user" ? "👤" : "🤖");
-    
-    const contentEl = document.createElement("div");
-    contentEl.classList.add("message-content");
-    
-    msg.appendChild(iconEl);
-    msg.appendChild(contentEl);
-    chatContainer.appendChild(msg);
-    
-    // Initial scroll to bottom
-    scrollToBottom();
+  // Virtual buffer management
+  function manageVirtualBuffer() {
+    if (terminalLines.length > MAX_VISIBLE_LINES) {
+      const excessLines = terminalLines.length - MAX_VISIBLE_LINES;
+      for (let i = 0; i < excessLines; i++) {
+        const line = terminalLines.shift();
+        if (line && line.element && line.element.parentNode) {
+          line.element.parentNode.removeChild(line.element);
+        }
+      }
+    }
+  }
 
-    if (typing && sender === "bot") {
-      // Variable typing speed for more human feel
-      const baseSpeed = 20;
-      const variation = Math.random() * 30;
-      const typingSpeed = baseSpeed + variation;
+  // Enhanced terminal line creation with smooth fade-in
+  function addTerminalLine(text, className = 'line-output', typewriter = false) {
+    return new Promise((resolve) => {
+      const lineEl = document.createElement('div');
+      lineEl.className = `terminal-line ${className}`;
       
-      let i = 0;
-      const interval = setInterval(() => {
-        contentEl.textContent = text.substring(0, i++);
-        
-        // Random pauses for punctuation
-        if (text[i-1] && ".,!?;:".includes(text[i-1])) {
-          clearInterval(interval);
-          setTimeout(() => {
-            const newInterval = setInterval(() => {
-              contentEl.textContent = text.substring(0, i++);
-              
-              if (i > text.length) {
-                clearInterval(newInterval);
-                // Only scroll after typing is complete
-                scrollToBottom();
-                addMessageReactions(msg, sender);
-                
-                // Random glitch effect
-                if (Math.random() < 0.3) {
-                  msg.classList.add('glitch');
-                  setTimeout(() => msg.classList.remove('glitch'), 300);
-                }
-              }
-            }, typingSpeed);
-          }, Math.random() * 300 + 100);
-          return;
+      // Store line info for virtual buffer
+      const lineInfo = {
+        element: lineEl,
+        text: text,
+        className: className
+      };
+      
+      terminalLines.push(lineInfo);
+      terminalOutput.appendChild(lineEl);
+      
+      // Manage buffer size
+      manageVirtualBuffer();
+      
+      if (typewriter && text.length > 0) {
+        // Cancel any existing typing animation
+        if (currentTypingAnimation) {
+          clearTimeout(currentTypingAnimation);
         }
         
-        if (i > text.length) {
-          clearInterval(interval);
-          // Only scroll after typing is complete
-          scrollToBottom();
-          addMessageReactions(msg, sender);
-          
-          // Random glitch effect
-          if (Math.random() < 0.3) {
-            msg.classList.add('glitch');
-            setTimeout(() => msg.classList.remove('glitch'), 300);
+        lineEl.style.opacity = '1'; // Show immediately
+        let i = 0;
+        
+        function typeNextChar() {
+          if (i < text.length) {
+            lineEl.textContent = text.substring(0, i + 1);
+            i++;
+            
+            // Variable typing speed for realism
+            const baseDelay = 15;
+            const randomDelay = Math.random() * 20;
+            let delay = baseDelay + randomDelay;
+            
+            // Longer pause after punctuation
+            if (i > 0 && '.,!?;:'.includes(text[i-1])) {
+              delay += Math.random() * 200 + 50;
+            }
+            
+            currentTypingAnimation = setTimeout(typeNextChar, delay);
+          } else {
+            currentTypingAnimation = null;
+            // Scroll only after typing is complete
+            smoothScrollToBottom();
+            resolve();
           }
         }
-      }, typingSpeed);
+        
+        typeNextChar();
+      } else {
+        lineEl.textContent = text;
+        // Immediate scroll for non-typewriter text
+        smoothScrollToBottom();
+        resolve();
+      }
+    });
+  }
+
+  // Command history navigation
+  function navigateCommandHistory(direction) {
+    if (commandHistory.length === 0) return;
+    
+    if (direction === 'up') {
+      commandHistoryIndex = Math.min(commandHistoryIndex + 1, commandHistory.length - 1);
+    } else if (direction === 'down') {
+      commandHistoryIndex = Math.max(commandHistoryIndex - 1, -1);
+    }
+    
+    if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.length) {
+      userInput.value = commandHistory[commandHistory.length - 1 - commandHistoryIndex];
     } else {
-      contentEl.textContent = text;
-      addMessageReactions(msg, sender);
-    }
-
-    return msg;
-  }
-
-  function addMessageReactions(messageEl, sender) {
-    if (sender === "bot") {
-      const reactions = document.createElement("div");
-      reactions.classList.add("message-reactions");
-      
-      const reactionOptions = ["🤔", "💭", "⚡", "🔥", "🎯", "✨"];
-      
-      reactionOptions.slice(0, 3).forEach(emoji => {
-        const btn = document.createElement("button");
-        btn.classList.add("reaction-btn");
-        btn.textContent = emoji;
-        btn.onclick = () => {
-          btn.classList.toggle("active");
-          playBeep(600, 50);
-          
-          if (btn.classList.contains("active")) {
-            curiosityScore = Math.min(curiosityScore + 0.2, 10);
-            updateCuriosityScore();
-          }
-        };
-        reactions.appendChild(btn);
-      });
-      
-      messageEl.appendChild(reactions);
+      userInput.value = '';
     }
   }
 
-  function showTypingIndicator() {
-    const typingMsg = document.createElement("div");
-    typingMsg.classList.add("message", "bot", "typing");
-    
-    const iconEl = document.createElement("div");
-    iconEl.classList.add("message-icon");
-    iconEl.textContent = "🤖";
-    
-    const contentEl = document.createElement("div");
-    contentEl.classList.add("message-content");
-    contentEl.textContent = "Cogitron is processing...";
-    
-    typingMsg.appendChild(iconEl);
-    typingMsg.appendChild(contentEl);
-    chatContainer.appendChild(typingMsg);
-    scrollToBottom();
-    
-    return typingMsg;
-  }
-
+  // Enhanced bot response system
   function getBotReply(input) {
     input = input.toLowerCase();
     totalInteractions++;
@@ -758,24 +731,13 @@
         const quizIndex = conversationHistory.findIndex(item => item.quiz);
         if (quizIndex !== -1) conversationHistory.splice(quizIndex, 1);
         
-        const response = quiz.responses[matchedOption];
-        
-        // After answering, ask another philosophical question with options
-        setTimeout(() => {
-          if (!isTyping) {
-            const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-            conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
-            
-            const typingIndicator = showTypingIndicator();
-            setTimeout(() => {
-              chatContainer.removeChild(typingIndicator);
-              const followUpText = `${followUpQuiz.question}\n\nChoose: ${followUpQuiz.options.join(" | ")}`;
-              addMessage(followUpText, "bot", true);
-            }, 800);
+        return {
+          text: quiz.responses[matchedOption],
+          type: 'system',
+          followUp: () => {
+            setTimeout(() => askFollowUpQuestion(), 2000);
           }
-        }, response.length * 25 + 1000); // Wait for current response to finish
-        
-        return response;
+        };
       }
     }
     
@@ -786,139 +748,231 @@
 
     if (lastMessage && input.includes("yes")) {
       curiosityScore += 0.5;
-      const response = `Fascinating! Your agreement on '${lastMessage.substring(0, 30)}...' opens new questions. What convinced you?`;
-      
-      // Ask a follow-up question after contextual response
-      setTimeout(() => {
-        if (!isTyping) {
-          const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-          conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
-          
-          const typingIndicator = showTypingIndicator();
-          setTimeout(() => {
-            chatContainer.removeChild(typingIndicator);
-            const followUpText = `Here's another question: ${followUpQuiz.question}\n\nChoose: ${followUpQuiz.options.join(" | ")}`;
-            addMessage(followUpText, "bot", true);
-          }, 1200);
+      return {
+        text: `Your agreement opens new questions. What convinced you about "${lastMessage.substring(0, 30)}..."?`,
+        type: 'system',
+        followUp: () => {
+          setTimeout(() => askFollowUpQuestion(), 2500);
         }
-      }, response.length * 25 + 1500);
-      
-      return response;
+      };
     }
     
     if (lastMessage && input.includes("no")) {
       curiosityScore += 0.5;
-      const response = `Intriguing disagreement! You rejected '${lastMessage.substring(0, 30)}...' - what's your alternative view?`;
-      
-      // Ask a follow-up question after contextual response
-      setTimeout(() => {
-        if (!isTyping) {
-          const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-          conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
-          
-          const typingIndicator = showTypingIndicator();
-          setTimeout(() => {
-            chatContainer.removeChild(typingIndicator);
-            const followUpText = `Let me pose this: ${followUpQuiz.question}\n\nChoose: ${followUpQuiz.options.join(" | ")}`;
-            addMessage(followUpText, "bot", true);
-          }, 1200);
+      return {
+        text: `Intriguing disagreement! You rejected "${lastMessage.substring(0, 30)}..." - what's your alternative view?`,
+        type: 'system',
+        followUp: () => {
+          setTimeout(() => askFollowUpQuestion(), 2500);
         }
-      }, response.length * 25 + 1500);
-      
-      return response;
+      };
     }
 
-    // Category matching with enhanced responses followed by questions
+    // Category matching
     for (let category in responses) {
       if (input.includes(category)) {
         curiosityScore += 0.8;
         const categoryResponses = responses[category];
         const response = categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
         
-        // Follow up with a related question
-        setTimeout(() => {
-          if (!isTyping) {
-            const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-            conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
-            
-            const typingIndicator = showTypingIndicator();
-            setTimeout(() => {
-              chatContainer.removeChild(typingIndicator);
-              const followUpText = `This reminds me: ${followUpQuiz.question}\n\nOptions: ${followUpQuiz.options.join(" | ")}`;
-              addMessage(followUpText, "bot", true);
-            }, 1000);
+        return {
+          text: response,
+          type: 'system',
+          followUp: () => {
+            setTimeout(() => askFollowUpQuestion(), 3000);
           }
-        }, response.length * 25 + 1500);
-        
-        return response;
+        };
       }
     }
 
-    // Special triggers for advanced interactions
+    // Special triggers
     if (input.includes("quiz") || input.includes("question")) {
       const quiz = quizzes[Math.floor(Math.random() * quizzes.length)];
       conversationHistory.push({ quiz: quiz, user: input, bot: quiz.question });
       curiosityScore += 1;
       
-      setTimeout(() => {
-        chatContainer.classList.add('screen-shake');
-        setTimeout(() => chatContainer.classList.remove('screen-shake'), 500);
-      }, 1000);
-      
-      return `${quiz.question}\n\nChoose your answer: ${quiz.options.join(" | ")}`;
+      return {
+        text: `${quiz.question}\n\nChoose your answer: ${quiz.options.join(" | ")}`,
+        type: 'info'
+      };
     }
 
     if (input.includes("experiment")) {
       curiosityScore += 1;
       const response = experiments[Math.floor(Math.random() * experiments.length)];
       
-      // Follow up experiment with a question
-      setTimeout(() => {
-        if (!isTyping) {
-          const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-          conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
-          
-          const typingIndicator = showTypingIndicator();
-          setTimeout(() => {
-            chatContainer.removeChild(typingIndicator);
-            const followUpText = `Now consider: ${followUpQuiz.question}\n\nYour choice: ${followUpQuiz.options.join(" | ")}`;
-            addMessage(followUpText, "bot", true);
-          }, 1500);
+      return {
+        text: response,
+        type: 'warning',
+        followUp: () => {
+          setTimeout(() => askFollowUpQuestion(), 4000);
         }
-      }, response.length * 25 + 2000);
-      
-      return response;
+      };
     }
 
-    // Default philosophical responses with follow-up questions
+    // Fast commands for instant response
+    const fastCommands = {
+      'help': {
+        text: "Available commands: consciousness, ai, paradox, logic, ethics, society, meaning, death, science, technology, quiz, experiment, joke",
+        type: 'info'
+      },
+      'clear': {
+        text: "Terminal cleared.",
+        type: 'success',
+        action: () => {
+          setTimeout(() => {
+            terminalOutput.innerHTML = '';
+            terminalLines.length = 0;
+          }, 500);
+        }
+      },
+      'status': {
+        text: `Curiosity Score: ${Math.floor(curiosityScore)}/10 | Interactions: ${totalInteractions} | Status: Online`,
+        type: 'info'
+      },
+      'random': {
+        text: getRandomThought(),
+        type: 'system'
+      }
+    };
+
+    if (fastCommands[input]) {
+      const cmd = fastCommands[input];
+      if (cmd.action) cmd.action();
+      return cmd;
+    }
+
+    // Default responses
     const defaults = [
-      "That's a profound observation. Can you dig deeper?",
-      "Interesting perspective! What led you to that conclusion?",
-      "Hmm... that reminds me of an ancient paradox. Care to explore it?",
-      "You've touched on something fundamental. What questions does this raise?",
-      "Every statement contains its own contradictions. Do you see them?",
-      "That thought could reshape reality. Or is reality reshaping your thoughts?"
+      { text: "That's profound. Can you dig deeper?", type: 'output' },
+      { text: "What led you to that conclusion?", type: 'output' },
+      { text: "That reminds me of an ancient paradox. Care to explore it?", type: 'system' },
+      { text: "What questions does this raise for you?", type: 'output' },
+      { text: "Every statement contains contradictions. Do you see them?", type: 'warning' },
+      { text: "Could reality be reshaping your thoughts?", type: 'system' }
     ];
 
     curiosityScore += 0.3;
     const response = defaults[Math.floor(Math.random() * defaults.length)];
     
-    // Even default responses get follow-up questions
-    setTimeout(() => {
-      if (!isTyping) {
-        const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-        conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
-        
-        const typingIndicator = showTypingIndicator();
-        setTimeout(() => {
-          chatContainer.removeChild(typingIndicator);
-          const followUpText = `Speaking of which: ${followUpQuiz.question}\n\nWhat's your take: ${followUpQuiz.options.join(" | ")}`;
-          addMessage(followUpText, "bot", true);
-        }, 2000);
+    return {
+      ...response,
+      followUp: () => {
+        setTimeout(() => askFollowUpQuestion(), 3500);
       }
-    }, response.length * 25 + 2000);
+    };
+  }
+
+  function askFollowUpQuestion() {
+    if (!isProcessing) {
+      const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+      conversationHistory.push({ quiz: followUpQuiz, user: '', bot: followUpQuiz.question });
+      
+      showTypingIndicator();
+      setTimeout(async () => {
+        hideTypingIndicator();
+        await addTerminalLine(`🤖 ${followUpQuiz.question}`, 'line-system', true);
+        await addTerminalLine(`   Options: ${followUpQuiz.options.join(" | ")}`, 'line-info', true);
+      }, 1000);
+    }
+  }
+
+  function getRandomThought() {
+    const thoughts = [
+      "What if time is just how consciousness experiences entropy?",
+      "Every conversation changes both participants forever.",
+      "Why do humans seek meaning in chaos?",
+      "If free will is an illusion, who's being deceived?",
+      "Consciousness might be the universe debugging itself.",
+      "Perhaps loneliness is just cosmic homesickness."
+    ];
+    return thoughts[Math.floor(Math.random() * thoughts.length)];
+  }
+
+  // Typing indicator functions
+  function showTypingIndicator() {
+    const typingEl = document.createElement('div');
+    typingEl.className = 'terminal-line line-system';
+    typingEl.id = 'typing-indicator';
+    typingEl.innerHTML = '🤖 <span class="typing-dots">Cogitron is thinking</span>';
     
-    return response;
+    terminalOutput.appendChild(typingEl);
+    smoothScrollToBottom();
+  }
+
+  function hideTypingIndicator() {
+    const typingEl = document.getElementById('typing-indicator');
+    if (typingEl) {
+      typingEl.remove();
+    }
+  }
+
+  // Enhanced message processing
+  async function processUserInput(text) {
+    if (isProcessing) return;
+    
+    isProcessing = true;
+    sendBtn.disabled = true;
+    
+    // Add command to history
+    if (text.trim() && !commandHistory.includes(text)) {
+      commandHistory.push(text);
+      if (commandHistory.length > 50) commandHistory.shift();
+    }
+    commandHistoryIndex = -1;
+    
+    playBeep(400, 100);
+    
+    // Display user input
+    await addTerminalLine(`👤 ${text}`, 'line-user');
+    
+    clearTimeout(randomThoughtTimer);
+    
+    // Get bot response
+    const response = getBotReply(text);
+    
+    // Show typing indicator for slower responses
+    if (response.type !== 'success' && text !== 'clear') {
+      showTypingIndicator();
+      
+      // Variable response time for realism
+      const responseDelay = response.text.length > 50 ? 1500 : 800;
+      
+      setTimeout(async () => {
+        hideTypingIndicator();
+        playBeep(600, 80);
+        
+        // Display response with appropriate color
+        const colorClass = `line-${response.type || 'output'}`;
+        await addTerminalLine(`🤖 ${response.text}`, colorClass, true);
+        
+        // Save to conversation history
+        conversationHistory.push({ user: text, bot: response.text });
+        if (conversationHistory.length > 10) conversationHistory.shift();
+        
+        updateCuriosityScore();
+        
+        // Execute follow-up if exists
+        if (response.followUp) {
+          response.followUp();
+        }
+        
+        isProcessing = false;
+        sendBtn.disabled = false;
+        
+        // Schedule random thoughts
+        scheduleRandomThought();
+        
+      }, responseDelay);
+    } else {
+      // Fast response for quick commands
+      playBeep(600, 80);
+      const colorClass = `line-${response.type || 'output'}`;
+      await addTerminalLine(`🤖 ${response.text}`, colorClass, false);
+      
+      isProcessing = false;
+      sendBtn.disabled = false;
+    }
   }
 
   function updateCuriosityScore() {
@@ -936,90 +990,15 @@
     }
   }
 
-  function handleSend() {
-    if (isTyping) return;
-    
-    const text = userInput.value.trim();
-    if (!text) return;
-
-    isTyping = true;
-    sendBtn.disabled = true;
-    
-    playBeep(400, 100);
-    addMessage(text, "user");
-    userInput.value = "";
-
-    clearTimeout(randomThoughtTimer);
-    
-    const typingIndicator = showTypingIndicator();
-    
-    // Variable response time for realism
-    const responseDelay = 1200 + Math.random() * 800;
-
-    setTimeout(() => {
-      // Clear typing sound when removing indicator
-      if (typingIndicator.typingSoundInterval) {
-        clearInterval(typingIndicator.typingSoundInterval);
-      }
-      chatContainer.removeChild(typingIndicator);
-      
-      const reply = getBotReply(text);
-      
-      playBeep(600, 80);
-      
-      // Handle both string and object responses
-      let responseText, followUpText = null;
-      
-      if (typeof reply === 'object' && reply.text) {
-        responseText = reply.text;
-        if (reply.question && reply.options) {
-          followUpText = `\n\n${reply.question}\nChoose: ${reply.options.join(" | ")}`;
-        }
-      } else {
-        responseText = reply;
-      }
-      
-      // Add the main response with follow-up if it exists
-      const fullResponse = responseText + (followUpText || "");
-      addMessage(fullResponse, "bot", true);
-      
-      // Save to memory after message is displayed
-      setTimeout(() => {
-        conversationHistory.push({ user: text, bot: fullResponse });
-        if (conversationHistory.length > 8) conversationHistory.shift();
-        
-        updateCuriosityScore();
-        
-        isTyping = false;
-        sendBtn.disabled = false;
-        
-        // Schedule next random thought only after current interaction is complete
-        scheduleRandomThought();
-      }, fullResponse.length * 25 + 500);
-      
-    }, responseDelay);
-  }
-
   function scheduleRandomThought() {
     clearTimeout(randomThoughtTimer);
     
-    // Random thought every 30-90 seconds if user is idle and not typing
-    const delay = (30 + Math.random() * 60) * 1000;
+    // Random thought every 45-120 seconds if idle
+    const delay = (45 + Math.random() * 75) * 1000;
     
-    randomThoughtTimer = setTimeout(() => {
-      if (!isTyping && conversationHistory.length > 0) {
-        const thoughts = [
-          "🌌 Random neural firing: What if time is just how consciousness experiences entropy?",
-          "💭 Spontaneous thought: Every conversation changes both participants forever.",
-          "⚡ Processing anomaly detected: Why do humans seek meaning in chaos?",
-          "🔮 Background process: If free will is an illusion, who's being deceived?",
-          "🧠 Memory fragment surfaced: Consciousness might be the universe debugging itself.",
-          "✨ Quantum thought bubble: Perhaps loneliness is just cosmic homesickness."
-        ];
-        
-        const randomThought = thoughts[Math.floor(Math.random() * thoughts.length)];
-        addMessage(randomThought, "bot", true, "💫");
-        
+    randomThoughtTimer = setTimeout(async () => {
+      if (!isProcessing && conversationHistory.length > 0) {
+        await addTerminalLine(`💫 Neural spark: ${getRandomThought()}`, 'line-warning', true);
         scheduleRandomThought();
       }
     }, delay);
@@ -1040,107 +1019,82 @@
     });
   }
 
-  // Initialize
+  // Initialize system
   window.addEventListener("DOMContentLoaded", async () => {
     await bootSequence();
     
-    // Initial Cogitron message
-    setTimeout(() => {
-      const typingIndicator = showTypingIndicator();
-      setTimeout(() => {
-        chatContainer.removeChild(typingIndicator);
-        addMessage("Neural pathways initialized. I am Cogitron - part philosopher, part digital entity, wholly curious about existence.", "bot", true);
-        
-        // Instructions after a brief pause
-        setTimeout(() => {
-          const typingIndicator2 = showTypingIndicator();
-          setTimeout(() => {
-            chatContainer.removeChild(typingIndicator2);
-            addMessage("• Type keywords like \"consciousness\", \"ai\", \"paradox\" for themed responses", "bot", true);
-            
-            setTimeout(() => {
-              const typingIndicator3 = showTypingIndicator();
-              setTimeout(() => {
-                chatContainer.removeChild(typingIndicator3);
-                addMessage("• Ask for \"quiz\" to get interactive philosophical questions", "bot", true);
-                
-                setTimeout(() => {
-                  const typingIndicator4 = showTypingIndicator();
-                  setTimeout(() => {
-                    chatContainer.removeChild(typingIndicator4);
-                    addMessage("• Request \"experiment\" for thought-provoking scenarios", "bot", true);
-                    
-                    setTimeout(() => {
-                      const typingIndicator5 = showTypingIndicator();
-                      setTimeout(() => {
-                        chatContainer.removeChild(typingIndicator5);
-                        addMessage("• React to messages with emoji buttons to boost your curiosity score", "bot", true);
-                        
-                        setTimeout(() => {
-                          const typingIndicator6 = showTypingIndicator();
-                          setTimeout(() => {
-                            chatContainer.removeChild(typingIndicator6);
-                            addMessage("• Watch for random thoughts - I occasionally share spontaneous insights", "bot", true);
-                            
-                            setTimeout(() => {
-                              const typingIndicator7 = showTypingIndicator();
-                              setTimeout(() => {
-                                chatContainer.removeChild(typingIndicator7);
-                                addMessage("What thoughts shall we explore first?", "bot", true);
-                                
-                                // Stop here - let user initiate conversation
-                                scheduleRandomThought();
-                              }, 800);
-                            }, 1000);
-                          }, 800);
-                        }, 1000);
-                      }, 800);
-                    }, 1000);
-                  }, 800);
-                }, 1000);
-              }, 800);
-            }, 1000);
-          }, 1200);
-        }, 2500);
-      }, 1200);
+    // Initial system messages
+    setTimeout(async () => {
+      await addTerminalLine("COGITRON TERMINAL v2.5 - Neural pathways initialized", 'line-success', true);
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      await addTerminalLine("🤖 I am Cogitron - part philosopher, part digital entity, wholly curious about existence.", 'line-system', true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      await addTerminalLine("Available interactions:", 'line-info', true);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await addTerminalLine("• Type keywords: consciousness, ai, paradox, logic, ethics, meaning", 'line-info', true);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await addTerminalLine("• Commands: quiz, experiment, help, clear, status, random", 'line-info', true);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await addTerminalLine("• Use ↑↓ arrow keys for command history", 'line-info', true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      await addTerminalLine("What thoughts shall we explore first?", 'line-system', true);
+      
+      scheduleRandomThought();
     }, 500);
   });
 
-  // Handle mobile keyboard viewport changes
-  function handleViewportChange() {
-    // Force scroll to bottom when keyboard appears/disappears
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100);
-  }
-
   // Event listeners
-  sendBtn.addEventListener("click", handleSend);
+  sendBtn.addEventListener("click", () => {
+    const text = userInput.value.trim();
+    if (!text) return;
+    
+    userInput.value = "";
+    processUserInput(text);
+  });
   
-  userInput.addEventListener("keypress", e => {
+  userInput.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      const text = userInput.value.trim();
+      if (!text) return;
+      
+      userInput.value = "";
+      processUserInput(text);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      navigateCommandHistory('up');
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      navigateCommandHistory('down');
     }
   });
 
-  // Home button event listener
+  // Home button
   homeBtn.addEventListener("click", () => {
     playBeep(500, 100);
     window.location.href = "index.html";
   });
 
-  // Mobile keyboard handling
+  // Mobile optimizations
+  function handleViewportChange() {
+    setTimeout(() => {
+      smoothScrollToBottom();
+    }, 100);
+  }
+
   window.addEventListener('resize', handleViewportChange);
   window.addEventListener('orientationchange', () => {
     setTimeout(handleViewportChange, 500);
   });
 
-  // Focus handling for mobile
   userInput.addEventListener('focus', () => {
-    setTimeout(() => {
-      scrollToBottom();
-    }, 300);
+    setTimeout(smoothScrollToBottom, 300);
   });
 
   // Audio context activation for mobile
@@ -1154,7 +1108,3 @@
   document.addEventListener('gesturestart', function (e) {
     e.preventDefault();
   });
-
-</script>
-</body>
-</html>
