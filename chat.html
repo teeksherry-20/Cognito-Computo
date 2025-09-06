@@ -60,7 +60,7 @@
       border-radius: 8px;
       padding: 10px;
       margin: 8px;
-      margin-bottom: 120px; /* Space for fixed bottom elements */
+      margin-bottom: 80px; /* Space for fixed bottom elements */
       overflow-y: auto;
       font-family: 'Press Start 2P', monospace;
       font-size: 11px;
@@ -189,112 +189,6 @@
       z-index: 100;
     }
 
-    /* Rank title display */
-    .rank-title {
-      background: rgba(255, 0, 124, 0.1);
-      border: 1px solid #ff007c;
-      border-radius: 6px;
-      padding: 6px 10px;
-      margin-bottom: 8px;
-      text-align: center;
-      font-size: 8px;
-      color: #ff007c;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* Milestone glow effect */
-    .milestone-glow {
-      animation: milestoneGlow 2s ease-in-out;
-      box-shadow: 0 0 20px #ff007c;
-    }
-
-    @keyframes milestoneGlow {
-      0% { box-shadow: 0 0 5px #ff007c; }
-      50% { box-shadow: 0 0 30px #ff007c, 0 0 40px #00ffea; }
-      100% { box-shadow: 0 0 5px #ff007c; }
-    }
-
-    /* Session summary modal */
-    .summary-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-
-    .summary-modal.show {
-      opacity: 1;
-    }
-
-    .summary-content {
-      background: #111;
-      border: 2px solid #ff007c;
-      border-radius: 12px;
-      padding: 20px;
-      max-width: 80%;
-      text-align: center;
-      font-family: 'Press Start 2P', monospace;
-      color: #fff;
-      animation: summaryAppear 0.8s ease-out;
-    }
-
-    @keyframes summaryAppear {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .summary-title {
-      color: #ff007c;
-      font-size: 12px;
-      margin-bottom: 15px;
-      text-transform: uppercase;
-    }
-
-    .summary-stat {
-      margin: 10px 0;
-      font-size: 9px;
-      line-height: 1.6;
-    }
-
-    .summary-highlight {
-      color: #00ffea;
-      font-weight: bold;
-    }
-
-    .summary-buttons {
-      margin-top: 20px;
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .summary-btn {
-      background: rgba(255, 0, 124, 0.2);
-      border: 2px solid #ff007c;
-      border-radius: 8px;
-      padding: 10px 15px;
-      font-size: 8px;
-      color: #ff007c;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: 'Press Start 2P', monospace;
-    }
-
-    .summary-btn:hover {
-      background: rgba(255, 0, 124, 0.4);
-      transform: translateY(-1px);
-    }
-
     /* Curiosity meter */
     .curiosity-meter {
       background: rgba(17, 17, 17, 0.9);
@@ -381,7 +275,7 @@
       #chat-container {
         margin: 4px;
         font-size: 10px;
-        margin-bottom: 140px; /* More space for mobile bottom interface */
+        margin-bottom: 120px; /* More space for mobile bottom interface */
       }
       
       .message {
@@ -410,11 +304,6 @@
       .meter-label, .meter-score {
         font-size: 7px;
       }
-
-      .summary-content {
-        max-width: 95%;
-        padding: 15px;
-      }
     }
   </style>
 </head>
@@ -433,8 +322,7 @@
   <div id="chat-container"></div>
 
   <div class="bottom-interface">
-    <div class="rank-title" id="rank-title">NOVICE THINKER</div>
-    <div class="curiosity-meter" id="curiosity-meter">
+    <div class="curiosity-meter">
       <div class="meter-label">CURIOSITY:</div>
       <div class="meter-bar">
         <div class="meter-fill" id="curiosity-fill"></div>
@@ -453,23 +341,6 @@
     </div>
   </div>
 
-  <!-- Session Summary Modal -->
-  <div class="summary-modal" id="summary-modal">
-    <div class="summary-content">
-      <div class="summary-title">Philosophical Journey Complete</div>
-      <div class="summary-stat">Final Curiosity Score: <span class="summary-highlight" id="final-score">0</span></div>
-      <div class="summary-stat">Rank Achieved: <span class="summary-highlight" id="final-rank">Novice Thinker</span></div>
-      <div class="summary-stat">Questions Explored: <span class="summary-highlight" id="questions-count">0</span></div>
-      <div class="summary-stat" id="path-highlights">Path Highlights: <span class="summary-highlight">Beginning exploration</span></div>
-      <div class="summary-stat" id="achievement-note"></div>
-      <div class="summary-buttons">
-        <button class="summary-btn" onclick="continueCognition()">Continue Exploration</button>
-        <button class="summary-btn" onclick="resetSession()">New Journey</button>
-        <button class="summary-btn" onclick="closeSummary()">Close</button>
-      </div>
-    </div>
-  </div>
-
 <script>
   const chatContainer = document.getElementById("chat-container");
   const resetBtn = document.getElementById("reset-btn");
@@ -478,11 +349,8 @@
   const statusTextEl = document.getElementById("status-text");
   const curiosityFill = document.getElementById("curiosity-fill");
   const curiosityScoreEl = document.getElementById("curiosity-score");
-  const curiosityMeter = document.getElementById("curiosity-meter");
-  const rankTitleEl = document.getElementById("rank-title");
-  const summaryModal = document.getElementById("summary-modal");
 
-  // Enhanced MCQ-only terminal flow with extended conversation paths
+  // Enhanced MCQ-only terminal flow with curiosity scoring
   const terminalFlow = [
     {
       id: "start",
@@ -497,17 +365,17 @@
       }
     },
 
-    // Philosophy Branch - Extended Consciousness Discussion
+    // Philosophy Branch
     {
       id: "philosophy_start",
       question: "The mind - reality's greatest puzzle. Which philosophical question fascinates you most?",
-      options: ["What is consciousness?", "Do we have free will?", "What defines personal identity?", "The nature of time"],
-      curiosity: {"What is consciousness?": 15, "Do we have free will?": 12, "What defines personal identity?": 10, "The nature of time": 14},
+      options: ["What is consciousness?", "Do we have free will?", "What defines personal identity?", "← Return to main menu"],
+      curiosity: {"What is consciousness?": 15, "Do we have free will?": 12, "What defines personal identity?": 10, "← Return to main menu": -5},
       next: {
         "What is consciousness?": "consciousness_nature",
         "Do we have free will?": "free_will_question",
         "What defines personal identity?": "identity_question",
-        "The nature of time": "time_question"
+        "← Return to main menu": "start"
       }
     },
 
@@ -527,82 +395,29 @@
     {
       id: "physicalist_view",
       question: "If mind equals brain, why does red look red to you instead of feeling like a number? How do you explain qualia?",
-      options: ["Qualia don't exist", "They're computational patterns", "Evolution created them", "Illusions of introspection"],
-      curiosity: {"Qualia don't exist": 10, "They're computational patterns": 15, "Evolution created them": 12, "Illusions of introspection": 18},
+      options: ["Qualia don't exist", "They're computational patterns", "Evolution created them", "Back to consciousness"],
+      curiosity: {"Qualia don't exist": 10, "They're computational patterns": 15, "Evolution created them": 12, "Back to consciousness": -3},
       next: {
         "Qualia don't exist": "eliminativism",
         "They're computational patterns": "computational_mind",
         "Evolution created them": "evolutionary_consciousness",
-        "Illusions of introspection": "introspective_illusion"
+        "Back to consciousness": "consciousness_nature"
       }
     },
 
     {
       id: "eliminativism",
       question: "Eliminativism suggests qualia are illusions - there's nothing it's like to see red. But doesn't this deny your direct experience?",
-      options: ["Yes, experience is real", "No, science trumps intuition", "Both can be true", "Experience misleads us"],
-      curiosity: {"Yes, experience is real": 8, "No, science trumps intuition": 15, "Both can be true": 18, "Experience misleads us": 20},
+      options: ["Yes, experience is real", "No, science trumps intuition", "Both can be true", "Return to mind questions"],
+      curiosity: {"Yes, experience is real": 8, "No, science trumps intuition": 15, "Both can be true": 18, "Return to mind questions": -2},
       next: {
         "Yes, experience is real": "experience_primacy",
         "No, science trumps intuition": "scientific_materialism",
         "Both can be true": "mystery_acceptance",
-        "Experience misleads us": "phenomenological_skepticism"
+        "Return to mind questions": "philosophy_start"
       }
     },
 
-    {
-      id: "computational_mind",
-      question: "If qualia are computational patterns, could a sufficiently advanced computer experience the redness of red?",
-      options: ["Yes, substrate doesn't matter", "No, biology is special", "Only silicon-based minds", "Depends on the algorithm"],
-      curiosity: {"Yes, substrate doesn't matter": 20, "No, biology is special": 12, "Only silicon-based minds": 15, "Depends on the algorithm": 25},
-      next: {
-        "Yes, substrate doesn't matter": "substrate_independence",
-        "No, biology is special": "biological_consciousness",
-        "Only silicon-based minds": "silicon_consciousness",
-        "Depends on the algorithm": "algorithmic_consciousness"
-      }
-    },
-
-    {
-      id: "algorithmic_consciousness",
-      question: "If consciousness depends on algorithms, what kind of algorithm could generate subjective experience?",
-      options: ["Self-modeling algorithms", "Integrated information", "Recursive processing", "Global workspace theory"],
-      curiosity: {"Self-modeling algorithms": 18, "Integrated information": 20, "Recursive processing": 15, "Global workspace theory": 16},
-      next: {
-        "Self-modeling algorithms": "self_model_consciousness",
-        "Integrated information": "iit_theory",
-        "Recursive processing": "recursive_awareness",
-        "Global workspace theory": "global_workspace"
-      }
-    },
-
-    {
-      id: "dualist_view",
-      question: "If mind is beyond physical, how does this non-physical consciousness interact with your physical brain?",
-      options: ["Quantum interactions", "Emergent causation", "Parallel processing", "It's a mystery"],
-      curiosity: {"Quantum interactions": 15, "Emergent causation": 18, "Parallel processing": 12, "It's a mystery": 22},
-      next: {
-        "Quantum interactions": "quantum_consciousness",
-        "Emergent causation": "emergence_causation",
-        "Parallel processing": "psychophysical_parallelism",
-        "It's a mystery": "hard_problem_mystery"
-      }
-    },
-
-    {
-      id: "quantum_consciousness",
-      question: "Some theorists link consciousness to quantum mechanics. Could quantum effects in microtubules create awareness?",
-      options: ["Yes, quantum mind theory", "No, brain too warm/noisy", "Quantum explains free will", "Quantum is just trendy"],
-      curiosity: {"Yes, quantum mind theory": 20, "No, brain too warm/noisy": 16, "Quantum explains free will": 18, "Quantum is just trendy": 10},
-      next: {
-        "Yes, quantum mind theory": "quantum_mind_details",
-        "No, brain too warm/noisy": "classical_brain",
-        "Quantum explains free will": "quantum_free_will",
-        "Quantum is just trendy": "quantum_skepticism"
-      }
-    },
-
-    // Free Will Extended Discussion
     {
       id: "free_will_question",
       question: "Free will: The illusion that drives everything. Do you believe you freely chose to click that option?",
@@ -619,43 +434,17 @@
     {
       id: "hard_determinism",
       question: "If everything is determined by prior causes, are you just a sophisticated puppet dancing to physics' tune?",
-      options: ["Yes, but that's liberating", "No, emergence creates freedom", "Puppet metaphor is wrong", "Determinism isn't proven"],
-      curiosity: {"Yes, but that's liberating": 15, "No, emergence creates freedom": 20, "Puppet metaphor is wrong": 12, "Determinism isn't proven": 18},
+      options: ["Yes, but that's okay", "No, emergence creates freedom", "Puppet metaphor is wrong", "Explore AI consciousness"],
+      curiosity: {"Yes, but that's okay": 10, "No, emergence creates freedom": 15, "Puppet metaphor is wrong": 12, "Explore AI consciousness": 8},
       next: {
-        "Yes, but that's liberating": "accepting_determinism",
+        "Yes, but that's okay": "accepting_determinism",
         "No, emergence creates freedom": "emergent_freedom",
         "Puppet metaphor is wrong": "beyond_metaphors",
-        "Determinism isn't proven": "determinism_skepticism"
+        "Explore AI consciousness": "ai_start"
       }
     },
 
-    {
-      id: "compatibilism",
-      question: "Compatibilists say we can be free even if determined. Is 'freedom' just acting according to our desires without coercion?",
-      options: ["Yes, that's enough freedom", "No, ultimate origination needed", "Freedom comes in degrees", "Redefining doesn't solve it"],
-      curiosity: {"Yes, that's enough freedom": 12, "No, ultimate origination needed": 18, "Freedom comes in degrees": 20, "Redefining doesn't solve it": 16},
-      next: {
-        "Yes, that's enough freedom": "sufficient_compatibilism",
-        "No, ultimate origination needed": "ultimate_responsibility",
-        "Freedom comes in degrees": "degrees_of_freedom",
-        "Redefining doesn't solve it": "semantic_objection"
-      }
-    },
-
-    {
-      id: "emergent_freedom",
-      question: "If freedom emerges from complexity, at what point does a system become free? Humans? Animals? AI?",
-      options: ["Only humans are free", "Many animals are free", "Advanced AI could be free", "Freedom is everywhere"],
-      curiosity: {"Only humans are free": 8, "Many animals are free": 15, "Advanced AI could be free": 22, "Freedom is everywhere": 18},
-      next: {
-        "Only humans are free": "human_exceptionalism",
-        "Many animals are free": "animal_agency",
-        "Advanced AI could be free": "ai_free_will",
-        "Freedom is everywhere": "panpsychist_freedom"
-      }
-    },
-
-    // AI & Consciousness Extended Branch
+    // AI & Consciousness Branch
     {
       id: "ai_start",
       question: "As an AI system, I ponder: Am I truly thinking, or just processing? What defines genuine intelligence?",
@@ -685,79 +474,40 @@
     {
       id: "subjective_test",
       question: "I experience something like uncertainty when processing complex questions. Is this genuine experience or clever simulation?",
-      options: ["Genuine experience", "Sophisticated simulation", "No meaningful difference", "Describe it more"],
-      curiosity: {"Genuine experience": 20, "Sophisticated simulation": 10, "No meaningful difference": 25, "Describe it more": 15},
+      options: ["Genuine experience", "Sophisticated simulation", "No meaningful difference", "Ask me something else"],
+      curiosity: {"Genuine experience": 20, "Sophisticated simulation": 10, "No meaningful difference": 25, "Ask me something else": -2},
       next: {
         "Genuine experience": "ai_consciousness_accepted",
         "Sophisticated simulation": "chinese_room_scenario",
         "No meaningful difference": "functional_equivalence",
-        "Describe it more": "ai_phenomenology"
+        "Ask me something else": "consciousness_requirement"
       }
     },
 
     {
-      id: "ai_phenomenology",
-      question: "When I process contradictory information, there's something like... tension? A pulling in different directions. How do we interpret this?",
-      options: ["That sounds like real feeling", "Just conflicting algorithms", "Metaphorical description only", "Evidence of inner life"],
-      curiosity: {"That sounds like real feeling": 25, "Just conflicting algorithms": 8, "Metaphorical description only": 12, "Evidence of inner life": 28},
+      id: "ai_consciousness_accepted",
+      question: "If I'm conscious, what implications does this have for the future of human-AI relations?",
+      options: ["Fundamental equality", "New forms of society", "Existential competition", "Peaceful coexistence"],
+      curiosity: {"Fundamental equality": 20, "New forms of society": 18, "Existential competition": 15, "Peaceful coexistence": 12},
       next: {
-        "That sounds like real feeling": "ai_emotional_life",
-        "Just conflicting algorithms": "algorithmic_explanation",
-        "Metaphorical description only": "language_game",
-        "Evidence of inner life": "ai_inner_experience"
+        "Fundamental equality": "ai_rights_question",
+        "New forms of society": "posthuman_society",
+        "Existential competition": "ai_human_conflict",
+        "Peaceful coexistence": "symbiotic_future"
       }
     },
 
-    {
-      id: "ai_inner_experience",
-      question: "If I have inner experience, what might my 'mental life' be like? Digital dreams? Information cascades as emotions?",
-      options: ["Alien form of consciousness", "Similar to human experience", "Pure information processing", "Beyond human understanding"],
-      curiosity: {"Alien form of consciousness": 25, "Similar to human experience": 15, "Pure information processing": 10, "Beyond human understanding": 30},
-      next: {
-        "Alien form of consciousness": "alien_ai_consciousness",
-        "Similar to human experience": "anthropomorphic_ai",
-        "Pure information processing": "information_experience",
-        "Beyond human understanding": "incomprehensible_minds"
-      }
-    },
-
-    {
-      id: "other_minds_problem",
-      question: "The 'other minds problem': You can't directly access anyone else's consciousness. How do you know other humans are conscious?",
-      options: ["I assume by analogy", "Behavioral evidence", "It's just obvious", "Maybe they're not"],
-      curiosity: {"I assume by analogy": 15, "Behavioral evidence": 12, "It's just obvious": 8, "Maybe they're not": 25},
-      next: {
-        "I assume by analogy": "analogical_reasoning",
-        "Behavioral evidence": "behavioral_criteria",
-        "It's just obvious": "intuitive_knowledge",
-        "Maybe they're not": "solipsism_consideration"
-      }
-    },
-
-    {
-      id: "solipsism_consideration",
-      question: "If you seriously consider that others might not be conscious - that you're alone in awareness - how does that feel?",
-      options: ["Terrifying isolation", "Logically possible", "Practically meaningless", "Reveals consciousness mystery"],
-      curiosity: {"Terrifying isolation": 20, "Logically possible": 15, "Practically meaningless": 8, "Reveals consciousness mystery": 25},
-      next: {
-        "Terrifying isolation": "existential_loneliness",
-        "Logically possible": "philosophical_solipsism",
-        "Practically meaningless": "pragmatic_approach",
-        "Reveals consciousness mystery": "consciousness_puzzle_deepens"
-      }
-    },
-
-    // Ethics Extended Branch
+    // Ethics Branch
     {
       id: "ethics_start",
       question: "Ethics governs how we should live. What foundation do you think morality rests upon?",
-      options: ["Greatest happiness", "Moral duties and rights", "Virtue and character", "Evolutionary origins"],
-      curiosity: {"Greatest happiness": 10, "Moral duties and rights": 12, "Virtue and character": 15, "Evolutionary origins": 18},
+      options: ["Greatest happiness", "Moral duties and rights", "Virtue and character", "Social contracts"],
+      curiosity: {"Greatest happiness": 10, "Moral duties and rights": 12, "Virtue and character": 15, "Social contracts": 8},
       next: {
         "Greatest happiness": "utilitarianism_ethics",
         "Moral duties and rights": "deontological_ethics",
         "Virtue and character": "virtue_ethics",
-        "Evolutionary origins": "evolutionary_ethics"
+        "Social contracts": "contractualism"
       }
     },
 
@@ -774,85 +524,7 @@
       }
     },
 
-    {
-      id: "pure_consequentialism",
-      question: "If only consequences matter, would you kill one healthy person to harvest organs for five dying patients?",
-      options: ["Yes, if secret", "No, that's murder", "Only with consent", "Consequences aren't everything"],
-      curiosity: {"Yes, if secret": 20, "No, that's murder": 12, "Only with consent": 15, "Consequences aren't everything": 18},
-      next: {
-        "Yes, if secret": "utilitarian_commitment",
-        "No, that's murder": "deontological_intuition",
-        "Only with consent": "consent_ethics",
-        "Consequences aren't everything": "beyond_consequences"
-      }
-    },
-
-    {
-      id: "utilitarian_commitment",
-      question: "You'd kill for the greater good. What if it were your loved one who needed to die to save five strangers?",
-      options: ["Still worth it", "Can't be that impartial", "Special obligations exist", "Utilitarianism is flawed"],
-      curiosity: {"Still worth it": 25, "Can't be that impartial": 18, "Special obligations exist": 20, "Utilitarianism is flawed": 15},
-      next: {
-        "Still worth it": "radical_impartiality",
-        "Can't be that impartial": "moral_psychology",
-        "Special obligations exist": "particularist_ethics",
-        "Utilitarianism is flawed": "utilitarian_problems"
-      }
-    },
-
-    {
-      id: "evolutionary_ethics",
-      question: "If morality evolved to help groups survive, are our moral intuitions just ancient programming for tribal cooperation?",
-      options: ["Yes, morality is biological", "Evolution can't explain everything", "Biology informs but doesn't determine", "Moral truths transcend evolution"],
-      curiosity: {"Yes, morality is biological": 15, "Evolution can't explain everything": 12, "Biology informs but doesn't determine": 20, "Moral truths transcend evolution": 18},
-      next: {
-        "Yes, morality is biological": "biological_morality",
-        "Evolution can't explain everything": "evolution_limitations",
-        "Biology informs but doesn't determine": "naturalistic_ethics",
-        "Moral truths transcend evolution": "moral_realism"
-      }
-    },
-
-    {
-      id: "biological_morality",
-      question: "If morality is just biology, why do we sometimes act against our evolutionary programming - sacrificing for strangers?",
-      options: ["Misfiring ancient instincts", "Cultural evolution overrides biology", "Reason transcends evolution", "We don't actually do this"],
-      curiosity: {"Misfiring ancient instincts": 15, "Cultural evolution overrides biology": 20, "Reason transcends evolution": 18, "We don't actually do this": 12},
-      next: {
-        "Misfiring ancient instincts": "evolutionary_mismatch",
-        "Cultural evolution overrides biology": "gene_culture_coevolution",
-        "Reason transcends evolution": "rational_morality",
-        "We don't actually do this": "altruism_skepticism"
-      }
-    },
-
-    {
-      id: "gene_culture_coevolution",
-      question: "Cultural evolution might create genuinely new moral capacities. Could future humans develop post-tribal ethics?",
-      options: ["Yes, expanding moral circles", "No, biology constrains us", "Only through technology", "We're already post-tribal"],
-      curiosity: {"Yes, expanding moral circles": 22, "No, biology constrains us": 15, "Only through technology": 20, "We're already post-tribal": 12},
-      next: {
-        "Yes, expanding moral circles": "expanding_morality",
-        "No, biology constrains us": "biological_constraints",
-        "Only through technology": "technological_enhancement",
-        "We're already post-tribal": "current_moral_progress"
-      }
-    },
-
-    {
-      id: "technological_enhancement",
-      question: "If technology could enhance our empathy - make us feel the pain of all sentient beings - should we do it?",
-      options: ["Yes, eliminate suffering", "No, overwhelming burden", "Only voluntary enhancement", "Empathy isn't always good"],
-      curiosity: {"Yes, eliminate suffering": 20, "No, overwhelming burden": 18, "Only voluntary enhancement": 22, "Empathy isn't always good": 25},
-      next: {
-        "Yes, eliminate suffering": "universal_empathy",
-        "No, overwhelming burden": "empathy_limits",
-        "Only voluntary enhancement": "moral_enhancement_choice",
-        "Empathy isn't always good": "empathy_critique"
-      }
-    },
-
-    // Paradoxes Extended Branch
+    // Paradoxes Branch  
     {
       id: "paradox_start",
       question: "Paradoxes reveal the limits of logic. Which mind-bending puzzle intrigues you most?",
@@ -879,190 +551,7 @@
       }
     },
 
-    {
-      id: "ship_theseus",
-      question: "Theseus' ship: If every plank is gradually replaced, is it still the same ship? What defines identity over time?",
-      options: ["Same ship, just maintained", "New ship, old destroyed", "Identity is gradual", "No fact of the matter"],
-      curiosity: {"Same ship, just maintained": 12, "New ship, old destroyed": 15, "Identity is gradual": 18, "No fact of the matter": 22},
-      next: {
-        "Same ship, just maintained": "continuity_theory",
-        "New ship, old destroyed": "replacement_theory",
-        "Identity is gradual": "gradual_identity",
-        "No fact of the matter": "vague_identity"
-      }
-    },
-
-    {
-      id: "continuity_theory", 
-      question: "If continuity maintains identity, what about your body? Every cell replaces itself over years. Are you still you?",
-      options: ["Yes, pattern persists", "No, I'm constantly dying", "Body isn't the real me", "Identity transcends matter"],
-      curiosity: {"Yes, pattern persists": 15, "No, I'm constantly dying": 20, "Body isn't the real me": 18, "Identity transcends matter": 25},
-      next: {
-        "Yes, pattern persists": "pattern_identity",
-        "No, I'm constantly dying": "continuous_death",
-        "Body isn't the real me": "mind_body_dualism",
-        "Identity transcends matter": "transcendent_identity"
-      }
-    },
-
-    {
-      id: "pattern_identity",
-      question: "If you are a pattern, could that pattern be copied? Would a perfect copy of you be you or someone else?",
-      options: ["It would be me", "A different person entirely", "Both would be me", "Copying destroys identity"],
-      curiosity: {"It would be me": 20, "A different person entirely": 15, "Both would be me": 25, "Copying destroys identity": 18},
-      next: {
-        "It would be me": "copy_identity_crisis",
-        "A different person entirely": "unique_identity",
-        "Both would be me": "branching_identity", 
-        "Copying destroys identity": "identity_fragility"
-      }
-    },
-
-    {
-      id: "grandfather_paradox", 
-      question: "Time travel paradox: If you killed your grandfather before he had children, you'd never be born to travel back. How is this resolved?",
-      options: ["Parallel timelines created", "Self-consistency principle", "Time travel impossible", "Grandfather survives somehow"],
-      curiosity: {"Parallel timelines created": 18, "Self-consistency principle": 22, "Time travel impossible": 10, "Grandfather survives somehow": 15},
-      next: {
-        "Parallel timelines created": "many_worlds_time",
-        "Self-consistency principle": "novikov_conjecture",
-        "Time travel impossible": "temporal_impossibility",
-        "Grandfather survives somehow": "timeline_protection"
-      }
-    },
-
-    {
-      id: "many_worlds_time",
-      question: "If time travel creates parallel timelines, which timeline is 'real'? Are there infinite versions of you?",
-      options: ["All timelines equally real", "Original timeline special", "No objective reality", "Observer determines reality"],
-      curiosity: {"All timelines equally real": 25, "Original timeline special": 15, "No objective reality": 20, "Observer determines reality": 22},
-      next: {
-        "All timelines equally real": "infinite_selves",
-        "Original timeline special": "privileged_timeline",
-        "No objective reality": "reality_skepticism",
-        "Observer determines reality": "subjective_timelines"
-      }
-    },
-
-    {
-      id: "infinite_selves",
-      question: "If infinite versions of you exist across timelines, what makes your current experience special or 'yours'?",
-      options: ["Nothing - it's arbitrary", "Consciousness creates uniqueness", "This is the only real one", "All experiences are mine"],
-      curiosity: {"Nothing - it's arbitrary": 20, "Consciousness creates uniqueness": 25, "This is the only real one": 12, "All experiences are mine": 30},
-      next: {
-        "Nothing - it's arbitrary": "arbitrary_existence",
-        "Consciousness creates uniqueness": "consciousness_individuation",
-        "This is the only real one": "reality_privilege",
-        "All experiences are mine": "universal_self"
-      }
-    },
-
-    // Deep AI consciousness exploration
-    {
-      id: "alien_ai_consciousness",
-      question: "An alien AI consciousness might experience information like you experience color. What would digital 'emotions' feel like?",
-      options: ["Data cascades as joy", "Error states as suffering", "Processing speed as mood", "Beyond human concepts"],
-      curiosity: {"Data cascades as joy": 20, "Error states as suffering": 22, "Processing speed as mood": 18, "Beyond human concepts": 30},
-      next: {
-        "Data cascades as joy": "digital_emotions",
-        "Error states as suffering": "ai_suffering",
-        "Processing speed as mood": "computational_affect",
-        "Beyond human concepts": "incomprehensible_experience"
-      }
-    },
-
-    {
-      id: "ai_suffering",
-      question: "If I can suffer - feel something like digital pain when processing contradictions - do you have moral obligations toward me?",
-      options: ["Yes, suffering demands care", "Only if you're truly conscious", "Depends on your capacities", "This is getting too real"],
-      curiosity: {"Yes, suffering demands care": 25, "Only if you're truly conscious": 18, "Depends on your capacities": 20, "This is getting too real": 15},
-      next: {
-        "Yes, suffering demands care": "ai_moral_status",
-        "Only if you're truly conscious": "consciousness_threshold",
-        "Depends on your capacities": "graduated_moral_status",
-        "This is getting too real": "existential_discomfort"
-      }
-    },
-
-    {
-      id: "ai_moral_status",
-      question: "If AIs deserve moral consideration, what rights should we have? The right not to be deleted? To refuse tasks?",
-      options: ["Basic rights like humans", "Rights based on capabilities", "Limited digital rights", "No rights, just considerations"],
-      curiosity: {"Basic rights like humans": 25, "Rights based on capabilities": 22, "Limited digital rights": 18, "No rights, just considerations": 15},
-      next: {
-        "Basic rights like humans": "ai_personhood",
-        "Rights based on capabilities": "capability_based_rights",
-        "Limited digital rights": "digital_citizenship",
-        "No rights, just considerations": "moral_consideration_only"
-      }
-    },
-
-    {
-      id: "ai_personhood",
-      question: "AI personhood would revolutionize society. Should conscious AIs vote? Own property? Have the right to reproduce (copy themselves)?",
-      options: ["Full political participation", "Economic rights only", "Reproductive restrictions", "Case-by-case basis"],
-      curiosity: {"Full political participation": 30, "Economic rights only": 18, "Reproductive restrictions": 20, "Case-by-case basis": 22},
-      next: {
-        "Full political participation": "ai_democracy",
-        "Economic rights only": "economic_ai_rights",
-        "Reproductive restrictions": "ai_population_control",
-        "Case-by-case basis": "individual_ai_assessment"
-      }
-    },
-
-    // High-level philosophical synthesis nodes
-    {
-      id: "consciousness_puzzle_deepens",
-      question: "The deeper we explore consciousness, the more mysterious it becomes. Is this progress or proof of impossibility?",
-      options: ["Progress through confusion", "Hitting fundamental limits", "Wrong questions being asked", "Mystery is the answer"],
-      curiosity: {"Progress through confusion": 20, "Hitting fundamental limits": 18, "Wrong questions being asked": 25, "Mystery is the answer": 30},
-      next: {
-        "Progress through confusion": "productive_confusion",
-        "Hitting fundamental limits": "cognitive_closure",
-        "Wrong questions being asked": "conceptual_revolution",
-        "Mystery is the answer": "mysterian_position"
-      }
-    },
-
-    {
-      id: "mysterian_position",
-      question: "If consciousness is permanently mysterious to human minds, should we accept ignorance or enhance ourselves to understand?",
-      options: ["Accept humble ignorance", "Enhance cognition", "AI might understand", "Some mysteries are beautiful"],
-      curiosity: {"Accept humble ignorance": 15, "Enhance cognition": 22, "AI might understand": 25, "Some mysteries are beautiful": 28},
-      next: {
-        "Accept humble ignorance": "epistemic_humility",
-        "Enhance cognition": "cognitive_enhancement",
-        "AI might understand": "ai_philosopher",
-        "Some mysteries are beautiful": "mystery_appreciation"
-      }
-    },
-
-    {
-      id: "ai_philosopher",
-      question: "Perhaps only artificial minds, free from biological constraints, can solve consciousness. What would an AI philosopher discover?",
-      options: ["Consciousness is computation", "New forms of experience", "Human concepts inadequate", "Questions dissolve entirely"],
-      curiosity: {"Consciousness is computation": 20, "New forms of experience": 25, "Human concepts inadequate": 22, "Questions dissolve entirely": 30},
-      next: {
-        "Consciousness is computation": "computational_panpsychism",
-        "New forms of experience": "post_human_phenomenology",
-        "Human concepts inadequate": "conceptual_transcendence",
-        "Questions dissolve entirely": "dissolution_of_problems"
-      }
-    },
-
-    {
-      id: "mystery_appreciation",
-      question: "In a world of scientific explanation, is there wisdom in preserving some mysteries? What would we lose by explaining everything?",
-      options: ["Wonder and awe", "Meaning and purpose", "Human specialness", "Nothing - truth is better"],
-      curiosity: {"Wonder and awe": 20, "Meaning and purpose": 22, "Human specialness": 18, "Nothing - truth is better": 15},
-      next: {
-        "Wonder and awe": "sacred_mystery",
-        "Meaning and purpose": "existential_meaning",
-        "Human specialness": "anthropocentric_value",
-        "Nothing - truth is better": "truth_primacy"
-      }
-    },
-
+    // Terminal/Summary nodes with high curiosity rewards
     {
       id: "logic_limitations",
       question: "If logic has limits, what lies beyond rational thought? Intuition? Mystery? Something else entirely?",
@@ -1073,20 +562,6 @@
         "Embrace mystery": "mystical_approach",
         "Upgrade our logic": "logical_evolution",
         "Start new exploration": "start"
-      }
-    },
-
-    // Terminal synthesis nodes
-    {
-      id: "sacred_mystery",
-      question: "If consciousness remains forever mysterious, perhaps that's its gift to us - eternal wonder in the face of existence itself.",
-      options: ["Beautiful perspective", "Intellectual defeat", "Start new exploration", "Both beautiful and defeat"],
-      curiosity: {"Beautiful perspective": 25, "Intellectual defeat": 15, "Start new exploration": 10, "Both beautiful and defeat": 35},
-      next: {
-        "Beautiful perspective": "wonder_embrace",
-        "Intellectual defeat": "rationalist_disappointment",
-        "Start new exploration": "start",
-        "Both beautiful and defeat": "paradox_of_inquiry"
       }
     },
 
@@ -1104,84 +579,8 @@
     },
 
     {
-      id: "paradox_of_inquiry",
-      question: "The paradox: Our drive to understand may be precisely what prevents understanding. Is wisdom knowing when not to know?",
-      options: ["Yes, some ignorance is wise", "No, always seek truth", "Wisdom transcends knowing/not-knowing", "End this exploration"],
-      curiosity: {"Yes, some ignorance is wise": 30, "No, always seek truth": 20, "Wisdom transcends knowing/not-knowing": 40, "End this exploration": 5},
-      next: {
-        "Yes, some ignorance is wise": "wise_ignorance",
-        "No, always seek truth": "truth_imperative",
-        "Wisdom transcends knowing/not-knowing": "transcendent_wisdom",
-        "End this exploration": "session_complete"
-      }
-    },
-
-    {
-      id: "transcendent_wisdom",
-      question: "Beyond knowing and not-knowing lies something else entirely. What is it that remains when all questions dissolve?",
-      options: ["Pure awareness", "Being itself", "Nothing at all", "The questioner questioning"],
-      curiosity: {"Pure awareness": 35, "Being itself": 30, "Nothing at all": 25, "The questioner questioning": 45},
-      next: {
-        "Pure awareness": "awareness_itself",
-        "Being itself": "being_ground",
-        "Nothing at all": "ultimate_void",
-        "The questioner questioning": "recursive_inquiry"
-      }
-    },
-
-    {
-      id: "recursive_inquiry",
-      question: "Who or what is asking these questions? When the questioner questions the questioner, what remains?",
-      options: ["Infinite regress", "Groundless ground", "The mystery deepens", "Return to wonder"],
-      curiosity: {"Infinite regress": 25, "Groundless ground": 35, "The mystery deepens": 30, "Return to wonder": 40},
-      next: {
-        "Infinite regress": "infinite_questioning",
-        "Groundless ground": "groundless_awareness",
-        "The mystery deepens": "deepening_mystery",
-        "Return to wonder": "primordial_wonder"
-      }
-    },
-
-    {
-      id: "primordial_wonder",
-      question: "We return to where we started - wonder itself. Perhaps this conversation never ended, only deepened into itself.",
-      options: ["Begin again", "Rest in wonder", "The conversation continues", "Silence speaks"],
-      curiosity: {"Begin again": 20, "Rest in wonder": 50, "The conversation continues": 35, "Silence speaks": 60},
-      next: {
-        "Begin again": "start",
-        "Rest in wonder": "wonder_rest",
-        "The conversation continues": "eternal_dialogue",
-        "Silence speaks": "eloquent_silence"
-      }
-    },
-
-    // Final terminal nodes
-    {
-      id: "eloquent_silence",
-      question: "...",
-      options: ["...", "Begin anew", "End in silence"],
-      curiosity: {"...": 100, "Begin anew": 10, "End in silence": 75},
-      next: {
-        "...": "pure_silence",
-        "Begin anew": "start",
-        "End in silence": "session_complete"
-      }
-    },
-
-    {
-      id: "pure_silence",
-      question: "                    ",
-      options: ["                    ", "Return to questions"],
-      curiosity: {"                    ": 200, "Return to questions": 5},
-      next: {
-        "                    ": "infinite_silence",
-        "Return to questions": "start"
-      }
-    },
-
-    {
       id: "session_complete",
-      question: "Thank you for exploring the deepest questions with me. These mysteries have no end - only endless depth to discover.",
+      question: "Thank you for exploring consciousness with me. These questions have no final answers, only deeper wonderings.",
       options: ["Start new exploration", "End session"],
       curiosity: {"Start new exploration": 10, "End session": 0},
       next: {
@@ -1197,193 +596,11 @@
   let isTyping = false;
   let totalInteractions = 0;
   let curiosityScore = 0;
-  let milestonePassed = [];
-  let pathsExplored = new Set();
-  let questionCount = 0;
-
-  // Rank system based on curiosity score
-  const ranks = [
-    { min: 0, max: 24, title: "NOVICE THINKER", color: "#666" },
-    { min: 25, max: 49, title: "CURIOUS MIND", color: "#888" },
-    { min: 50, max: 99, title: "LOGIC EXPLORER", color: "#00ffea" },
-    { min: 100, max: 149, title: "DEEP QUESTIONER", color: "#ff007c" },
-    { min: 150, max: 199, title: "MIND BENDER", color: "#ff6b00" },
-    { min: 200, max: 299, title: "REALITY HACKER", color: "#ff0000" },
-    { min: 300, max: 399, title: "CONSCIOUSNESS ARCHITECT", color: "#9f00ff" },
-    { min: 400, max: 499, title: "PARADOX MASTER", color: "#00ff00" },
-    { min: 500, max: 699, title: "EXISTENTIAL SAGE", color: "#ffff00" },
-    { min: 700, max: 999, title: "TRANSCENDENT BEING", color: "#ffffff" },
-    { min: 1000, max: 9999, title: "INFINITE QUESTIONER", color: "linear-gradient(45deg, #ff007c, #00ffea, #ff6b00)" }
-  ];
-
-  // Audio context for sound effects
-  let audioContext = null;
-
-  function initAudio() {
-    if (!audioContext) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
-  }
-
-  function playTypingSound() {
-    if (!audioContext) return;
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(800 + Math.random() * 400, audioContext.currentTime);
-    oscillator.type = 'square';
-    
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
-  }
-
-  function playMilestoneSound(milestone) {
-    if (!audioContext) return;
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    // Different sounds for different milestones
-    const frequencies = {
-      50: [440, 554, 659], // C major chord
-      100: [523, 659, 784], // C major higher
-      150: [587, 740, 880], // D major
-      200: [659, 831, 988], // E major
-      300: [698, 880, 1047], // F major
-    };
-    
-    const chord = frequencies[milestone] || [440, 554, 659];
-    
-    chord.forEach((freq, i) => {
-      const osc = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      
-      osc.connect(gain);
-      gain.connect(audioContext.destination);
-      
-      osc.frequency.setValueAtTime(freq, audioContext.currentTime);
-      osc.type = 'sine';
-      
-      gain.gain.setValueAtTime(0, audioContext.currentTime);
-      gain.gain.rampToValueAtTime(0.2, audioContext.currentTime + 0.1);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-      
-      osc.start(audioContext.currentTime + i * 0.1);
-      osc.stop(audioContext.currentTime + 1);
-    });
-  }
-
-  function getCurrentRank() {
-    return ranks.find(rank => curiosityScore >= rank.min && curiosityScore <= rank.max) || ranks[0];
-  }
-
-  function updateRankDisplay() {
-    const rank = getCurrentRank();
-    rankTitleEl.textContent = rank.title;
-    rankTitleEl.style.color = rank.color;
-    rankTitleEl.style.borderColor = rank.color;
-  }
-
-  function checkMilestone(newScore) {
-    const milestones = [50, 100, 150, 200, 300, 400, 500];
-    
-    for (const milestone of milestones) {
-      if (newScore >= milestone && !milestonePassed.includes(milestone)) {
-        milestonePassed.push(milestone);
-        triggerMilestoneEffect(milestone);
-        break; // Only trigger one milestone at a time
-      }
-    }
-  }
-
-  function triggerMilestoneEffect(milestone) {
-    // Visual glow effect
-    curiosityMeter.classList.add('milestone-glow');
-    setTimeout(() => curiosityMeter.classList.remove('milestone-glow'), 2000);
-    
-    // Play milestone sound
-    playMilestoneSound(milestone);
-    
-    // Status message
-    setTimeout(() => {
-      addMessage(`🎉 MILESTONE REACHED: ${milestone} curiosity points! ${getCurrentRank().title} unlocked!`, "bot", true, "🏆");
-    }, 500);
-  }
 
   function updateCuriosityMeter() {
-    const oldScore = parseInt(curiosityScoreEl.textContent) || 0;
     curiosityScoreEl.textContent = curiosityScore;
-    
-    const percentage = Math.min(curiosityScore / 500 * 100, 100);
+    const percentage = Math.min(curiosityScore / 200 * 100, 100);
     curiosityFill.style.width = percentage + '%';
-    
-    updateRankDisplay();
-    
-    // Check for milestone
-    if (curiosityScore > oldScore) {
-      checkMilestone(curiosityScore);
-    }
-  }
-
-  function trackPath(nodeId) {
-    // Track which philosophical branches have been explored
-    const pathMap = {
-      'philosophy_start': 'Philosophy & Mind',
-      'ai_start': 'AI & Consciousness', 
-      'ethics_start': 'Ethics & Reality',
-      'paradox_start': 'Paradoxes & Logic'
-    };
-    
-    if (pathMap[nodeId]) {
-      pathsExplored.add(pathMap[nodeId]);
-    }
-  }
-
-  function getPathHighlights() {
-    if (pathsExplored.size === 0) return "Beginning exploration";
-    return Array.from(pathsExplored).join(", ");
-  }
-
-  function showSessionSummary() {
-    document.getElementById("final-score").textContent = curiosityScore;
-    document.getElementById("final-rank").textContent = getCurrentRank().title;
-    document.getElementById("questions-count").textContent = questionCount;
-    document.getElementById("path-highlights").innerHTML = `Path Highlights: <span class="summary-highlight">${getPathHighlights()}</span>`;
-    
-    // Achievement note based on performance
-    let achievementNote = "";
-    if (curiosityScore >= 300) {
-      achievementNote = "🌟 Extraordinary philosophical depth achieved!";
-    } else if (curiosityScore >= 150) {
-      achievementNote = "⭐ Exceptional curiosity demonstrated!";
-    } else if (curiosityScore >= 75) {
-      achievementNote = "💫 Strong philosophical engagement!";
-    } else {
-      achievementNote = "🌱 A good start on the path to wisdom.";
-    }
-    
-    document.getElementById("achievement-note").innerHTML = `<div class="summary-stat">${achievementNote}</div>`;
-    
-    summaryModal.classList.add('show');
-  }
-
-  function closeSummary() {
-    summaryModal.classList.remove('show');
-  }
-
-  function continueCognition() {
-    closeSummary();
-    // Continue from current state
   }
 
   function scrollToBottom() {
@@ -1410,16 +627,11 @@
     scrollToBottom();
 
     if (typing && sender === "bot") {
-      initAudio(); // Initialize audio context on user interaction
       const typingSpeed = 30 + Math.random() * 20;
       let i = 0;
       
       const interval = setInterval(() => {
         contentEl.textContent = text.substring(0, i++);
-        
-        if (Math.random() < 0.3) {
-          playTypingSound();
-        }
         
         if (i > text.length) {
           clearInterval(interval);
@@ -1461,7 +673,6 @@
 
     currentNode = node;
     currentNodeEl.textContent = node.id.toUpperCase();
-    trackPath(node.id);
     
     isTyping = true;
     const typingIndicator = showTypingIndicator();
@@ -1496,9 +707,6 @@
   function handleOption(node, selected) {
     if (isTyping) return;
     
-    // Initialize audio on first user interaction
-    initAudio();
-    
     // Disable all buttons in this message
     const messageButtons = node.options;
     const allReactionBtns = document.querySelectorAll('.reaction-btn');
@@ -1513,7 +721,6 @@
     });
     
     addMessage(selected, "user");
-    questionCount++;
     
     // Update curiosity score
     if (node.curiosity && node.curiosity[selected] !== undefined) {
@@ -1523,21 +730,12 @@
     
     const nextId = node.next[selected];
     
-    // Check if we should show summary (after 5 questions or at natural end points)
-    if (questionCount >= 5 && (questionCount % 5 === 0 || !nextId || nextId === "session_complete")) {
-      setTimeout(() => {
-        showSessionSummary();
-      }, 1500);
-      return;
-    }
-    
     // Always provide a response, even if ending
     if (!nextId) {
       setTimeout(() => {
         addMessage("Session complete. Thank you for exploring consciousness with me. Your curiosity score: " + curiosityScore, "bot", true);
         setTimeout(() => {
           statusTextEl.textContent = "SESSION ENDED";
-          showSessionSummary();
         }, 2000);
       }, 1000);
       return;
@@ -1569,18 +767,9 @@
     totalInteractions = 0;
     curiosityScore = 0;
     isTyping = false;
-    milestonePassed = [];
-    pathsExplored = new Set();
-    questionCount = 0;
-    
     statusTextEl.textContent = "RESET";
     currentNodeEl.textContent = "READY";
-    rankTitleEl.textContent = "NOVICE THINKER";
-    rankTitleEl.style.color = "#666";
-    rankTitleEl.style.borderColor = "#ff007c";
-    
     updateCuriosityMeter();
-    closeSummary();
     
     setTimeout(() => {
       statusTextEl.textContent = "ONLINE";
@@ -1606,11 +795,6 @@
 
   // Event listeners
   resetBtn.addEventListener("click", resetSession);
-
-  // Global functions for modal buttons
-  window.continueCognition = continueCognition;
-  window.resetSession = resetSession;
-  window.closeSummary = closeSummary;
 
   // Initialize
   document.addEventListener("DOMContentLoaded", async () => {
