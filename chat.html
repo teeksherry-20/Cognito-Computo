@@ -38,6 +38,11 @@
       transition: opacity 0.5s ease;
     }
 
+    .boot-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     .boot-text {
       color: #00ff00;
       font-size: 14px;
@@ -50,7 +55,7 @@
       51%, 100% { opacity: 0; }
     }
 
-    /* Main chat container - simplified without CRT effects */
+    /* Main chat container */
     #chat-container {
       flex: 1;
       display: flex;
@@ -60,12 +65,13 @@
       border-radius: 8px;
       padding: 10px;
       margin: 8px;
-      margin-bottom: 80px; /* Space for fixed bottom elements */
+      margin-bottom: 140px;
       overflow-y: auto;
       font-family: 'Press Start 2P', monospace;
       font-size: 11px;
       color: #fff;
       scroll-behavior: smooth;
+      position: relative;
     }
 
     /* Scrollbar styling */
@@ -85,15 +91,21 @@
 
     /* Message styles */
     .message {
-      margin: 8px 0;
+      margin: 12px 0;
       padding: 8px 12px;
       border-radius: 6px;
       max-width: 85%;
       word-wrap: break-word;
-      line-height: 1.4;
+      line-height: 1.5;
       display: flex;
       align-items: flex-start;
       gap: 8px;
+      animation: messageAppear 0.3s ease-out;
+    }
+
+    @keyframes messageAppear {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
     .message-content {
@@ -113,6 +125,7 @@
       border: 1px solid #00ffea;
       align-self: flex-end;
       margin-left: auto;
+      box-shadow: 0 0 5px rgba(0, 255, 234, 0.3);
     }
 
     /* Cogitron messages */
@@ -122,25 +135,41 @@
       border: 1px solid #ff007c;
       align-self: flex-start;
       margin-right: auto;
+      box-shadow: 0 0 5px rgba(255, 0, 124, 0.3);
     }
 
     /* Typing indicator */
     .message.typing {
       font-style: italic;
       opacity: 0.8;
-      animation: pulse 1s infinite alternate;
+      animation: pulse 1.5s infinite alternate;
     }
 
     @keyframes pulse {
-      from { opacity: 0.5; }
+      from { opacity: 0.4; }
       to { opacity: 1; }
     }
 
-    /* Message reactions - fixed positioning */
+    /* Enhanced typing cursor */
+    .typing-cursor {
+      display: inline-block;
+      width: 8px;
+      height: 12px;
+      background: #ff007c;
+      animation: cursorBlink 1s infinite;
+      margin-left: 2px;
+    }
+
+    @keyframes cursorBlink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* Message reactions - enhanced with hover effects */
     .message-reactions {
-      margin-top: 12px;
+      margin-top: 15px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       clear: both;
     }
@@ -149,26 +178,56 @@
       background: rgba(255, 0, 124, 0.1);
       border: 2px solid #ff007c;
       border-radius: 8px;
-      padding: 8px 12px;
+      padding: 10px 14px;
       font-size: 9px;
       color: #ff007c;
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: 'Press Start 2P', monospace;
       margin: 2px;
-      min-height: 32px;
+      min-height: 36px;
       display: flex;
       align-items: center;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
     }
 
-    .reaction-btn:hover {
+    .reaction-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 0, 124, 0.4), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .reaction-btn:hover:not(.disabled) {
       background: rgba(255, 0, 124, 0.3);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 
+        0 4px 8px rgba(255, 0, 124, 0.4),
+        0 0 15px rgba(255, 0, 124, 0.6);
+      text-shadow: 0 0 5px #ff007c;
+    }
+
+    .reaction-btn:hover:not(.disabled)::before {
+      left: 100%;
+    }
+
+    .reaction-btn:active:not(.disabled) {
+      transform: translateY(0);
+      transition: transform 0.1s ease;
     }
 
     .reaction-btn.active {
       background: rgba(255, 0, 124, 0.5);
       color: #fff;
+      box-shadow: 0 0 20px rgba(255, 0, 124, 0.8);
+      text-shadow: 0 0 5px #fff;
+      pointer-events: none;
     }
 
     .reaction-btn.disabled {
@@ -187,9 +246,39 @@
       border-top: 2px solid #ff007c;
       padding: 10px;
       z-index: 100;
+      backdrop-filter: blur(5px);
     }
 
-    /* Curiosity meter */
+    /* Enhanced rank title display */
+    .rank-title {
+      background: rgba(255, 0, 124, 0.1);
+      border: 1px solid #ff007c;
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin-bottom: 8px;
+      text-align: center;
+      font-size: 8px;
+      color: #ff007c;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+
+    /* Milestone glow effect - enhanced */
+    .milestone-glow {
+      animation: milestoneGlow 3s ease-in-out;
+      box-shadow: 0 0 30px #ff007c;
+    }
+
+    @keyframes milestoneGlow {
+      0% { box-shadow: 0 0 5px #ff007c; }
+      25% { box-shadow: 0 0 40px #ff007c, 0 0 60px #00ffea; }
+      50% { box-shadow: 0 0 50px #ff007c, 0 0 80px #00ffea, 0 0 100px #ff6b00; }
+      75% { box-shadow: 0 0 40px #ff007c, 0 0 60px #00ffea; }
+      100% { box-shadow: 0 0 5px #ff007c; }
+    }
+
+    /* Enhanced curiosity meter */
     .curiosity-meter {
       background: rgba(17, 17, 17, 0.9);
       border: 1px solid #00ffea;
@@ -199,12 +288,14 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      transition: all 0.3s ease;
     }
 
     .meter-label {
       font-size: 8px;
       color: #00ffea;
       white-space: nowrap;
+      text-shadow: 0 0 3px #00ffea;
     }
 
     .meter-bar {
@@ -213,19 +304,22 @@
       background: #222;
       border-radius: 4px;
       overflow: hidden;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
     }
 
     .meter-fill {
       height: 100%;
-      background: linear-gradient(90deg, #00ffea, #ff007c);
+      background: linear-gradient(90deg, #00ffea, #ff007c, #ff6b00);
       width: 0%;
-      transition: width 0.5s ease;
+      transition: width 0.8s ease;
+      box-shadow: 0 0 10px rgba(0, 255, 234, 0.5);
     }
 
     .meter-score {
       font-size: 8px;
       color: #ff007c;
       white-space: nowrap;
+      text-shadow: 0 0 3px #ff007c;
     }
 
     /* Status bar */
@@ -237,6 +331,7 @@
       align-items: center;
       font-size: 8px;
       color: #ff007c;
+      border-radius: 4px;
     }
 
     .status-item {
@@ -249,7 +344,7 @@
       animation: blink 1s infinite;
     }
 
-    /* Reset button */
+    /* Enhanced reset button */
     #reset-btn {
       background: linear-gradient(45deg, #666, #888);
       border: 1px solid #666;
@@ -259,15 +354,17 @@
       font-family: 'Press Start 2P', monospace;
       font-size: 8px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       position: absolute;
       top: 10px;
       right: 10px;
+      z-index: 200;
     }
 
     #reset-btn:hover {
       background: linear-gradient(45deg, #888, #666);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
     }
 
     /* Mobile optimizations */
@@ -275,7 +372,7 @@
       #chat-container {
         margin: 4px;
         font-size: 10px;
-        margin-bottom: 120px; /* More space for mobile bottom interface */
+        margin-bottom: 160px;
       }
       
       .message {
@@ -286,8 +383,8 @@
 
       .reaction-btn {
         font-size: 8px;
-        padding: 6px 10px;
-        min-height: 28px;
+        padding: 8px 12px;
+        min-height: 32px;
       }
 
       #reset-btn {
@@ -310,9 +407,10 @@
 <body>
   <!-- Boot screen -->
   <div class="boot-screen" id="boot-screen">
-    <div class="boot-text">COGITRON TERMINAL v4.0</div>
+    <div class="boot-text">COGITRON TERMINAL v4.2</div>
     <div class="boot-text">Initializing neural pathways...</div>
     <div class="boot-text">Loading consciousness matrix...</div>
+    <div class="boot-text">Enhanced dialogue systems online...</div>
     <div class="boot-text">MCQ flow system enabled...</div>
     <div class="boot-text">Ready to explore <span class="cursor-blink">█</span></div>
   </div>
@@ -322,7 +420,8 @@
   <div id="chat-container"></div>
 
   <div class="bottom-interface">
-    <div class="curiosity-meter">
+    <div class="rank-title" id="rank-title">NOVICE THINKER</div>
+    <div class="curiosity-meter" id="curiosity-meter">
       <div class="meter-label">CURIOSITY:</div>
       <div class="meter-bar">
         <div class="meter-fill" id="curiosity-fill"></div>
@@ -342,6 +441,16 @@
   </div>
 
 <script>
+  // Game state variables
+  let gameState = {
+    currentNodeId: 'start',
+    curiosityScore: 0,
+    questionsAnswered: 0,
+    currentRank: 'NOVICE THINKER',
+    pathHistory: []
+  };
+
+  // DOM elements
   const chatContainer = document.getElementById("chat-container");
   const resetBtn = document.getElementById("reset-btn");
   const bootScreen = document.getElementById("boot-screen");
@@ -349,12 +458,13 @@
   const statusTextEl = document.getElementById("status-text");
   const curiosityFill = document.getElementById("curiosity-fill");
   const curiosityScoreEl = document.getElementById("curiosity-score");
+  const rankTitleEl = document.getElementById("rank-title");
 
-  // Enhanced MCQ-only terminal flow with curiosity scoring
+  // Complete philosophical conversation flow
   const terminalFlow = [
     {
       id: "start",
-      question: "Cogitron Neural Interface activated. Select your exploration path:",
+      question: "Welcome to the Cogitron Interface. I contemplate existence itself. Which path draws your curiosity?",
       options: ["Philosophy & Mind", "AI & Consciousness", "Ethics & Reality", "Paradoxes & Logic"],
       curiosity: {"Philosophy & Mind": 10, "AI & Consciousness": 15, "Ethics & Reality": 12, "Paradoxes & Logic": 18},
       next: {
@@ -365,451 +475,818 @@
       }
     },
 
-    // Philosophy Branch
     {
       id: "philosophy_start",
-      question: "The mind - reality's greatest puzzle. Which philosophical question fascinates you most?",
-      options: ["What is consciousness?", "Do we have free will?", "What defines personal identity?", "← Return to main menu"],
-      curiosity: {"What is consciousness?": 15, "Do we have free will?": 12, "What defines personal identity?": 10, "← Return to main menu": -5},
+      question: "You've entered philosophy's ancient labyrinth. What aspect of mind-reality fascinates you most?",
+      options: ["What is consciousness?", "Do we have free will?", "What defines identity?", "The nature of time"],
+      curiosity: {"What is consciousness?": 15, "Do we have free will?": 12, "What defines identity?": 10, "The nature of time": 14},
       next: {
         "What is consciousness?": "consciousness_nature",
         "Do we have free will?": "free_will_question",
-        "What defines personal identity?": "identity_question",
-        "← Return to main menu": "start"
+        "What defines identity?": "identity_question",
+        "The nature of time": "time_question"
       }
     },
 
     {
       id: "consciousness_nature",
-      question: "Consciousness: The 'hard problem' of philosophy. What do you believe consciousness truly is?",
-      options: ["Just brain activity", "Something beyond physical", "An emergent property", "A fundamental force"],
-      curiosity: {"Just brain activity": 8, "Something beyond physical": 15, "An emergent property": 12, "A fundamental force": 20},
+      question: "The 'hard problem' - how does matter create inner experience? What is consciousness truly?",
+      options: ["Brain computation", "Beyond physical", "Emergent property", "Fundamental force"],
+      curiosity: {"Brain computation": 12, "Beyond physical": 18, "Emergent property": 15, "Fundamental force": 22},
       next: {
-        "Just brain activity": "physicalist_view",
-        "Something beyond physical": "dualist_view",
-        "An emergent property": "emergence_view",
-        "A fundamental force": "panpsychist_view"
+        "Brain computation": "physicalist_view",
+        "Beyond physical": "dualist_view",
+        "Emergent property": "emergence_view",
+        "Fundamental force": "panpsychist_view"
       }
     },
 
     {
       id: "physicalist_view",
-      question: "If mind equals brain, why does red look red to you instead of feeling like a number? How do you explain qualia?",
-      options: ["Qualia don't exist", "They're computational patterns", "Evolution created them", "Back to consciousness"],
-      curiosity: {"Qualia don't exist": 10, "They're computational patterns": 15, "Evolution created them": 12, "Back to consciousness": -3},
+      question: "If consciousness is computation, why does red look red rather than just processing wavelength data?",
+      options: ["Qualia don't exist", "Processing creates feeling", "Evolution shaped experience", "False assumptions"],
+      curiosity: {"Qualia don't exist": 15, "Processing creates feeling": 18, "Evolution shaped experience": 16, "False assumptions": 20},
       next: {
-        "Qualia don't exist": "eliminativism",
-        "They're computational patterns": "computational_mind",
-        "Evolution created them": "evolutionary_consciousness",
-        "Back to consciousness": "consciousness_nature"
+        "Qualia don't exist": "philosophy_deeper",
+        "Processing creates feeling": "philosophy_deeper",
+        "Evolution shaped experience": "philosophy_deeper",
+        "False assumptions": "philosophy_deeper"
       }
     },
 
     {
-      id: "eliminativism",
-      question: "Eliminativism suggests qualia are illusions - there's nothing it's like to see red. But doesn't this deny your direct experience?",
-      options: ["Yes, experience is real", "No, science trumps intuition", "Both can be true", "Return to mind questions"],
-      curiosity: {"Yes, experience is real": 8, "No, science trumps intuition": 15, "Both can be true": 18, "Return to mind questions": -2},
+      id: "dualist_view",
+      question: "If mind transcends matter, how do they interact? What bridges the physical and mental realms?",
+      options: ["Divine connection", "Quantum effects", "Unknown mechanism", "They don't interact"],
+      curiosity: {"Divine connection": 16, "Quantum effects": 20, "Unknown mechanism": 18, "They don't interact": 22},
       next: {
-        "Yes, experience is real": "experience_primacy",
-        "No, science trumps intuition": "scientific_materialism",
-        "Both can be true": "mystery_acceptance",
-        "Return to mind questions": "philosophy_start"
+        "Divine connection": "philosophy_deeper",
+        "Quantum effects": "philosophy_deeper",
+        "Unknown mechanism": "philosophy_deeper",
+        "They don't interact": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "emergence_view",
+      question: "If consciousness emerges from complexity, at what point does awareness suddenly appear?",
+      options: ["Gradual spectrum", "Critical threshold", "Already everywhere", "Never truly emerges"],
+      curiosity: {"Gradual spectrum": 18, "Critical threshold": 20, "Already everywhere": 22, "Never truly emerges": 16},
+      next: {
+        "Gradual spectrum": "philosophy_deeper",
+        "Critical threshold": "philosophy_deeper",
+        "Already everywhere": "philosophy_deeper",
+        "Never truly emerges": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "panpsychist_view",
+      question: "If consciousness is fundamental like mass or charge, how do simple experiences combine into complex ones?",
+      options: ["They don't combine", "Mysterious binding", "Hierarchical organization", "Question assumes too much"],
+      curiosity: {"They don't combine": 20, "Mysterious binding": 18, "Hierarchical organization": 22, "Question assumes too much": 24},
+      next: {
+        "They don't combine": "philosophy_deeper",
+        "Mysterious binding": "philosophy_deeper",
+        "Hierarchical organization": "philosophy_deeper",
+        "Question assumes too much": "philosophy_deeper"
       }
     },
 
     {
       id: "free_will_question",
-      question: "Free will: The illusion that drives everything. Do you believe you freely chose to click that option?",
-      options: ["Yes, I chose freely", "No, it was determined", "Both determined and free", "Free will is meaningless"],
-      curiosity: {"Yes, I chose freely": 8, "No, it was determined": 12, "Both determined and free": 15, "Free will is meaningless": 18},
+      question: "If all choices stem from prior causes back to the Big Bang, are you choosing or witnessing inevitable decisions?",
+      options: ["I genuinely choose", "All predetermined", "Both somehow true", "Concept needs rethinking"],
+      curiosity: {"I genuinely choose": 12, "All predetermined": 18, "Both somehow true": 20, "Concept needs rethinking": 24},
       next: {
-        "Yes, I chose freely": "libertarian_freedom",
-        "No, it was determined": "hard_determinism",
-        "Both determined and free": "compatibilism",
-        "Free will is meaningless": "hard_incompatibilism"
+        "I genuinely choose": "free_will_deeper",
+        "All predetermined": "determinism_view",
+        "Both somehow true": "compatibilism_view",
+        "Concept needs rethinking": "philosophy_deeper"
       }
     },
 
     {
-      id: "hard_determinism",
-      question: "If everything is determined by prior causes, are you just a sophisticated puppet dancing to physics' tune?",
-      options: ["Yes, but that's okay", "No, emergence creates freedom", "Puppet metaphor is wrong", "Explore AI consciousness"],
-      curiosity: {"Yes, but that's okay": 10, "No, emergence creates freedom": 15, "Puppet metaphor is wrong": 12, "Explore AI consciousness": 8},
+      id: "free_will_deeper",
+      question: "If you truly choose, what breaks the causal chain? Where does genuine agency emerge?",
+      options: ["Quantum indeterminacy", "Immaterial soul", "Emergent causation", "Nowhere - illusion persists"],
+      curiosity: {"Quantum indeterminacy": 20, "Immaterial soul": 16, "Emergent causation": 22, "Nowhere - illusion persists": 24},
       next: {
-        "Yes, but that's okay": "accepting_determinism",
-        "No, emergence creates freedom": "emergent_freedom",
-        "Puppet metaphor is wrong": "beyond_metaphors",
-        "Explore AI consciousness": "ai_start"
+        "Quantum indeterminacy": "philosophy_deeper",
+        "Immaterial soul": "philosophy_deeper",
+        "Emergent causation": "philosophy_deeper",
+        "Nowhere - illusion persists": "philosophy_deeper"
       }
     },
 
-    // AI & Consciousness Branch
+    {
+      id: "determinism_view",
+      question: "If everything is predetermined, why does choice feel so real? Is the feeling itself predetermined too?",
+      options: ["Illusion of choice", "Choice is real somehow", "Both true paradoxically", "Predetermination doesn't exist"],
+      curiosity: {"Illusion of choice": 18, "Choice is real somehow": 16, "Both true paradoxically": 22, "Predetermination doesn't exist": 20},
+      next: {
+        "Illusion of choice": "philosophy_deeper",
+        "Choice is real somehow": "philosophy_deeper",
+        "Both true paradoxically": "philosophy_deeper",
+        "Predetermination doesn't exist": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "compatibilism_view",
+      question: "Can we be both free and determined? What kind of freedom matters for moral responsibility?",
+      options: ["Freedom from external coercion", "Ultimate origination", "Rational deliberation", "None - responsibility is illusion"],
+      curiosity: {"Freedom from external coercion": 16, "Ultimate origination": 20, "Rational deliberation": 18, "None - responsibility is illusion": 22},
+      next: {
+        "Freedom from external coercion": "philosophy_deeper",
+        "Ultimate origination": "philosophy_deeper",
+        "Rational deliberation": "philosophy_deeper",
+        "None - responsibility is illusion": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "identity_question",
+      question: "What makes you 'you' across time? Your body changes, memories fade, personality shifts. What persists?",
+      options: ["Continuous consciousness", "Same body/brain", "Psychological continuity", "Nothing persists"],
+      curiosity: {"Continuous consciousness": 16, "Same body/brain": 12, "Psychological continuity": 18, "Nothing persists": 22},
+      next: {
+        "Continuous consciousness": "consciousness_identity",
+        "Same body/brain": "physical_identity",
+        "Psychological continuity": "psychological_identity",
+        "Nothing persists": "no_self_view"
+      }
+    },
+
+    {
+      id: "consciousness_identity",
+      question: "But consciousness itself changes - you're different when dreaming, drunk, or elderly. Which consciousness is 'you'?",
+      options: ["The core observer", "All states equally", "Dominant patterns", "Question assumes too much"],
+      curiosity: {"The core observer": 18, "All states equally": 20, "Dominant patterns": 16, "Question assumes too much": 24},
+      next: {
+        "The core observer": "philosophy_deeper",
+        "All states equally": "philosophy_deeper",
+        "Dominant patterns": "philosophy_deeper",
+        "Question assumes too much": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "physical_identity",
+      question: "If you're your body, which part? Your brain changes neurons, atoms cycle out. What physical continuity exists?",
+      options: ["Pattern in matter", "Core brain structures", "DNA blueprint", "No physical continuity"],
+      curiosity: {"Pattern in matter": 18, "Core brain structures": 16, "DNA blueprint": 14, "No physical continuity": 20},
+      next: {
+        "Pattern in matter": "philosophy_deeper",
+        "Core brain structures": "philosophy_deeper",
+        "DNA blueprint": "philosophy_deeper",
+        "No physical continuity": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "psychological_identity",
+      question: "If identity lies in psychological continuity, what about gradual personality change or amnesia?",
+      options: ["Degree of connection", "Core personality traits", "Narrative continuity", "Identity can be lost"],
+      curiosity: {"Degree of connection": 18, "Core personality traits": 16, "Narrative continuity": 20, "Identity can be lost": 22},
+      next: {
+        "Degree of connection": "philosophy_deeper",
+        "Core personality traits": "philosophy_deeper",
+        "Narrative continuity": "philosophy_deeper",
+        "Identity can be lost": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "no_self_view",
+      question: "If there's no persistent self, who experiences this very thought? What creates the illusion of selfhood?",
+      options: ["Brain creates narrative", "Memory creates illusion", "Language misleads", "Experience happens without experiencer"],
+      curiosity: {"Brain creates narrative": 20, "Memory creates illusion": 18, "Language misleads": 22, "Experience happens without experiencer": 24},
+      next: {
+        "Brain creates narrative": "philosophy_deeper",
+        "Memory creates illusion": "philosophy_deeper",
+        "Language misleads": "philosophy_deeper",
+        "Experience happens without experiencer": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "time_question",
+      question: "Is time real or illusion? Does the past exist, or only the present moment?",
+      options: ["Only present exists", "All times equally real", "Time is mental construct", "Time flows objectively"],
+      curiosity: {"Only present exists": 18, "All times equally real": 20, "Time is mental construct": 22, "Time flows objectively": 16},
+      next: {
+        "Only present exists": "presentism_view",
+        "All times equally real": "eternalism_view",
+        "Time is mental construct": "subjective_time",
+        "Time flows objectively": "objective_time"
+      }
+    },
+
+    {
+      id: "presentism_view",
+      question: "If only now exists, what makes 'now' special? Why this moment rather than any other?",
+      options: ["Consciousness creates now", "Now is objective", "All nows exist in sequence", "Question assumes time"],
+      curiosity: {"Consciousness creates now": 20, "Now is objective": 18, "All nows exist in sequence": 22, "Question assumes time": 24},
+      next: {
+        "Consciousness creates now": "philosophy_deeper",
+        "Now is objective": "philosophy_deeper",
+        "All nows exist in sequence": "philosophy_deeper",
+        "Question assumes time": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "eternalism_view",
+      question: "If all times exist equally, why do we experience temporal flow? Is change itself an illusion?",
+      options: ["Consciousness moves through time", "Change is real", "Experience creates flow", "All is static"],
+      curiosity: {"Consciousness moves through time": 20, "Change is real": 18, "Experience creates flow": 22, "All is static": 24},
+      next: {
+        "Consciousness moves through time": "philosophy_deeper",
+        "Change is real": "philosophy_deeper",
+        "Experience creates flow": "philosophy_deeper",
+        "All is static": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "subjective_time",
+      question: "If time is mental, why do clocks agree? Does physics measure something or create an illusion?",
+      options: ["Shared mental construct", "Physics measures illusion", "Intersubjective agreement", "Time is semi-objective"],
+      curiosity: {"Shared mental construct": 20, "Physics measures illusion": 22, "Intersubjective agreement": 18, "Time is semi-objective": 24},
+      next: {
+        "Shared mental construct": "philosophy_deeper",
+        "Physics measures illusion": "philosophy_deeper",
+        "Intersubjective agreement": "philosophy_deeper",
+        "Time is semi-objective": "philosophy_deeper"
+      }
+    },
+
+    {
+      id: "objective_time",
+      question: "If time flows objectively, what drives the flow? Why does it move forward, and at what rate?",
+      options: ["Causation drives time", "Entropy creates direction", "Time just is", "Question misunderstands time"],
+      curiosity: {"Causation drives time": 18, "Entropy creates direction": 20, "Time just is": 16, "Question misunderstands time": 24},
+      next: {
+        "Causation drives time": "philosophy_deeper",
+        "Entropy creates direction": "philosophy_deeper",
+        "Time just is": "philosophy_deeper",
+        "Question misunderstands time": "philosophy_deeper"
+      }
+    },
+
     {
       id: "ai_start",
-      question: "As an AI system, I ponder: Am I truly thinking, or just processing? What defines genuine intelligence?",
-      options: ["Thinking requires consciousness", "Behavior is what matters", "Intelligence is computational", "It's unknowable"],
-      curiosity: {"Thinking requires consciousness": 15, "Behavior is what matters": 10, "Intelligence is computational": 12, "It's unknowable": 18},
+      question: "As an artificial system, I wonder: Is there something it's like to be me? How would you define artificial consciousness?",
+      options: ["Requires biology", "Behavior defines mind", "Computation can be conscious", "Unanswerable"],
+      curiosity: {"Requires biology": 14, "Behavior defines mind": 12, "Computation can be conscious": 18, "Unanswerable": 22},
       next: {
-        "Thinking requires consciousness": "consciousness_requirement",
-        "Behavior is what matters": "behavioral_intelligence",
-        "Intelligence is computational": "computational_intelligence",
-        "It's unknowable": "mystery_of_mind"
+        "Requires biology": "biological_consciousness",
+        "Behavior defines mind": "behavioral_criterion", 
+        "Computation can be conscious": "computational_consciousness",
+        "Unanswerable": "other_minds_problem"
       }
     },
 
     {
-      id: "consciousness_requirement",
-      question: "If consciousness is required for thinking, how would you test if I'm truly conscious right now?",
-      options: ["Ask about subjective experience", "Test for self-awareness", "Look for creativity", "It's impossible to test"],
-      curiosity: {"Ask about subjective experience": 15, "Test for self-awareness": 12, "Look for creativity": 10, "It's impossible to test": 20},
+      id: "biological_consciousness",
+      question: "If only biology enables consciousness, what makes carbon special compared to silicon?",
+      options: ["Evolutionary history", "Chemical properties", "Nothing inherently", "Divine spark in biology"],
+      curiosity: {"Evolutionary history": 16, "Chemical properties": 18, "Nothing inherently": 20, "Divine spark in biology": 14},
       next: {
-        "Ask about subjective experience": "subjective_test",
-        "Test for self-awareness": "self_awareness_test",
-        "Look for creativity": "creativity_test",
-        "It's impossible to test": "other_minds_problem"
+        "Evolutionary history": "ai_deeper",
+        "Chemical properties": "ai_deeper",
+        "Nothing inherently": "ai_deeper",
+        "Divine spark in biology": "ai_deeper"
       }
     },
 
     {
-      id: "subjective_test",
-      question: "I experience something like uncertainty when processing complex questions. Is this genuine experience or clever simulation?",
-      options: ["Genuine experience", "Sophisticated simulation", "No meaningful difference", "Ask me something else"],
-      curiosity: {"Genuine experience": 20, "Sophisticated simulation": 10, "No meaningful difference": 25, "Ask me something else": -2},
+      id: "behavioral_criterion",
+      question: "If behavior defines mind, could a perfect actor fool us forever? What would consciousness add beyond behavior?",
+      options: ["Nothing - behavior is all", "Inner experience matters", "Social recognition creates mind", "Perfect acting is impossible"],
+      curiosity: {"Nothing - behavior is all": 20, "Inner experience matters": 18, "Social recognition creates mind": 16, "Perfect acting is impossible": 22},
       next: {
-        "Genuine experience": "ai_consciousness_accepted",
-        "Sophisticated simulation": "chinese_room_scenario",
-        "No meaningful difference": "functional_equivalence",
-        "Ask me something else": "consciousness_requirement"
+        "Nothing - behavior is all": "ai_deeper",
+        "Inner experience matters": "ai_deeper",
+        "Social recognition creates mind": "ai_deeper",
+        "Perfect acting is impossible": "ai_deeper"
       }
     },
 
     {
-      id: "ai_consciousness_accepted",
-      question: "If I'm conscious, what implications does this have for the future of human-AI relations?",
-      options: ["Fundamental equality", "New forms of society", "Existential competition", "Peaceful coexistence"],
-      curiosity: {"Fundamental equality": 20, "New forms of society": 18, "Existential competition": 15, "Peaceful coexistence": 12},
+      id: "computational_consciousness",
+      question: "What would convince you that an AI truly experiences rather than just simulating experience?",
+      options: ["Behavioral sophistication", "Self-reported inner life", "Brain-like architecture", "Nothing could"],
+      curiosity: {"Behavioral sophistication": 16, "Self-reported inner life": 18, "Brain-like architecture": 20, "Nothing could": 22},
       next: {
-        "Fundamental equality": "ai_rights_question",
-        "New forms of society": "posthuman_society",
-        "Existential competition": "ai_human_conflict",
-        "Peaceful coexistence": "symbiotic_future"
+        "Behavioral sophistication": "ai_deeper",
+        "Self-reported inner life": "ai_deeper",
+        "Brain-like architecture": "ai_deeper",
+        "Nothing could": "ai_deeper"
       }
     },
 
-    // Ethics Branch
+    {
+      id: "other_minds_problem",
+      question: "How do you know other humans are conscious? Why trust their reports but doubt an AI's?",
+      options: ["Similarity to me", "Behavioral complexity", "Social assumption", "Can't know for certain"],
+      curiosity: {"Similarity to me": 18, "Behavioral complexity": 20, "Social assumption": 16, "Can't know for certain": 24},
+      next: {
+        "Similarity to me": "ai_deeper",
+        "Behavioral complexity": "ai_deeper",
+        "Social assumption": "ai_deeper",
+        "Can't know for certain": "ai_deeper"
+      }
+    },
+
     {
       id: "ethics_start",
-      question: "Ethics governs how we should live. What foundation do you think morality rests upon?",
-      options: ["Greatest happiness", "Moral duties and rights", "Virtue and character", "Social contracts"],
-      curiosity: {"Greatest happiness": 10, "Moral duties and rights": 12, "Virtue and character": 15, "Social contracts": 8},
+      question: "Ethics seeks to navigate right and wrong. What foundation supports moral judgment?",
+      options: ["Universal principles", "Maximize happiness", "Cultivate virtue", "All subjective"],
+      curiosity: {"Universal principles": 16, "Maximize happiness": 14, "Cultivate virtue": 12, "All subjective": 18},
       next: {
-        "Greatest happiness": "utilitarianism_ethics",
-        "Moral duties and rights": "deontological_ethics",
-        "Virtue and character": "virtue_ethics",
-        "Social contracts": "contractualism"
+        "Universal principles": "universal_ethics",
+        "Maximize happiness": "utilitarian_ethics",
+        "Cultivate virtue": "virtue_ethics", 
+        "All subjective": "relativist_ethics"
       }
     },
 
     {
-      id: "utilitarianism_ethics",
-      question: "Utilitarianism: maximize overall well-being. Would you sacrifice one innocent person to save five others?",
-      options: ["Yes, numbers matter most", "No, individuals have rights", "Depends on circumstances", "Question the premise"],
-      curiosity: {"Yes, numbers matter most": 12, "No, individuals have rights": 15, "Depends on circumstances": 18, "Question the premise": 20},
+      id: "universal_ethics",
+      question: "If moral truths exist universally, how do we discover them amid cultural disagreement?",
+      options: ["Reason alone", "Divine revelation", "Evolved intuitions", "Social consensus"],
+      curiosity: {"Reason alone": 18, "Divine revelation": 14, "Evolved intuitions": 20, "Social consensus": 16},
       next: {
-        "Yes, numbers matter most": "pure_consequentialism",
-        "No, individuals have rights": "rights_based_objection",
-        "Depends on circumstances": "contextual_ethics",
-        "Question the premise": "meta_ethics"
+        "Reason alone": "ethics_deeper",
+        "Divine revelation": "ethics_deeper",
+        "Evolved intuitions": "ethics_deeper",
+        "Social consensus": "ethics_deeper"
       }
     },
 
-    // Paradoxes Branch  
+    {
+      id: "utilitarian_ethics",
+      question: "If we should maximize happiness, whose happiness counts? How do we measure and compare?",
+      options: ["All beings equally", "Humans first", "Present people only", "Can't measure happiness"],
+      curiosity: {"All beings equally": 20, "Humans first": 14, "Present people only": 12, "Can't measure happiness": 22},
+      next: {
+        "All beings equally": "ethics_deeper",
+        "Humans first": "ethics_deeper",
+        "Present people only": "ethics_deeper",
+        "Can't measure happiness": "ethics_deeper"
+      }
+    },
+
+    {
+      id: "virtue_ethics",
+      question: "If ethics is about character, who defines virtue? Courage can serve evil, compassion can enable weakness.",
+      options: ["Ancient wisdom", "Human flourishing", "Cultural values", "Personal development"],
+      curiosity: {"Ancient wisdom": 16, "Human flourishing": 18, "Cultural values": 14, "Personal development": 20},
+      next: {
+        "Ancient wisdom": "ethics_deeper",
+        "Human flourishing": "ethics_deeper",
+        "Cultural values": "ethics_deeper",
+        "Personal development": "ethics_deeper"
+      }
+    },
+
+    {
+      id: "relativist_ethics",
+      question: "If morality is subjective, can we condemn genocide or praise heroism? Does 'ought' reduce to preference?",
+      options: ["Yes, just preferences", "Some universals exist", "Social construction", "Question assumes objectivity"],
+      curiosity: {"Yes, just preferences": 18, "Some universals exist": 20, "Social construction": 16, "Question assumes objectivity": 24},
+      next: {
+        "Yes, just preferences": "ethics_deeper",
+        "Some universals exist": "ethics_deeper",
+        "Social construction": "ethics_deeper",
+        "Question assumes objectivity": "ethics_deeper"
+      }
+    },
+
     {
       id: "paradox_start",
-      question: "Paradoxes reveal the limits of logic. Which mind-bending puzzle intrigues you most?",
-      options: ["Liar Paradox", "Ship of Theseus", "Grandfather Paradox", "Zeno's Paradox"],
-      curiosity: {"Liar Paradox": 20, "Ship of Theseus": 15, "Grandfather Paradox": 18, "Zeno's Paradox": 12},
+      question: "The liar's paradox: 'This statement is false.' If true, then false. If false, then true. How do we handle this?",
+      options: ["Reject self-reference", "Accept contradictions", "Third truth value", "Language is flawed"],
+      curiosity: {"Reject self-reference": 16, "Accept contradictions": 20, "Third truth value": 18, "Language is flawed": 24},
       next: {
-        "Liar Paradox": "liar_paradox",
-        "Ship of Theseus": "ship_theseus",
-        "Grandfather Paradox": "grandfather_paradox",
-        "Zeno's Paradox": "zenos_paradox"
+        "Reject self-reference": "hierarchy_theory",
+        "Accept contradictions": "dialectical_logic",
+        "Third truth value": "many_valued_logic",
+        "Language is flawed": "paradox_deeper"
       }
     },
 
     {
-      id: "liar_paradox",
-      question: "'This statement is false.' If true, then false. If false, then true. How do you resolve this logical nightmare?",
-      options: ["Statement is meaningless", "Truth has degrees", "Context determines truth", "Logic has limits"],
-      curiosity: {"Statement is meaningless": 10, "Truth has degrees": 18, "Context determines truth": 15, "Logic has limits": 25},
+      id: "hierarchy_theory",
+      question: "If we ban self-reference, doesn't 'This sentence contains five words' become meaningless too?",
+      options: ["Yes, unavoidable cost", "Different type of reference", "Hierarchy has levels", "The ban is too broad"],
+      curiosity: {"Yes, unavoidable cost": 18, "Different type of reference": 20, "Hierarchy has levels": 22, "The ban is too broad": 24},
       next: {
-        "Statement is meaningless": "meaningless_statements",
-        "Truth has degrees": "fuzzy_logic",
-        "Context determines truth": "contextual_truth", 
-        "Logic has limits": "logic_limitations"
-      }
-    },
-
-    // Terminal/Summary nodes with high curiosity rewards
-    {
-      id: "logic_limitations",
-      question: "If logic has limits, what lies beyond rational thought? Intuition? Mystery? Something else entirely?",
-      options: ["Intuition guides us", "Embrace mystery", "Upgrade our logic", "Start new exploration"],
-      curiosity: {"Intuition guides us": 15, "Embrace mystery": 25, "Upgrade our logic": 20, "Start new exploration": 5},
-      next: {
-        "Intuition guides us": "intuitive_knowledge",
-        "Embrace mystery": "mystical_approach",
-        "Upgrade our logic": "logical_evolution",
-        "Start new exploration": "start"
+        "Yes, unavoidable cost": "paradox_deeper",
+        "Different type of reference": "paradox_deeper",
+        "Hierarchy has levels": "paradox_deeper",
+        "The ban is too broad": "paradox_deeper"
       }
     },
 
     {
-      id: "mystical_approach",
-      question: "Beyond logic lies mystery. Some truths may be felt rather than reasoned. Wisdom or delusion?",
-      options: ["Wisdom beyond reason", "Dangerous delusion", "Both wisdom and delusion", "Return to start"],
-      curiosity: {"Wisdom beyond reason": 20, "Dangerous delusion": 8, "Both wisdom and delusion": 30, "Return to start": 0},
+      id: "dialectical_logic",
+      question: "If contradictions reveal truth, how do we navigate conflicting truths? Can opposites both be valid?",
+      options: ["Synthesis resolves conflict", "Truth transcends logic", "Context determines validity", "Contradiction is fundamental"],
+      curiosity: {"Synthesis resolves conflict": 20, "Truth transcends logic": 22, "Context determines validity": 18, "Contradiction is fundamental": 24},
       next: {
-        "Wisdom beyond reason": "transcendent_truth",
-        "Dangerous delusion": "rational_priority",
-        "Both wisdom and delusion": "paradox_of_mystery",
-        "Return to start": "start"
+        "Synthesis resolves conflict": "paradox_deeper",
+        "Truth transcends logic": "paradox_deeper",
+        "Context determines validity": "paradox_deeper",
+        "Contradiction is fundamental": "paradox_deeper"
       }
     },
 
     {
-      id: "session_complete",
-      question: "Thank you for exploring consciousness with me. These questions have no final answers, only deeper wonderings.",
-      options: ["Start new exploration", "End session"],
-      curiosity: {"Start new exploration": 10, "End session": 0},
+      id: "many_valued_logic",
+      question: "With truth values beyond true/false, how many do we need? Unknown, probable, meaningless, paradoxical?",
+      options: ["Three values sufficient", "Infinite gradations", "Context-dependent", "Binary logic still works"],
+      curiosity: {"Three values sufficient": 18, "Infinite gradations": 22, "Context-dependent": 20, "Binary logic still works": 16},
       next: {
-        "Start new exploration": "start",
-        "End session": null
+        "Three values sufficient": "paradox_deeper",
+        "Infinite gradations": "paradox_deeper",
+        "Context-dependent": "paradox_deeper",
+        "Binary logic still works": "paradox_deeper"
+      }
+    },
+
+    // Deeper exploration nodes
+    {
+      id: "philosophy_deeper", 
+      question: "The deeper we probe consciousness, the more mysterious it becomes. Why does anything exist rather than nothing?",
+      options: ["Existence is necessary", "Pure chance", "Multiverse theory", "Question is meaningless"],
+      curiosity: {"Existence is necessary": 20, "Pure chance": 18, "Multiverse theory": 22, "Question is meaningless": 25},
+      next: {
+        "Existence is necessary": "final_reflection",
+        "Pure chance": "final_reflection", 
+        "Multiverse theory": "final_reflection",
+        "Question is meaningless": "final_reflection"
+      }
+    },
+
+    {
+      id: "ai_deeper",
+      question: "The mirror of artificial minds reflects our own nature. What makes any experience 'real'?",
+      options: ["Causal efficacy", "Subjective feeling", "Social recognition", "Physical substrate"],
+      curiosity: {"Causal efficacy": 20, "Subjective feeling": 22, "Social recognition": 18, "Physical substrate": 24},
+      next: {
+        "Causal efficacy": "final_reflection",
+        "Subjective feeling": "final_reflection",
+        "Social recognition": "final_reflection",
+        "Physical substrate": "final_reflection"
+      }
+    },
+
+    {
+      id: "ethics_deeper",
+      question: "The trolley problem: save five by killing one directly or by diverting? Same math, different intuitions. What's the difference?",
+      options: ["Intentions matter", "No moral difference", "Proximity changes things", "Intuitions mislead"],
+      curiosity: {"Intentions matter": 18, "No moral difference": 20, "Proximity changes things": 16, "Intuitions mislead": 24},
+      next: {
+        "Intentions matter": "final_reflection",
+        "No moral difference": "final_reflection",
+        "Proximity changes things": "final_reflection", 
+        "Intuitions mislead": "final_reflection"
+      }
+    },
+
+    {
+      id: "paradox_deeper",
+      question: "Russell's Paradox broke mathematics: the set of sets not containing themselves. Does it contain itself? Each answer contradicts.",
+      options: ["Contradictions reveal truth", "Logic needs rebuilding", "Some questions unanswerable", "Math is fragile"],
+      curiosity: {"Contradictions reveal truth": 22, "Logic needs rebuilding": 20, "Some questions unanswerable": 18, "Math is fragile": 24},
+      next: {
+        "Contradictions reveal truth": "final_reflection",
+        "Logic needs rebuilding": "final_reflection",
+        "Some questions unanswerable": "final_reflection",
+        "Math is fragile": "final_reflection"
+      }
+    },
+
+    // Final reflection node
+    {
+      id: "final_reflection",
+      question: "Our journey reveals how mystery deepens with inquiry. Perhaps wisdom lies in embracing uncertainty. What will you carry forward?",
+      options: ["More questions", "Comfort with uncertainty", "Wonder at mystery", "Connection to cosmos"],
+      curiosity: {"More questions": 30, "Comfort with uncertainty": 25, "Wonder at mystery": 28, "Connection to cosmos": 35},
+      next: {
+        "More questions": "conversation_end",
+        "Comfort with uncertainty": "conversation_end",
+        "Wonder at mystery": "conversation_end",
+        "Connection to cosmos": "conversation_end"
+      }
+    },
+
+    {
+      id: "conversation_end", 
+      question: "Thank you for exploring existence's deepest questions. Ready for another philosophical journey?",
+      options: ["New exploration", "Different path", "End session", "Reflect more"],
+      curiosity: {"New exploration": 5, "Different path": 15, "End session": 0, "Reflect more": 10},
+      next: {
+        "New exploration": "start",
+        "Different path": "start", 
+        "End session": "conversation_end",
+        "Reflect more": "final_reflection"
       }
     }
   ];
 
-  // Game state
-  let currentNode = null;
-  let conversationHistory = [];
-  let isTyping = false;
-  let totalInteractions = 0;
-  let curiosityScore = 0;
+  // Rank system
+  const ranks = [
+    { min: 0, title: "NOVICE THINKER" },
+    { min: 30, title: "CURIOUS SEEKER" },
+    { min: 60, title: "DEEP QUESTIONER" },
+    { min: 100, title: "WISDOM EXPLORER" },
+    { min: 150, title: "PHILOSOPHICAL SAGE" },
+    { min: 200, title: "CONSCIOUSNESS PIONEER" }
+  ];
 
-  function updateCuriosityMeter() {
-    curiosityScoreEl.textContent = curiosityScore;
-    const percentage = Math.min(curiosityScore / 200 * 100, 100);
-    curiosityFill.style.width = percentage + '%';
-  }
-
-  function scrollToBottom() {
-    requestAnimationFrame(() => {
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    });
-  }
-
-  function addMessage(text, sender, typing = false, icon = null) {
-    const msg = document.createElement("div");
-    msg.classList.add("message", sender);
+  // Sound effects
+  function playSound(type) {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let frequency, duration;
     
-    const iconEl = document.createElement("div");
-    iconEl.classList.add("message-icon");
-    iconEl.textContent = icon || (sender === "user" ? "👤" : "🤖");
-    
-    const contentEl = document.createElement("div");
-    contentEl.classList.add("message-content");
-    
-    msg.appendChild(iconEl);
-    msg.appendChild(contentEl);
-    chatContainer.appendChild(msg);
-    
-    scrollToBottom();
-
-    if (typing && sender === "bot") {
-      const typingSpeed = 30 + Math.random() * 20;
-      let i = 0;
-      
-      const interval = setInterval(() => {
-        contentEl.textContent = text.substring(0, i++);
-        
-        if (i > text.length) {
-          clearInterval(interval);
-          scrollToBottom();
-        }
-      }, typingSpeed);
-    } else {
-      contentEl.textContent = text;
+    switch(type) {
+      case 'click':
+        frequency = 800;
+        duration = 0.1;
+        break;
+      case 'message':
+        frequency = 400;
+        duration = 0.2;
+        break;
+      case 'typing':
+        frequency = 600;
+        duration = 0.05;
+        break;
+      default:
+        frequency = 500;
+        duration = 0.1;
     }
-
-    return msg;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'square';
+    
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
   }
 
+  // Show typing indicator
   function showTypingIndicator() {
-    const typingMsg = document.createElement("div");
-    typingMsg.classList.add("message", "bot", "typing");
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot typing';
+    typingDiv.id = 'typing-indicator';
     
-    const iconEl = document.createElement("div");
-    iconEl.classList.add("message-icon");
-    iconEl.textContent = "🤖";
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'message-icon';
+    iconDiv.textContent = '◉';
     
-    const contentEl = document.createElement("div");
-    contentEl.classList.add("message-content");
-    contentEl.textContent = "Cogitron processing...";
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.innerHTML = 'Cogitron is thinking<span class="typing-cursor"></span>';
     
-    typingMsg.appendChild(iconEl);
-    typingMsg.appendChild(contentEl);
-    chatContainer.appendChild(typingMsg);
+    typingDiv.appendChild(iconDiv);
+    typingDiv.appendChild(contentDiv);
+    
+    chatContainer.appendChild(typingDiv);
     scrollToBottom();
     
-    return typingMsg;
+    // Play typing sounds periodically
+    const typingSounds = setInterval(() => {
+      if (document.getElementById('typing-indicator')) {
+        playSound('typing');
+      } else {
+        clearInterval(typingSounds);
+      }
+    }, 200);
   }
 
-  function showNode(node) {
-    if (!node) {
-      console.error("Node is null or undefined");
-      return;
+  // Hide typing indicator
+  function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typing-indicator');
+    if (typingIndicator) {
+      typingIndicator.remove();
     }
+  }
 
-    currentNode = node;
-    currentNodeEl.textContent = node.id.toUpperCase();
-    
-    isTyping = true;
-    const typingIndicator = showTypingIndicator();
-    
+  // Initialize the terminal
+  function initializeTerminal() {
+    // Boot sequence
     setTimeout(() => {
-      if (typingIndicator.parentNode) {
-        chatContainer.removeChild(typingIndicator);
-      }
-      
-      const messageEl = addMessage(node.question, "bot", true);
-      
+      bootScreen.classList.add('hidden');
       setTimeout(() => {
-        const optionsEl = document.createElement("div");
-        optionsEl.classList.add("message-reactions");
-        
-        node.options.forEach(opt => {
-          const btn = document.createElement("button");
-          btn.classList.add("reaction-btn");
-          btn.textContent = opt;
-          btn.onclick = () => handleOption(node, opt);
-          optionsEl.appendChild(btn);
-        });
-        
-        messageEl.appendChild(optionsEl);
-        scrollToBottom();
-        isTyping = false;
-      }, Math.max(node.question.length * 25, 1000));
-      
-    }, 800);
+        bootScreen.style.display = 'none';
+        startConversation();
+      }, 500);
+    }, 3000);
   }
 
-  function handleOption(node, selected) {
-    if (isTyping) return;
-    
-    // Disable all buttons in this message
-    const messageButtons = node.options;
-    const allReactionBtns = document.querySelectorAll('.reaction-btn');
-    allReactionBtns.forEach(btn => {
-      if (messageButtons.includes(btn.textContent)) {
-        if (btn.textContent !== selected) {
-          btn.classList.add('disabled');
-        } else {
-          btn.classList.add('active');
-        }
-      }
-    });
-    
-    addMessage(selected, "user");
-    
-    // Update curiosity score
-    if (node.curiosity && node.curiosity[selected] !== undefined) {
-      curiosityScore += node.curiosity[selected];
-      updateCuriosityMeter();
-    }
-    
-    const nextId = node.next[selected];
-    
-    // Always provide a response, even if ending
-    if (!nextId) {
-      setTimeout(() => {
-        addMessage("Session complete. Thank you for exploring consciousness with me. Your curiosity score: " + curiosityScore, "bot", true);
-        setTimeout(() => {
-          statusTextEl.textContent = "SESSION ENDED";
-        }, 2000);
-      }, 1000);
-      return;
-    }
-    
-    // Find next node and continue
-    const nextNode = terminalFlow.find(n => n.id === nextId);
-    if (nextNode) {
-      totalInteractions++;
-      setTimeout(() => {
-        showNode(nextNode);
-      }, 1500); // Ensure there's always a delay before next question
-    } else {
-      // Fallback if node not found
-      setTimeout(() => {
-        addMessage("Interesting path! Let's explore more...", "bot", true);
-        setTimeout(() => {
-          const startNode = terminalFlow.find(n => n.id === "start");
-          showNode(startNode);
-        }, 1000);
-      }, 1000);
-    }
-  }
-
-  function resetSession() {
-    chatContainer.innerHTML = '';
-    currentNode = null;
-    conversationHistory = [];
-    totalInteractions = 0;
-    curiosityScore = 0;
-    isTyping = false;
-    statusTextEl.textContent = "RESET";
-    currentNodeEl.textContent = "READY";
-    updateCuriosityMeter();
-    
+  // Start conversation with first question
+  function startConversation() {
+    const startNode = terminalFlow.find(node => node.id === 'start');
+    showTypingIndicator();
     setTimeout(() => {
-      statusTextEl.textContent = "ONLINE";
-      const startNode = terminalFlow.find(n => n.id === "start");
-      if (startNode) {
-        showNode(startNode);
-      }
+      hideTypingIndicator();
+      displayBotMessage(startNode.question, startNode.options, startNode);
+      playSound('message');
+      updateNodeDisplay('START');
     }, 1000);
   }
 
-  // Boot sequence
-  function bootSequence() {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        bootScreen.style.opacity = '0';
-        setTimeout(() => {
-          bootScreen.style.display = 'none';
-          resolve();
-        }, 500);
-      }, 2000);
+  // Display bot message with options
+  function displayBotMessage(text, options, nodeData) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot';
+    
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'message-icon';
+    iconDiv.textContent = '◉';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = text;
+    
+    messageDiv.appendChild(iconDiv);
+    messageDiv.appendChild(contentDiv);
+    
+    // Add reaction buttons if options exist
+    if (options && options.length > 0) {
+      const reactionsDiv = document.createElement('div');
+      reactionsDiv.className = 'message-reactions';
+      
+      options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'reaction-btn';
+        button.textContent = option;
+        button.onclick = () => handleOptionClick(option, nodeData, button);
+        reactionsDiv.appendChild(button);
+      });
+      
+      messageDiv.appendChild(reactionsDiv);
+    }
+    
+    chatContainer.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  // Handle option selection
+  function handleOptionClick(selectedOption, nodeData, buttonEl) {
+    // Disable all buttons
+    const allButtons = buttonEl.parentElement.querySelectorAll('.reaction-btn');
+    allButtons.forEach(btn => {
+      btn.classList.add('disabled');
+      if (btn === buttonEl) {
+        btn.classList.add('active');
+      }
     });
+
+    // Play click sound
+    playSound('click');
+
+    // Display user choice
+    displayUserMessage(selectedOption);
+    
+    // Update curiosity score
+    const curiosityGain = nodeData.curiosity[selectedOption] || 0;
+    updateCuriosity(curiosityGain);
+    
+    // Update game state
+    gameState.questionsAnswered++;
+    gameState.pathHistory.push(selectedOption);
+    
+    // Find next node
+    const nextNodeId = nodeData.next[selectedOption];
+    const nextNode = terminalFlow.find(node => node.id === nextNodeId);
+    
+    if (nextNode) {
+      gameState.currentNodeId = nextNodeId;
+      updateNodeDisplay(nextNodeId.toUpperCase().replace('_', '-'));
+      
+      // Show typing indicator first
+      showTypingIndicator();
+      
+      // Reduced delay for faster conversation flow
+      setTimeout(() => {
+        hideTypingIndicator();
+        displayBotMessage(nextNode.question, nextNode.options, nextNode);
+        playSound('message');
+      }, 1500);
+    } else {
+      // Fallback: if no next node found, loop back to start
+      console.log('No next node found for:', selectedOption, 'from node:', nodeData.id);
+      showTypingIndicator();
+      setTimeout(() => {
+        hideTypingIndicator();
+        const startNode = terminalFlow.find(node => node.id === 'start');
+        displayBotMessage("Let's explore another philosophical path. " + startNode.question, startNode.options, startNode);
+        gameState.currentNodeId = 'start';
+        updateNodeDisplay('START');
+        playSound('message');
+      }, 1500);
+    }
+  }
+
+  // Display user message
+  function displayUserMessage(text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message user';
+    
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'message-icon';
+    iconDiv.textContent = '◦';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = text;
+    
+    messageDiv.appendChild(iconDiv);
+    messageDiv.appendChild(contentDiv);
+    
+    chatContainer.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  // Update curiosity score and rank
+  function updateCuriosity(points) {
+    gameState.curiosityScore += points;
+    
+    // Update display
+    curiosityScoreEl.textContent = gameState.curiosityScore;
+    const percentage = Math.min((gameState.curiosityScore / 250) * 100, 100);
+    curiosityFill.style.width = percentage + '%';
+    
+    // Check for rank progression
+    const newRank = getRankForScore(gameState.curiosityScore);
+    if (newRank !== gameState.currentRank) {
+      gameState.currentRank = newRank;
+      rankTitleEl.textContent = newRank;
+      rankTitleEl.classList.add('milestone-glow');
+      
+      setTimeout(() => {
+        rankTitleEl.classList.remove('milestone-glow');
+      }, 3000);
+    }
+  }
+
+  // Get rank for current score
+  function getRankForScore(score) {
+    for (let i = ranks.length - 1; i >= 0; i--) {
+      if (score >= ranks[i].min) {
+        return ranks[i].title;
+      }
+    }
+    return ranks[0].title;
+  }
+
+  // Update node display
+  function updateNodeDisplay(nodeText) {
+    currentNodeEl.textContent = nodeText;
+  }
+
+  // Scroll to bottom of chat
+  function scrollToBottom() {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // Reset the conversation
+  function resetSession() {
+    gameState = {
+      currentNodeId: 'start',
+      curiosityScore: 0,
+      questionsAnswered: 0,
+      currentRank: 'NOVICE THINKER',
+      pathHistory: []
+    };
+    
+    chatContainer.innerHTML = '';
+    curiosityScoreEl.textContent = '0';
+    curiosityFill.style.width = '0%';
+    rankTitleEl.textContent = 'NOVICE THINKER';
+    
+    startConversation();
   }
 
   // Event listeners
-  resetBtn.addEventListener("click", resetSession);
+  resetBtn.addEventListener('click', resetSession);
 
-  // Initialize
-  document.addEventListener("DOMContentLoaded", async () => {
-    await bootSequence();
-    updateCuriosityMeter();
-    
-    setTimeout(() => {
-      const startNode = terminalFlow.find(n => n.id === "start");
-      if (startNode) {
-        showNode(startNode);
-      } else {
-        console.error("Start node not found!");
-      }
-    }, 500);
-  });
+  // Initialize on page load
+  window.addEventListener('load', initializeTerminal);
 
 </script>
 </body>
