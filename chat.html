@@ -957,21 +957,35 @@
     const responseDelay = 1200 + Math.random() * 800;
 
     setTimeout(() => {
+      // Clear typing sound when removing indicator
+      if (typingIndicator.typingSoundInterval) {
+        clearInterval(typingIndicator.typingSoundInterval);
+      }
       chatContainer.removeChild(typingIndicator);
+      
       const reply = getBotReply(text);
       
       playBeep(600, 80);
       
-      // Ensure only one message is added at a time
-      const messagePromise = new Promise((resolve) => {
-        addMessage(reply, "bot", true);
-        // Wait for typing animation to complete
-        setTimeout(resolve, reply.length * 25 + 500);
-      });
-
-      messagePromise.then(() => {
-        // Save to memory only after message is fully displayed
-        conversationHistory.push({ user: text, bot: reply });
+      // Handle both string and object responses
+      let responseText, followUpText = null;
+      
+      if (typeof reply === 'object' && reply.text) {
+        responseText = reply.text;
+        if (reply.question && reply.options) {
+          followUpText = `\n\n${reply.question}\nChoose: ${reply.options.join(" | ")}`;
+        }
+      } else {
+        responseText = reply;
+      }
+      
+      // Add the main response with follow-up if it exists
+      const fullResponse = responseText + (followUpText || "");
+      addMessage(fullResponse, "bot", true);
+      
+      // Save to memory after message is displayed
+      setTimeout(() => {
+        conversationHistory.push({ user: text, bot: fullResponse });
         if (conversationHistory.length > 8) conversationHistory.shift();
         
         updateCuriosityScore();
@@ -981,7 +995,7 @@
         
         // Schedule next random thought only after current interaction is complete
         scheduleRandomThought();
-      });
+      }, fullResponse.length * 25 + 500);
       
     }, responseDelay);
   }
