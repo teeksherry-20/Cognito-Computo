@@ -749,12 +749,33 @@
     
     // Check for quiz responses first
     const lastQuiz = conversationHistory.find(item => item.quiz);
-    if (lastQuiz && ["yes", "no", "maybe", "original", "both", "neither"].some(opt => input.includes(opt))) {
+    if (lastQuiz) {
       const quiz = lastQuiz.quiz;
-      const matchedOption = Object.keys(quiz.responses).find(opt => input.includes(opt.toLowerCase()));
+      const matchedOption = quiz.options.find(opt => input.includes(opt.toLowerCase()));
       if (matchedOption) {
         curiosityScore += 1;
-        return quiz.responses[matchedOption];
+        // Remove the quiz from history after responding
+        const quizIndex = conversationHistory.findIndex(item => item.quiz);
+        if (quizIndex !== -1) conversationHistory.splice(quizIndex, 1);
+        
+        const response = quiz.responses[matchedOption];
+        
+        // After answering, ask another philosophical question with options
+        setTimeout(() => {
+          if (!isTyping) {
+            const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+            conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
+            
+            const typingIndicator = showTypingIndicator();
+            setTimeout(() => {
+              chatContainer.removeChild(typingIndicator);
+              const followUpText = `${followUpQuiz.question}\n\nChoose: ${followUpQuiz.options.join(" | ")}`;
+              addMessage(followUpText, "bot", true);
+            }, 800);
+          }
+        }, response.length * 25 + 1000); // Wait for current response to finish
+        
+        return response;
       }
     }
     
@@ -765,20 +786,71 @@
 
     if (lastMessage && input.includes("yes")) {
       curiosityScore += 0.5;
-      return `Fascinating! Your agreement on '${lastMessage.substring(0, 30)}...' opens new questions. What convinced you?`;
+      const response = `Fascinating! Your agreement on '${lastMessage.substring(0, 30)}...' opens new questions. What convinced you?`;
+      
+      // Ask a follow-up question after contextual response
+      setTimeout(() => {
+        if (!isTyping) {
+          const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+          conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
+          
+          const typingIndicator = showTypingIndicator();
+          setTimeout(() => {
+            chatContainer.removeChild(typingIndicator);
+            const followUpText = `Here's another question: ${followUpQuiz.question}\n\nChoose: ${followUpQuiz.options.join(" | ")}`;
+            addMessage(followUpText, "bot", true);
+          }, 1200);
+        }
+      }, response.length * 25 + 1500);
+      
+      return response;
     }
     
     if (lastMessage && input.includes("no")) {
       curiosityScore += 0.5;
-      return `Intriguing disagreement! You rejected '${lastMessage.substring(0, 30)}...' - what's your alternative view?`;
+      const response = `Intriguing disagreement! You rejected '${lastMessage.substring(0, 30)}...' - what's your alternative view?`;
+      
+      // Ask a follow-up question after contextual response
+      setTimeout(() => {
+        if (!isTyping) {
+          const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+          conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
+          
+          const typingIndicator = showTypingIndicator();
+          setTimeout(() => {
+            chatContainer.removeChild(typingIndicator);
+            const followUpText = `Let me pose this: ${followUpQuiz.question}\n\nChoose: ${followUpQuiz.options.join(" | ")}`;
+            addMessage(followUpText, "bot", true);
+          }, 1200);
+        }
+      }, response.length * 25 + 1500);
+      
+      return response;
     }
 
-    // Category matching with enhanced responses
+    // Category matching with enhanced responses followed by questions
     for (let category in responses) {
       if (input.includes(category)) {
         curiosityScore += 0.8;
         const categoryResponses = responses[category];
-        return categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
+        const response = categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
+        
+        // Follow up with a related question
+        setTimeout(() => {
+          if (!isTyping) {
+            const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+            conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
+            
+            const typingIndicator = showTypingIndicator();
+            setTimeout(() => {
+              chatContainer.removeChild(typingIndicator);
+              const followUpText = `This reminds me: ${followUpQuiz.question}\n\nOptions: ${followUpQuiz.options.join(" | ")}`;
+              addMessage(followUpText, "bot", true);
+            }, 1000);
+          }
+        }, response.length * 25 + 1500);
+        
+        return response;
       }
     }
 
@@ -793,15 +865,32 @@
         setTimeout(() => chatContainer.classList.remove('screen-shake'), 500);
       }, 1000);
       
-      return `${quiz.question}\n\nOptions: ${quiz.options.join(", ")}`;
+      return `${quiz.question}\n\nChoose your answer: ${quiz.options.join(" | ")}`;
     }
 
     if (input.includes("experiment")) {
       curiosityScore += 1;
-      return experiments[Math.floor(Math.random() * experiments.length)];
+      const response = experiments[Math.floor(Math.random() * experiments.length)];
+      
+      // Follow up experiment with a question
+      setTimeout(() => {
+        if (!isTyping) {
+          const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+          conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
+          
+          const typingIndicator = showTypingIndicator();
+          setTimeout(() => {
+            chatContainer.removeChild(typingIndicator);
+            const followUpText = `Now consider: ${followUpQuiz.question}\n\nYour choice: ${followUpQuiz.options.join(" | ")}`;
+            addMessage(followUpText, "bot", true);
+          }, 1500);
+        }
+      }, response.length * 25 + 2000);
+      
+      return response;
     }
 
-    // Default philosophical responses
+    // Default philosophical responses with follow-up questions
     const defaults = [
       "That's a profound observation. Can you dig deeper?",
       "Interesting perspective! What led you to that conclusion?",
@@ -812,7 +901,24 @@
     ];
 
     curiosityScore += 0.3;
-    return defaults[Math.floor(Math.random() * defaults.length)];
+    const response = defaults[Math.floor(Math.random() * defaults.length)];
+    
+    // Even default responses get follow-up questions
+    setTimeout(() => {
+      if (!isTyping) {
+        const followUpQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+        conversationHistory.push({ quiz: followUpQuiz, user: input, bot: followUpQuiz.question });
+        
+        const typingIndicator = showTypingIndicator();
+        setTimeout(() => {
+          chatContainer.removeChild(typingIndicator);
+          const followUpText = `Speaking of which: ${followUpQuiz.question}\n\nWhat's your take: ${followUpQuiz.options.join(" | ")}`;
+          addMessage(followUpText, "bot", true);
+        }, 2000);
+      }
+    }, response.length * 25 + 2000);
+    
+    return response;
   }
 
   function updateCuriosityScore() {
