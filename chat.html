@@ -1501,16 +1501,17 @@
     
     // Disable all buttons in this message
     const messageButtons = node.options;
-    const allReactionBtns = document.querySelectorAll('.reaction-btn');
-    allReactionBtns.forEach(btn => {
-      if (messageButtons.includes(btn.textContent)) {
-        if (btn.textContent !== selected) {
-          btn.classList.add('disabled');
-        } else {
-          btn.classList.add('active');
-        }
-      }
-    });
+    // Only disable buttons within the same message
+const parentMessage = event.target.closest('.message');
+const reactionBtns = parentMessage.querySelectorAll('.reaction-btn');
+reactionBtns.forEach(btn => {
+  if (btn.textContent !== selected) {
+    btn.classList.add('disabled');
+  } else {
+    btn.classList.add('active');
+  }
+});
+
     
     addMessage(selected, "user");
     questionCount++;
